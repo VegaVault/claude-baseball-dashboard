@@ -1,0 +1,52 @@
+# Project: Baseball Daily Dashboard
+
+## What this is
+A daily MLB dashboard showing per-game matchup info: probable pitchers with
+xFIP/xwOBA/IP (current + prior year), lineups with xwOBA + handedness, and
+team-level hitting/pitching/defense ranks. Updates lineups as they're
+confirmed pre-game, freezes at first pitch, posts Discord cards at T-60.
+
+## Stack
+- Python 3.11
+- pybaseball (FanGraphs + Savant data)
+- MLB Stats API via `statsapi` package (schedule, lineups, scores)
+- Streamlit (dashboard UI)
+- GitHub Actions (scheduled jobs)
+- Streamlit Community Cloud (hosting)
+- Discord webhook (notifications)
+
+## Rules for Claude Code
+1. **One phase at a time.** Do not skip ahead. Ask before starting the next phase.
+2. **Test each fetcher standalone** with a `if __name__ == "__main__":` block
+   that prints sample output. I will run it and paste results back.
+3. **Never swallow errors silently.** If a scraper fails, log it clearly and
+   let the snapshot continue with partial data. The JSON should include a
+   `fetch_errors` field listing what failed.
+4. **Do not write speculative code** for Phase 8 items (weather, ump, etc.)
+   until v1 is working end-to-end.
+5. **Respect the schema** in `docs/schema.md` (to be created in Phase 0).
+   If you need to change it, propose the change first.
+6. **Snapshots are immutable after first pitch.** The lineup updater MUST
+   check `status` and `first_pitch_utc` before writing.
+7. **Use the Chadwick register cache.** pybaseball's `playerid_lookup` is
+   slow without caching — enable it.
+8. **All times in the JSON are UTC.** Convert to ET only in the Streamlit UI.
+
+## Data sources cheat sheet
+| What | Source | How |
+|---|---|---|
+| Schedule, game_pk, first pitch | MLB Stats API | `statsapi.schedule()` |
+| Confirmed lineups | MLB Stats API | `statsapi.boxscore_data(game_pk)` |
+| Projected lineups | MLB Stats API | last game's lineup vs same-hand SP |
+| Final scores | MLB Stats API | `statsapi.schedule()` with date |
+| Probable pitchers (official) | MLB Stats API | in `statsapi.schedule()` |
+| Probable pitchers (early) | FanGraphs scrape | roster-resource/probables-grid |
+| Pitcher xFIP, IP | pybaseball | `pitching_stats(year)` from FanGraphs |
+| Pitcher xwOBA allowed | pybaseball | `statcast_pitcher_expected_stats()` |
+| Batter xwOBA | pybaseball | `statcast_batter_expected_stats()` |
+| Handedness | pybaseball | `playerid_lookup` + MLB API |
+| Team xwOBA, xwOBA-against | Savant leaderboards | direct CSV endpoint |
+| Team OAA | Savant leaderboards | direct CSV endpoint |
+
+## Current phase
+Phase 0 — scaffolding. See ROADMAP.md for full plan.

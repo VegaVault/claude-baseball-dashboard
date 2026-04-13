@@ -18,10 +18,12 @@ import pybaseball
 
 try:
     from src.models import PitcherSeasonStats
+    from src.fetch.labels import percentile_to_label, compute_percentiles
 except ModuleNotFoundError:
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     from src.models import PitcherSeasonStats
+    from src.fetch.labels import percentile_to_label, compute_percentiles
 
 logger = logging.getLogger(__name__)
 
@@ -152,27 +154,66 @@ def fetch_pitcher_stats(year: int) -> dict[str, PitcherSeasonStats]:
     except Exception as e:
         logger.error("Savant xwOBA failed for %d: %s", year, e)
 
-    # --- Merge ---
-    result: dict[str, PitcherSeasonStats] = {}
+    # --- Merge into flat dict first ---
+    merged: dict[str, dict] = {}
 
-    # Start from bref stats, resolve to mlbam_id via name crosswalk
     for name, stats in bref_stats.items():
         mlbam = name_to_mlbam.get(name)
         if not mlbam:
-            continue  # can't tie to an MLBAM ID — skip
-        result[mlbam] = PitcherSeasonStats(
-            ip=stats.get("ip"),
-            fip=stats.get("fip"),
-            era_plus=stats.get("era_plus"),
-            xwoba=xwoba_data.get(mlbam),
-        )
+            continue
+        merged[mlbam] = {
+            "ip":    stats.get("ip"),
+            "fip":   stats.get("fip"),
+            "era_plus": stats.get("era_plus"),
+            "xwoba": xwoba_data.get(mlbam),
+        }
 
-    # Also add any Savant-only entries (e.g. relievers with <10 IP but ≥10 PA faced)
     for mlbam, xwoba in xwoba_data.items():
-        if mlbam not in result:
-            result[mlbam] = PitcherSeasonStats(
-                ip=None, fip=None, era_plus=None, xwoba=xwoba
-            )
+        if mlbam not in merged:
+            merged[mlbam] = {"ip": None, "fip": None, "era_plus": None, "xwoba": xwoba}
+
+    # --- Compute percentiles across full pool ---
+    # xwOBA-against: lower is better → invert
+    ids      = list(merged.keys())
+    xwobas   = [merged[m]["xwoba"] for m in ids]
+    fips     = [merged[m]["fip"]   for m in ids]
+
+    # Only rank pitchers that have the stat
+    xwoba_valid = [(i, v) for i, v in enumerate(xwobas) if v is not None]
+    fip_valid   = [(i, v) for i, v in enumerate(fips)   if v is not None]
+
+    xwoba_pcts: dict[int, int] = {}
+    if xwoba_valid:
+        idxs, vals = zip(*xwoba_valid)
+        for idx, pct in zip(idxs, compute_percentiles(list(vals), higher_is_better=False)):
+            xwoba_pcts[idx] = pct
+
+    fip_pcts: dict[int, int] = {}
+    if fip_valid:
+        idxs, vals = zip(*fip_valid)
+        for idx, pct in zip(idxs, compute_percentiles(list(vals), higher_is_better=False)):
+            fip_pcts[idx] = pct
+
+    # IP threshold for "qualified" (prorated: ~1 IP/game × 16 games ≈ 20 IP)
+    QUALIFY_IP = 20
+
+    result: dict[str, PitcherSeasonStats] = {}
+    for i, mlbam in enumerate(ids):
+        m = merged[mlbam]
+        ip = m["ip"]
+        xp = xwoba_pcts.get(i)
+        fp = fip_pcts.get(i)
+        result[mlbam] = PitcherSeasonStats(
+            ip=ip,
+            fip=m["fip"],
+            era_plus=m["era_plus"],
+            xwoba=m["xwoba"],
+            xwoba_percentile=xp,
+            xwoba_label=percentile_to_label(xp) if xp is not None else None,
+            fip_percentile=fp,
+            fip_label=percentile_to_label(fp) if fp is not None else None,
+            qualified=(ip is not None and ip >= QUALIFY_IP),
+        )
 
     return result
 

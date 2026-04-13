@@ -12,6 +12,10 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 import streamlit as st
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parents[2]))
+from src.fetch.labels import rank_to_grade, overall_grade
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 DATA_DIR = Path(__file__).parents[2] / "data"
@@ -84,23 +88,34 @@ def render_team_ranks(game: dict) -> None:
     tr_a = game["team_ranks"].get("away") or {}
     tr_h = game["team_ranks"].get("home") or {}
 
-    st.markdown("**Team Rankings** &nbsp;*(1 = best out of 30)*", unsafe_allow_html=True)
+    h_a  = tr_a.get("hitting_xwoba_rank")
+    h_h  = tr_h.get("hitting_xwoba_rank")
+    p_a  = tr_a.get("pitching_xwoba_against_rank")
+    p_h  = tr_h.get("pitching_xwoba_against_rank")
+    d_a  = tr_a.get("defense_oaa_rank")
+    d_h  = tr_h.get("defense_oaa_rank")
 
-    metrics = [
-        ("⚔️ Hitting xwOBA",      tr_a.get("hitting_xwoba_rank"),             tr_h.get("hitting_xwoba_rank")),
-        ("🛡 Pitching xwOBA-Against", tr_a.get("pitching_xwoba_against_rank"), tr_h.get("pitching_xwoba_against_rank")),
-        ("🧤 Defense OAA",          tr_a.get("defense_oaa_rank"),              tr_h.get("defense_oaa_rank")),
+    rows = [
+        ("⚔️ Offense",  h_a, h_h),
+        ("🛡 Pitching", p_a, p_h),
+        ("🧤 Defense",  d_a, d_h),
+        ("📊 Overall",
+         None if all(x is None for x in [h_a, p_a, d_a]) else round((sum(x for x in [h_a, p_a, d_a] if x) / len([x for x in [h_a, p_a, d_a] if x]))),
+         None if all(x is None for x in [h_h, p_h, d_h]) else round((sum(x for x in [h_h, p_h, d_h] if x) / len([x for x in [h_h, p_h, d_h] if x])))),
     ]
 
     col_label, col_away, col_home = st.columns([3, 1, 1])
+    col_label.markdown("**Category**")
     col_away.markdown(f"**{away}**")
     col_home.markdown(f"**{home}**")
 
-    for label, av, hv in metrics:
+    for label, av, hv in rows:
         col_label, col_away, col_home = st.columns([3, 1, 1])
         col_label.write(label)
-        col_away.metric(label=" ", value=rank_label(av), label_visibility="collapsed")
-        col_home.metric(label=" ", value=rank_label(hv), label_visibility="collapsed")
+        ga = rank_to_grade(av)
+        gh = rank_to_grade(hv)
+        col_away.markdown(f"**{ga}** &nbsp;<span style='color:#888;font-size:0.8rem'>{rank_label(av)}</span>", unsafe_allow_html=True)
+        col_home.markdown(f"**{gh}** &nbsp;<span style='color:#888;font-size:0.8rem'>{rank_label(hv)}</span>", unsafe_allow_html=True)
 
 
 def render_lineup_badge(status: str) -> None:
@@ -128,6 +143,17 @@ def render_pitcher_card(pitcher: dict | None, team: str, side: str, current_year
     cy = pitcher.get("current_year") or {}
     py = pitcher.get("prior_year") or {}
 
+    def pitcher_label_str(stats: dict) -> str:
+        if not stats:
+            return "—"
+        parts = []
+        if stats.get("xwoba_label"):
+            flag = " ⚠" if not stats.get("qualified", True) else ""
+            parts.append(f"xwOBA: {stats['xwoba_label']}{flag}")
+        if stats.get("fip_label"):
+            parts.append(f"FIP: {stats['fip_label']}")
+        return " · ".join(parts) if parts else "—"
+
     rows = []
     for yr, stats in [(current_year, cy), (prior_year, py)]:
         rows.append({
@@ -136,6 +162,7 @@ def render_pitcher_card(pitcher: dict | None, team: str, side: str, current_year
             "FIP":    fmt_stat(stats.get("fip"), 2)   if stats else "—",
             "ERA+":   fmt_int(stats.get("era_plus"))  if stats else "—",
             "xwOBA":  fmt_stat(stats.get("xwoba"), 3) if stats else "—",
+            "Labels": pitcher_label_str(stats)         if stats else "—",
         })
 
     st.dataframe(
@@ -154,11 +181,17 @@ def render_lineup_table(lineup: list[dict], current_year: int) -> None:
     for b in sorted(lineup, key=lambda x: x.get("order", 99)):
         cy = b.get("current_year") or {}
         py = b.get("prior_year") or {}
+
+        label = cy.get("xwoba_label") or "—"
+        if cy.get("xwoba_label") and not cy.get("qualified", True):
+            label += " ⚠"
+
         rows.append({
             "#":                     b.get("order", "?"),
             "Name":                  b.get("name", "?"),
             "B":                     b.get("bats") or "?",
             f"xwOBA '{str(current_year)[-2:]}": fmt_stat(cy.get("xwoba"), 3),
+            "Label":                 label,
             f"PA '{str(current_year)[-2:]}":    fmt_int(cy.get("pa")),
             f"xwOBA '{str(prior_year)[-2:]}":   fmt_stat(py.get("xwoba"), 3),
         })

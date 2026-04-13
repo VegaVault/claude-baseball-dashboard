@@ -1,0 +1,27 @@
+baseball-dashboard/
+├── .github/workflows/
+│   ├── morning-snapshot.yml      # 9am ET daily
+│   └── lineup-updates.yml        # Every 15 min
+├── src/
+│   ├── fetch/
+│   │   ├── schedule.py           # MLB Stats API: today's games
+│   │   ├── probables.py          # FanGraphs scrape + MLB API fallback
+│   │   ├── lineups.py            # MLB Stats API: projected + confirmed
+│   │   ├── pitcher_stats.py      # pybaseball: xFIP, xwOBA, IP (cur+prior yr)
+│   │   ├── batter_stats.py       # pybaseball: xwOBA (cur+prior yr)
+│   │   ├── team_stats.py         # Savant: team xwOBA, xwOBA-against, OAA
+│   │   └── handedness.py         # Chadwick register via pybaseball
+│   ├── build/
+│   │   ├── snapshot.py           # Orchestrates full morning build
+│   │   └── lineup_update.py      # Lightweight lineup-only update
+│   ├── notify/
+│   │   └── discord.py            # Webhook poster, T-60 per game
+│   ├── dashboard/
+│   │   └── app.py                # Streamlit app
+│   └── models.py                 # Dataclasses: Game, Pitcher, Lineup, etc.
+├── data/
+│   └── YYYY-MM-DD.json           # Daily snapshots
+├── tests/
+├── requirements.txt
+├── CLAUDE.md                     # Instructions for Claude Code
+└── README.md

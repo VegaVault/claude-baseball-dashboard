@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"from src.models import DailySnapshot, Game, Pitcher, Batter, PitcherSeasonStats, BatterSeasonStats, TeamRanks; print\\('models OK'\\)\")",
+      "Bash(python3 -c \"from src.models import DailySnapshot, Game, Pitcher, Batter, PitcherSeasonStats, BatterSeasonStats, TeamRanks; print\\('models OK'\\)\")",
+      "Bash(py -c \"from src.models import DailySnapshot, Game, Pitcher, Batter, PitcherSeasonStats, BatterSeasonStats, TeamRanks; print\\('models OK'\\)\")",
+      "Bash(where python:*)",
+      "Read(//c/Users/fonzy/AppData/Local/Programs/**)",
+      "Bash(ls /c/Python*)",
+      "Read(//c/Users/fonzy/AppData/Roaming/**)",
+      "Read(//c/Users/fonzy/**)",
+      "Bash(/c/Users/fonzy/anaconda3/python.exe -c \"from src.models import DailySnapshot, Game, Pitcher, Batter, PitcherSeasonStats, BatterSeasonStats, TeamRanks; print\\('models OK'\\)\")",
+      "Bash(/c/Users/fonzy/anaconda3/python.exe src/fetch/schedule.py)",
+      "Bash(/c/Users/fonzy/anaconda3/python.exe -c ':*)",
+      "Bash(/c/Users/fonzy/anaconda3/python.exe src/fetch/probables.py)",
+      "Bash(/c/Users/fonzy/anaconda3/python.exe src/build/snapshot.py 2026-04-13)"
+    ]
+  }
+}

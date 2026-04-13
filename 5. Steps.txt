@@ -1,0 +1,5 @@
+Create a new public GitHub repo called baseball-dashboard (public = free unlimited Actions).
+Clone it locally, drop in the CLAUDE.md above and a copy of this roadmap as ROADMAP.md.
+Open the repo in Claude Code and say: "Read CLAUDE.md and ROADMAP.md, then execute Phase 0."
+After Phase 0, hand it Phase 1 fetchers one at a time. Run each standalone, verify output looks right, then move on.
+Set up a Discord webhook (Server Settings → Integrations → Webhooks) before Phase 6 and add it as a GitHub Actions secret named DISCORD_WEBHOOK_URL.

@@ -1,0 +1,21 @@
+┌─────────────────────────────────────────────────────────┐
+│                    GitHub Repo (public)                  │
+│                                                           │
+│  ┌──────────────┐    ┌──────────────┐   ┌────────────┐  │
+│  │ GitHub       │    │ GitHub       │   │ Streamlit  │  │
+│  │ Action:      │    │ Action:      │   │ Cloud      │  │
+│  │ 9am snapshot │    │ Every 15min  │   │ (reads     │  │
+│  │              │    │ lineup check │   │ data/*.json│  │
+│  │              │    │ + Discord    │   │ from repo) │  │
+│  └──────┬───────┘    └──────┬───────┘   └─────┬──────┘  │
+│         │                   │                  │         │
+│         ▼                   ▼                  ▼         │
+│      data/2026-04-12.json (committed snapshots)         │
+└─────────────────────────────────────────────────────────┘
+         │                   │
+         ▼                   ▼
+   External APIs:      Discord Webhook
+   - MLB Stats API
+   - pybaseball
+   - FanGraphs scrape
+   - Savant scrape

@@ -17,6 +17,11 @@ class PitcherSeasonStats:
     fip: Optional[float]
     era_plus: Optional[int]
     xwoba: Optional[float]
+    xwoba_percentile: Optional[int] = None
+    xwoba_label: Optional[str] = None
+    fip_percentile: Optional[int] = None
+    fip_label: Optional[str] = None
+    qualified: bool = False
 
 
 @dataclass
@@ -32,6 +37,9 @@ class Pitcher:
 class BatterSeasonStats:
     pa: int
     xwoba: Optional[float]
+    xwoba_percentile: Optional[int] = None
+    xwoba_label: Optional[str] = None
+    qualified: bool = False
 
 
 @dataclass

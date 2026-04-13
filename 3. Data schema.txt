@@ -1,0 +1,37 @@
+{
+  "date": "2026-04-12",
+  "last_updated": "2026-04-12T13:05:00Z",
+  "games": [
+    {
+      "game_pk": 12345,
+      "status": "scheduled|in_progress|final",
+      "first_pitch_utc": "2026-04-12T23:05:00Z",
+      "away_team": "NYY",
+      "home_team": "BOS",
+      "final_score": null,
+      "lineup_status": "projected|confirmed|frozen",
+      "lineup_last_checked": "2026-04-12T21:30:00Z",
+      "pitchers": {
+        "away": {
+          "name": "...", "mlbam_id": "...", "throws": "R",
+          "current_year": { "ip": 12.1, "xfip": 3.45, "xwoba": 0.310 },
+          "prior_year":   { "ip": 180.0, "xfip": 3.80, "xwoba": 0.320 }
+        },
+        "home": { ... }
+      },
+      "lineups": {
+        "away": [
+          { "order": 1, "name": "...", "mlbam_id": "...", "bats": "L",
+            "current_year": { "pa": 42, "xwoba": 0.340 },
+            "prior_year":   { "pa": 610, "xwoba": 0.355 } },
+          ...
+        ],
+        "home": [ ... ]
+      },
+      "team_ranks": {
+        "away": { "hitting_xwoba_rank": 3, "pitching_xwoba_against_rank": 12, "defense_oaa_rank": 8 },
+        "home": { "hitting_xwoba_rank": 18, "pitching_xwoba_against_rank": 6, "defense_oaa_rank": 22 }
+      }
+    }
+  ]
+}
