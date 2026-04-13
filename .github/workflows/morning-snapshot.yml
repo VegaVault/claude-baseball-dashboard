@@ -2,32 +2,45 @@ name: Morning Snapshot
 
 on:
   schedule:
-    # 9am ET = 13:00 UTC (standard time). During EDT (Mar-Nov) this runs at 8am ET.
-    # Adjust to 12:00 UTC during summer if needed, or use a broader window.
+    # 9am ET during baseball season (EDT = UTC-4).
+    # Runs at 8am ET in winter (EST = UTC-5) — acceptable since season is Apr-Oct.
     - cron: "0 13 * * *"
-  workflow_dispatch:  # allow manual trigger
+  workflow_dispatch: # allow manual trigger from GitHub UI
+
+permissions:
+  contents: write  # needed to commit data/ back to repo
 
 jobs:
   snapshot:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run snapshot
+      - name: Run snapshot builder
         run: python -m src.build.snapshot
 
-      - name: Commit snapshot
+      - name: Commit and push snapshot
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
-          git diff --cached --quiet || git commit -m "snapshot: $(date -u +%Y-%m-%d)"
-          git push
+          git diff --cached --quiet \
+            && echo "No changes to commit." \
+            || (git commit -m "snapshot: $(date -u +%Y-%m-%d)" && git push)
