@@ -1,0 +1,38 @@
+name: Lineup Updates
+
+on:
+  schedule:
+    # Every 15 minutes during game hours: roughly 15:00–04:00 UTC (11am–midnight ET)
+    - cron: "*/15 15-23 * * *"
+    - cron: "*/15 0-4 * * *"
+  workflow_dispatch:  # allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Update lineups
+        run: python -m src.build.lineup_update
+
+      - name: Send Discord notifications
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python -m src.notify.discord
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "lineups: $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push

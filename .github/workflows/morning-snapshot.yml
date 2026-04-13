@@ -1,0 +1,33 @@
+name: Morning Snapshot
+
+on:
+  schedule:
+    # 9am ET = 13:00 UTC (standard time). During EDT (Mar-Nov) this runs at 8am ET.
+    # Adjust to 12:00 UTC during summer if needed, or use a broader window.
+    - cron: "0 13 * * *"
+  workflow_dispatch:  # allow manual trigger
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run snapshot
+        run: python -m src.build.snapshot
+
+      - name: Commit snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "snapshot: $(date -u +%Y-%m-%d)"
+          git push
