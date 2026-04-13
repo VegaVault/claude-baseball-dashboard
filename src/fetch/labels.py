@@ -77,3 +77,27 @@ def overall_grade(hitting_rank: int | None,
     if not valid:
         return "—"
     return rank_to_grade(round(sum(valid) / len(valid)), n)
+
+
+def rank_to_score(rank: int | None, n: int = 30) -> float | None:
+    """Convert a 1-based rank (1=best) to a 0.0–1.0 score (1.0=best)."""
+    if rank is None:
+        return None
+    return 1.0 - (rank - 1) / (n - 1)
+
+
+def score_to_grade(score: float) -> str:
+    """Convert a 0.0–1.0 score directly to a letter grade."""
+    if score >= 0.93: return "A+"
+    if score >= 0.87: return "A"
+    if score >= 0.80: return "A-"
+    if score >= 0.73: return "B+"
+    if score >= 0.67: return "B"
+    if score >= 0.60: return "B-"
+    if score >= 0.53: return "C+"
+    if score >= 0.47: return "C"
+    if score >= 0.40: return "C-"
+    if score >= 0.33: return "D+"
+    if score >= 0.27: return "D"
+    if score >= 0.20: return "D-"
+    return "F"

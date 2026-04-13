@@ -17,13 +17,18 @@ from pathlib import Path
 # Allow running as script directly
 sys.path.insert(0, str(Path(__file__).parents[2]))
 
-from src.fetch.schedule   import fetch_schedule
-from src.fetch.probables  import fetch_probables_mlbapi
-from src.fetch.lineups    import fetch_confirmed_lineup, fetch_projected_lineup
-from src.fetch.handedness import fetch_handedness
+from src.fetch.schedule      import fetch_schedule, TEAM_ID_TO_ABBR
+from src.fetch.probables     import fetch_probables_mlbapi
+from src.fetch.lineups       import fetch_confirmed_lineup, fetch_projected_lineup
+from src.fetch.handedness    import fetch_handedness
 from src.fetch.pitcher_stats import fetch_pitcher_stats
 from src.fetch.batter_stats  import fetch_batter_stats
 from src.fetch.team_stats    import fetch_team_stats
+from src.fetch.park_factors  import get_park_factor, park_factor_label
+from src.fetch.team_form     import fetch_team_form
+from src.fetch.bullpen_stats import fetch_bullpen_stats
+from src.fetch.umpire_stats  import fetch_umpire_stats, fetch_game_umpire
+from src.fetch.weather       import fetch_weather
 from src.models import (
     Batter, BatterSeasonStats,
     DailySnapshot, Game,
@@ -106,6 +111,18 @@ def build_snapshot(date_str: str) -> None:
     team_stats = _safe_fetch(
         "team_stats",
         lambda: fetch_team_stats(current_year), fetch_errors, {}
+    )
+
+    logger.info("Fetching bullpen stats...")
+    bullpen_stats = _safe_fetch(
+        "bullpen_stats",
+        lambda: fetch_bullpen_stats(current_year), fetch_errors, {}
+    )
+
+    logger.info("Fetching umpire stats...")
+    umpire_stats = _safe_fetch(
+        "umpire_stats",
+        lambda: fetch_umpire_stats(), fetch_errors, {}
     )
 
     # ------------------------------------------------------------------
@@ -230,6 +247,40 @@ def build_snapshot(date_str: str) -> None:
             tr = team_stats.get(abbr)
             team_ranks_out[side] = dataclasses.asdict(tr) if tr else None
 
+        # --- Bullpen ---
+        bullpen_out: dict = {}
+        for side, abbr in (("away", sg["away_team"]), ("home", sg["home_team"])):
+            bullpen_out[side] = bullpen_stats.get(abbr)
+
+        # --- Umpire ---
+        umpire_info = _safe_fetch(
+            f"umpire:{game_pk}",
+            lambda pk=game_pk: fetch_game_umpire(pk, umpire_stats),
+            fetch_errors, None,
+        )
+
+        # --- Park factor ---
+        pf = get_park_factor(sg["home_team"])
+
+        # --- Weather ---
+        weather = _safe_fetch(
+            f"weather:{sg['home_team']}",
+            lambda ht=sg["home_team"], fp=sg["first_pitch_utc"]: fetch_weather(ht, fp),
+            fetch_errors, None,
+        )
+
+        # --- L15 form ---
+        away_form = _safe_fetch(
+            f"team_form:{sg['away_team']}",
+            lambda tid=sg["away_team_id"]: fetch_team_form(tid, date_str),
+            fetch_errors, None,
+        )
+        home_form = _safe_fetch(
+            f"team_form:{sg['home_team']}",
+            lambda tid=sg["home_team_id"]: fetch_team_form(tid, date_str),
+            fetch_errors, None,
+        )
+
         games.append({
             "game_pk":            game_pk,
             "status":             sg["status"],
@@ -239,9 +290,14 @@ def build_snapshot(date_str: str) -> None:
             "final_score":        sg.get("final_score"),
             "lineup_status":      lineup_status,
             "lineup_last_checked": _now_utc(),
+            "umpire":             umpire_info,
+            "weather":            weather,
+            "park_factor":        pf,
+            "team_form":          {"away": away_form, "home": home_form},
             "pitchers":           pitchers,
             "lineups":            lineups_out,
             "team_ranks":         team_ranks_out,
+            "bullpen":            bullpen_out,
         })
 
     # ------------------------------------------------------------------
