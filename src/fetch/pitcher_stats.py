@@ -1,9 +1,11 @@
 """
 Fetcher: pitcher season stats.
 
-- IP, FIP, ERA+ : Baseball Reference standard pitching page (scraped directly)
-                  + pybaseball.pitching_stats_bref() for mlbID crosswalk
-- xwOBA allowed : pybaseball.statcast_pitcher_expected_stats() (Savant)
+Sources:
+  IP, mlbam_id : pybaseball.pitching_stats_bref()  — works in CI, has mlbID
+  FIP, ERA+    : bref standard pitching page (direct scrape) — best-effort,
+                 may fail on GitHub Actions (bref blocks cloud IPs)
+  xwOBA        : pybaseball.statcast_pitcher_expected_stats() (Savant)
 
 Returns a dict keyed by MLBAM ID string.
 """
@@ -12,9 +14,9 @@ import logging
 import re
 from io import StringIO
 
-import requests
 import pandas as pd
 import pybaseball
+import requests
 
 try:
     from src.models import PitcherSeasonStats
@@ -26,45 +28,66 @@ except ModuleNotFoundError:
     from src.fetch.labels import percentile_to_label, compute_percentiles
 
 logger = logging.getLogger(__name__)
-
 pybaseball.cache.enable()
 
 _BREF_HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 
+# ---------------------------------------------------------------------------
+# pybaseball bref: IP + mlbam_id  (reliable in CI)
+# ---------------------------------------------------------------------------
+
+def _fetch_bref_pybaseball(year: int) -> dict[str, dict]:
+    """
+    Use pybaseball.pitching_stats_bref() for IP and mlbam_id.
+    Returns {mlbam_id: {ip, gs}}.
+    """
+    df = pybaseball.pitching_stats_bref(year)
+    df = df.dropna(subset=["mlbID"])
+    df["mlbID"] = df["mlbID"].astype(int).astype(str)
+
+    out = {}
+    for _, row in df.iterrows():
+        mlbam = row["mlbID"]
+        try:
+            ip = float(row["IP"]) if pd.notna(row.get("IP")) else None
+        except (ValueError, TypeError):
+            ip = None
+        try:
+            gs = int(float(row["GS"])) if pd.notna(row.get("GS")) else None
+        except (ValueError, TypeError):
+            gs = None
+        out[mlbam] = {"ip": ip, "gs": gs}
+
+    return out
+
+
+# ---------------------------------------------------------------------------
+# bref direct scrape: FIP + ERA+  (best-effort — may fail on cloud runners)
+# ---------------------------------------------------------------------------
+
 def _clean_name(name: str) -> str:
-    """Strip switch/lefty markers and whitespace for fuzzy joining."""
     return re.sub(r"[*#]", "", str(name)).strip().lower()
 
 
-# ---------------------------------------------------------------------------
-# IP + FIP + ERA+ — Baseball Reference standard pitching page
-# ---------------------------------------------------------------------------
-
-def _fetch_bref_standard(year: int) -> dict[str, dict]:
+def _fetch_bref_fip(year: int) -> dict[str, dict]:
     """
-    Scrape bref standard pitching page for IP, FIP, ERA+.
-    Returns dict: cleaned_name -> {ip, fip, era_plus}
+    Scrape bref standard pitching page for FIP and ERA+.
+    Returns {cleaned_name: {fip, era_plus}}.
+    Falls back to empty dict if bref blocks the request.
     """
     url = f"https://www.baseball-reference.com/leagues/majors/{year}-standard-pitching.shtml"
     resp = requests.get(url, headers=_BREF_HEADERS, timeout=30)
     resp.raise_for_status()
 
-    # bref hides some tables in HTML comments — uncomment them
-    html = re.sub(r"<!--\s*((<table)[\s\S]*?(</table>))\s*-->", r"\1", resp.text)
+    html   = re.sub(r"<!--\s*((<table)[\s\S]*?(</table>))\s*-->", r"\1", resp.text)
     tables = pd.read_html(StringIO(html))
-
-    # Table 1 is the player-level standard pitching table
-    df = tables[1]
-    df = df[df["Player"] != "Player"].dropna(subset=["Player"])  # drop header rows
+    df     = tables[1]
+    df     = df[df["Player"] != "Player"].dropna(subset=["Player"])
 
     out = {}
     for _, row in df.iterrows():
         name = _clean_name(row["Player"])
-        try:
-            ip = float(row["IP"]) if pd.notna(row.get("IP")) else None
-        except (ValueError, TypeError):
-            ip = None
         try:
             fip = float(row["FIP"]) if pd.notna(row.get("FIP")) else None
         except (ValueError, TypeError):
@@ -73,14 +96,13 @@ def _fetch_bref_standard(year: int) -> dict[str, dict]:
             era_plus = int(float(row["ERA+"])) if pd.notna(row.get("ERA+")) else None
         except (ValueError, TypeError):
             era_plus = None
-        out[name] = {"ip": ip, "fip": fip, "era_plus": era_plus}
+        out[name] = {"fip": fip, "era_plus": era_plus}
+
     return out
 
 
-def _fetch_bref_mlbid(year: int) -> dict[str, str]:
-    """
-    Use pybaseball.pitching_stats_bref() to get cleaned_name -> mlbam_id mapping.
-    """
+def _fetch_bref_name_to_mlbam(year: int) -> dict[str, str]:
+    """cleaned_name → mlbam_id from pybaseball bref crosswalk."""
     df = pybaseball.pitching_stats_bref(year)
     df = df.dropna(subset=["mlbID"])
     df["mlbID"] = df["mlbID"].astype(int).astype(str)
@@ -88,26 +110,19 @@ def _fetch_bref_mlbid(year: int) -> dict[str, str]:
 
 
 # ---------------------------------------------------------------------------
-# xwOBA — Baseball Savant
+# Savant: xwOBA against
 # ---------------------------------------------------------------------------
 
 def _fetch_xwoba_savant(year: int) -> dict[str, float]:
-    """
-    Fetch pitcher xwOBA-against from Baseball Savant expected stats.
-    Returns dict: mlbam_id -> xwoba float.
-    """
     df = pybaseball.statcast_pitcher_expected_stats(year, minPA=10)
     df.columns = [c.strip() for c in df.columns]
-
-    id_col = next((c for c in df.columns if c.lower() in ("player_id", "playerid")), None)
+    id_col    = next((c for c in df.columns if c.lower() in ("player_id", "playerid")), None)
     xwoba_col = next(
-        (c for c in df.columns if c.lower() in ("est_woba", "xwoba", "est_woba_used")),
-        None,
+        (c for c in df.columns if c.lower() in ("est_woba", "xwoba", "est_woba_used")), None
     )
     if not id_col or not xwoba_col:
-        logger.error("Missing columns in Savant pitcher data. Available: %s", df.columns.tolist())
+        logger.error("Missing columns in Savant pitcher data: %s", df.columns.tolist())
         return {}
-
     out = {}
     for _, row in df.iterrows():
         pid = str(int(row[id_col]))
@@ -120,33 +135,37 @@ def _fetch_xwoba_savant(year: int) -> dict[str, float]:
 # Public API
 # ---------------------------------------------------------------------------
 
-def fetch_pitcher_stats(year: int) -> dict[str, PitcherSeasonStats]:
+def fetch_pitcher_stats(year: int) -> dict[str, "PitcherSeasonStats"]:
     """
     Fetch pitcher season stats for the given year.
-
-    Args:
-        year: Season year (e.g. 2025).
-
-    Returns:
-        Dict mapping mlbam_id -> PitcherSeasonStats.
+    Returns dict mapping mlbam_id -> PitcherSeasonStats.
     """
-    # --- bref: IP, FIP, ERA+ (by name) ---
-    bref_stats: dict[str, dict] = {}
+    # --- pybaseball bref: IP + mlbam_id (always works) ---
+    bref_pb: dict[str, dict] = {}
     try:
-        bref_stats = _fetch_bref_standard(year)
-        logger.info("bref standard: %d pitchers for %d", len(bref_stats), year)
+        bref_pb = _fetch_bref_pybaseball(year)
+        logger.info("pybaseball bref: %d pitchers for %d", len(bref_pb), year)
     except Exception as e:
-        logger.error("bref standard pitching failed for %d: %s", year, e)
+        logger.error("pybaseball bref failed for %d: %s", year, e)
 
-    # --- bref: name -> mlbam_id crosswalk ---
+    # --- bref direct scrape: FIP + ERA+ (best-effort) ---
+    fip_data: dict[str, dict]  = {}   # cleaned_name → {fip, era_plus}
     name_to_mlbam: dict[str, str] = {}
     try:
-        name_to_mlbam = _fetch_bref_mlbid(year)
-        logger.info("bref mlbID crosswalk: %d entries for %d", len(name_to_mlbam), year)
+        fip_data      = _fetch_bref_fip(year)
+        name_to_mlbam = _fetch_bref_name_to_mlbam(year)
+        logger.info("bref FIP/ERA+: %d pitchers for %d", len(fip_data), year)
     except Exception as e:
-        logger.error("bref mlbID crosswalk failed for %d: %s", year, e)
+        logger.warning("bref FIP/ERA+ scrape failed for %d (will show — in dashboard): %s", year, e)
 
-    # --- Savant: xwOBA (by mlbam_id) ---
+    # Build mlbam → {fip, era_plus} mapping
+    fip_by_mlbam: dict[str, dict] = {}
+    for name, stats in fip_data.items():
+        mlbam = name_to_mlbam.get(name)
+        if mlbam:
+            fip_by_mlbam[mlbam] = stats
+
+    # --- Savant: xwOBA (always works) ---
     xwoba_data: dict[str, float] = {}
     try:
         xwoba_data = _fetch_xwoba_savant(year)
@@ -154,52 +173,39 @@ def fetch_pitcher_stats(year: int) -> dict[str, PitcherSeasonStats]:
     except Exception as e:
         logger.error("Savant xwOBA failed for %d: %s", year, e)
 
-    # --- Merge into flat dict first ---
+    # --- Merge: union of all known mlbam IDs ---
+    all_ids = set(bref_pb.keys()) | set(fip_by_mlbam.keys()) | set(xwoba_data.keys())
     merged: dict[str, dict] = {}
-
-    for name, stats in bref_stats.items():
-        mlbam = name_to_mlbam.get(name)
-        if not mlbam:
-            continue
+    for mlbam in all_ids:
+        pb   = bref_pb.get(mlbam, {})
+        fip  = fip_by_mlbam.get(mlbam, {})
         merged[mlbam] = {
-            "ip":    stats.get("ip"),
-            "fip":   stats.get("fip"),
-            "era_plus": stats.get("era_plus"),
-            "xwoba": xwoba_data.get(mlbam),
+            "ip":       pb.get("ip"),
+            "fip":      fip.get("fip"),
+            "era_plus": fip.get("era_plus"),
+            "xwoba":    xwoba_data.get(mlbam),
         }
 
-    for mlbam, xwoba in xwoba_data.items():
-        if mlbam not in merged:
-            merged[mlbam] = {"ip": None, "fip": None, "era_plus": None, "xwoba": xwoba}
+    # --- Compute percentiles ---
+    ids    = list(merged.keys())
+    xwobas = [merged[m]["xwoba"] for m in ids]
+    fips   = [merged[m]["fip"]   for m in ids]
 
-    # --- Compute percentiles across full pool ---
-    # xwOBA-against: lower is better → invert
-    ids      = list(merged.keys())
-    xwobas   = [merged[m]["xwoba"] for m in ids]
-    fips     = [merged[m]["fip"]   for m in ids]
+    def _pcts(values, higher_is_better):
+        valid = [(i, v) for i, v in enumerate(values) if v is not None]
+        if not valid:
+            return {}
+        idxs, vals = zip(*valid)
+        return dict(zip(idxs, compute_percentiles(list(vals), higher_is_better=higher_is_better)))
 
-    # Only rank pitchers that have the stat
-    xwoba_valid = [(i, v) for i, v in enumerate(xwobas) if v is not None]
-    fip_valid   = [(i, v) for i, v in enumerate(fips)   if v is not None]
+    xwoba_pcts = _pcts(xwobas, higher_is_better=False)
+    fip_pcts   = _pcts(fips,   higher_is_better=False)
 
-    xwoba_pcts: dict[int, int] = {}
-    if xwoba_valid:
-        idxs, vals = zip(*xwoba_valid)
-        for idx, pct in zip(idxs, compute_percentiles(list(vals), higher_is_better=False)):
-            xwoba_pcts[idx] = pct
-
-    fip_pcts: dict[int, int] = {}
-    if fip_valid:
-        idxs, vals = zip(*fip_valid)
-        for idx, pct in zip(idxs, compute_percentiles(list(vals), higher_is_better=False)):
-            fip_pcts[idx] = pct
-
-    # IP threshold for "qualified" (prorated: ~1 IP/game × 16 games ≈ 20 IP)
     QUALIFY_IP = 20
 
     result: dict[str, PitcherSeasonStats] = {}
     for i, mlbam in enumerate(ids):
-        m = merged[mlbam]
+        m  = merged[mlbam]
         ip = m["ip"]
         xp = xwoba_pcts.get(i)
         fp = fip_pcts.get(i)
@@ -221,20 +227,18 @@ def fetch_pitcher_stats(year: int) -> dict[str, PitcherSeasonStats]:
 if __name__ == "__main__":
     import sys
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    year = int(sys.argv[1]) if len(sys.argv) > 1 else 2025
+    year = int(sys.argv[1]) if len(sys.argv) > 1 else 2026
 
     print(f"\nFetching pitcher stats for {year}...\n")
     stats = fetch_pitcher_stats(year)
-    print(f"\nTotal pitchers: {len(stats)}\n")
+    print(f"Total pitchers: {len(stats)}\n")
 
-    spot_check = {
-        "543037": "Gerrit Cole",
-        "554430": "Zack Wheeler",
-        "675911": "Spencer Strider",
-    }
-    for mlbam, name in spot_check.items():
+    check = {"669923": "George Kirby", "694973": "Paul Skenes",
+             "676979": "Garrett Crochet", "543037": "Gerrit Cole"}
+    for mlbam, name in check.items():
         s = stats.get(mlbam)
         if s:
-            print(f"  {name:20s}  IP={s.ip}  FIP={s.fip}  ERA+={s.era_plus}  xwOBA={s.xwoba}")
+            print(f"  {name:20s}  IP={s.ip}  FIP={s.fip}  ERA+={s.era_plus}  "
+                  f"xwOBA={s.xwoba}  fip_pct={s.fip_percentile}")
         else:
             print(f"  {name:20s}  NOT FOUND")
