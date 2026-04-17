@@ -35,8 +35,8 @@ except ImportError:
     from src.fetch.park_factors import park_factor_label
 
 WEBHOOK_URL  = os.getenv("DISCORD_WEBHOOK_URL", "")
-NOTIFY_EARLY = 75
-NOTIFY_LATE  = 45
+NOTIFY_EARLY = 90   # start posting 90 min before first pitch
+NOTIFY_LATE  = 20   # stop posting 20 min before first pitch
 ET_OFFSET    = timedelta(hours=-4)   # EDT; change to -5 for EST
 
 

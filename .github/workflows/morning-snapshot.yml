@@ -36,6 +36,12 @@ jobs:
       - name: Run snapshot builder
         run: python -m src.build.snapshot
 
+      - name: Send morning Discord briefing (all games)
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python -m src.notify.discord --all
+        continue-on-error: true
+
       - name: Commit and push snapshot
         run: |
           git config user.name  "github-actions[bot]"
