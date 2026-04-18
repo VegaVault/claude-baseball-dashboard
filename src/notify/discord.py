@@ -340,6 +340,7 @@ def notify_upcoming_games(
     date: str | None = None,
     post_all: bool   = False,
     force: bool      = False,
+    morning: bool    = False,   # morning briefing — posts all but doesn't block T-60 cards
 ) -> None:
     if date is None:
         date = _utc_now().strftime("%Y-%m-%d")
@@ -349,9 +350,15 @@ def notify_upcoming_games(
         print(f"No snapshot for {date} — run the snapshot builder first.")
         return
 
-    snapshot     = json.loads(snapshot_path.read_text())
-    games        = snapshot.get("games", [])
-    sent_path    = DATA_DIR / f"discord_sent_{date}.json"
+    snapshot = json.loads(snapshot_path.read_text())
+    games    = snapshot.get("games", [])
+
+    # Morning briefing uses a separate tracker so T-60 cards still fire later
+    if morning:
+        sent_path = DATA_DIR / f"discord_morning_{date}.json"
+    else:
+        sent_path = DATA_DIR / f"discord_sent_{date}.json"
+
     already_sent: set[int] = set()
     if sent_path.exists() and not force:
         already_sent = set(json.loads(sent_path.read_text()))
@@ -364,7 +371,7 @@ def notify_upcoming_games(
         if pk in already_sent:
             print(f"  Skip (already sent): {game['away_team']} @ {game['home_team']}")
             continue
-        if not post_all:
+        if not post_all and not morning:
             fp = _parse_utc(game.get("first_pitch_utc",""))
             if fp is None:
                 continue
@@ -392,9 +399,10 @@ def notify_upcoming_games(
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Send Discord game report cards.")
-    parser.add_argument("--date",  default=None,        help="YYYY-MM-DD (default: today)")
-    parser.add_argument("--all",   action="store_true", help="Post all games (morning briefing)")
-    parser.add_argument("--force", action="store_true", help="Re-post already-sent games")
+    parser.add_argument("--date",    default=None,        help="YYYY-MM-DD (default: today)")
+    parser.add_argument("--all",     action="store_true", help="Post all games (does NOT block T-60 cards)")
+    parser.add_argument("--morning", action="store_true", help="Morning briefing — all games, separate tracker")
+    parser.add_argument("--force",   action="store_true", help="Re-post already-sent games")
     args = parser.parse_args()
     print(f"Discord notifier — {args.date or 'today'}")
-    notify_upcoming_games(args.date, post_all=args.all, force=args.force)
+    notify_upcoming_games(args.date, post_all=args.all, force=args.force, morning=args.morning)
