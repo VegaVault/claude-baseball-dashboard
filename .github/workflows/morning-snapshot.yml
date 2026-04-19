@@ -6,6 +6,11 @@ on:
     # Runs at 8am ET in winter (EST = UTC-5) — acceptable since season is Apr-Oct.
     - cron: "0 13 * * *"
   workflow_dispatch: # allow manual trigger from GitHub UI
+    inputs:
+      post_summary:
+        description: "Post betting board to Discord now (yes/no)"
+        required: false
+        default: "no"
 
 permissions:
   contents: write  # needed to commit data/ back to repo
@@ -43,6 +48,13 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python -m src.notify.discord --morning
+        continue-on-error: true
+
+      - name: Post betting board on-demand (manual trigger only)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.post_summary == 'yes' }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python -m src.notify.discord --summary --force
         continue-on-error: true
 
       - name: Commit and push snapshot

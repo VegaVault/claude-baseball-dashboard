@@ -15,7 +15,7 @@ import streamlit as st
 import sys
 
 sys.path.insert(0, str(Path(__file__).parents[2]))
-from src.fetch.labels import rank_to_grade, rank_to_score, score_to_grade
+from src.fetch.labels import rank_to_grade, rank_to_score, score_to_grade, grade_to_num
 from src.fetch.park_factors import park_factor_label
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
@@ -231,6 +231,99 @@ def _overall_score(
     return sum(s * w for s, w in valid) / total_w
 
 
+def _bp_score(bp: dict) -> float | None:
+    """0–1 score for a bullpen stats dict."""
+    xp = bp.get("xwoba_percentile")
+    fp = bp.get("fip_percentile")
+    if xp is not None and fp is not None:
+        return (xp * 0.667 + fp * 0.333) / 100
+    if xp is not None:
+        return xp / 100
+    if fp is not None:
+        return fp / 100
+    return None
+
+
+def _game_grades(game: dict) -> tuple[str, str]:
+    """Return (away_overall_grade, home_overall_grade) for a game dict."""
+    pitchers = game.get("pitchers", {})
+    tr       = game.get("team_ranks", {})
+    bullpen  = game.get("bullpen", {})
+    lineups  = game.get("lineups", {})
+
+    def _ov(side: str) -> str:
+        t          = (tr.get(side) or {})
+        opp        = "home" if side == "away" else "away"
+        opp_throws = (pitchers.get(opp) or {}).get("throws")
+        lineup     = lineups.get(side, [])
+        sp_sc      = _sp_score(pitchers.get(side))
+        bp_sc      = _bp_score(bullpen.get(side) or {})
+        plat       = _platoon_score(lineup, opp_throws)
+        sc         = _overall_score(
+            t.get("hitting_xwoba_rank"), sp_sc, bp_sc,
+            t.get("defense_oaa_rank"), plat,
+        )
+        return score_to_grade(sc) if sc is not None else "—"
+
+    return _ov("away"), _ov("home")
+
+
+def _bet_rec(away: str, home: str, away_g: str, home_g: str, game: dict) -> dict:
+    """
+    Compute betting recommendation from overall grades + moneyline.
+
+    Returns dict with keys:
+      team, label, signal, conf, ml, gap, is_value
+    """
+    an = grade_to_num(away_g)
+    hn = grade_to_num(home_g)
+
+    odds    = game.get("odds") or {}
+    ml_data = odds.get("moneyline") or {}
+    away_ml = ml_data.get("away_ml")
+    home_ml = ml_data.get("home_ml")
+
+    if an is None or hn is None:
+        return {"team": "—", "label": "NO DATA", "signal": "❓",
+                "conf": "NO DATA", "ml": None, "gap": None, "is_value": False}
+
+    gap = abs(an - hn)
+
+    if gap >= 3:
+        conf, signal = "STRONG",  "🔥"
+    elif gap == 2:
+        conf, signal = "LEAN",    "⭐⭐"
+    elif gap == 1:
+        conf, signal = "SLIGHT",  "⭐"
+    else:
+        conf, signal = "TOSS-UP", "="
+
+    if gap == 0:
+        # Bet the underdog — highest ML payout
+        if away_ml is not None and home_ml is not None:
+            team, team_ml = (away, away_ml) if away_ml >= home_ml else (home, home_ml)
+        elif away_ml is not None:
+            team, team_ml = away, away_ml
+        elif home_ml is not None:
+            team, team_ml = home, home_ml
+        else:
+            team, team_ml = "—", None
+        label = f"{team} (dog)" if team != "—" else "—"
+    else:
+        team, team_ml = (away, away_ml) if an > hn else (home, home_ml)
+        label = team
+
+    # Value flag: big grade gap but odds still reasonable (not a massive ML favourite)
+    is_value = (gap >= 3 and team_ml is not None and team_ml > -175)
+    if is_value:
+        signal = "💎 VALUE"
+
+    return {
+        "team": team, "label": label, "signal": signal,
+        "conf": conf, "ml": team_ml, "gap": gap, "is_value": is_value,
+    }
+
+
 # ── General helpers ────────────────────────────────────────────────────────────
 
 def utc_to_et(utc_str: str) -> datetime:
@@ -390,18 +483,6 @@ def render_matchup_summary(game: dict) -> None:
     home_sp = _sp_score(home_p)
     away_sp_g = score_to_grade(away_sp) if away_sp is not None else "—"
     home_sp_g = score_to_grade(home_sp) if home_sp is not None else "—"
-
-    # Bullpen grade (same formula as SP)
-    def _bp_score(bp: dict) -> float | None:
-        xp = bp.get("xwoba_percentile")
-        fp = bp.get("fip_percentile")
-        if xp is not None and fp is not None:
-            return (xp * 0.667 + fp * 0.333) / 100
-        if xp is not None:
-            return xp / 100
-        if fp is not None:
-            return fp / 100
-        return None
 
     def _bp_detail(bp: dict) -> str:
         parts = []
@@ -598,6 +679,132 @@ def render_lineup_table(lineup: list[dict], current_year: int) -> None:
     st.dataframe(styled, use_container_width=True, height=355)
 
 
+def render_summary_tab(games: list[dict]) -> None:
+    """Summary board: one row per game with grades and betting recommendations."""
+    st.markdown("### 📋 Today's Betting Board")
+    st.caption(
+        "Grades update automatically as lineups are confirmed.  "
+        "Recommendations are based on overall grade comparison — see signal guide below."
+    )
+
+    # ── Signal legend pills ───────────────────────────────────────────────────
+    c1, c2, c3, c4, c5 = st.columns(5)
+    pill_css = (
+        "display:inline-block;padding:3px 10px;border-radius:12px;"
+        "font-size:0.82rem;font-weight:600;"
+    )
+    c1.markdown(
+        f"<span style='{pill_css}background:#4CAF50;color:white'>💎 VALUE</span>"
+        "<span style='font-size:0.75rem;margin-left:6px'>3+ gap, odds &gt; -175</span>",
+        unsafe_allow_html=True,
+    )
+    c2.markdown(
+        f"<span style='{pill_css}background:#FF5722;color:white'>🔥 STRONG</span>"
+        "<span style='font-size:0.75rem;margin-left:6px'>3+ grade gap</span>",
+        unsafe_allow_html=True,
+    )
+    c3.markdown(
+        f"<span style='{pill_css}background:#FF9800;color:black'>⭐⭐ LEAN</span>"
+        "<span style='font-size:0.75rem;margin-left:6px'>2 grade gap</span>",
+        unsafe_allow_html=True,
+    )
+    c4.markdown(
+        f"<span style='{pill_css}background:#FFD700;color:black'>⭐ SLIGHT</span>"
+        "<span style='font-size:0.75rem;margin-left:6px'>1 grade gap</span>",
+        unsafe_allow_html=True,
+    )
+    c5.markdown(
+        f"<span style='{pill_css}background:#eeeeee;color:#333'>= TOSS-UP</span>"
+        "<span style='font-size:0.75rem;margin-left:6px'>Tied → bet the dog</span>",
+        unsafe_allow_html=True,
+    )
+
+    st.divider()
+
+    # ── Build rows ────────────────────────────────────────────────────────────
+    rows = []
+    for game in games:
+        away         = game["away_team"]
+        home         = game["home_team"]
+        time_str     = fmt_time(game.get("first_pitch_utc", ""))
+        status       = game.get("status", "")
+        lineup_icon  = {"confirmed": "🟢", "frozen": "🔵", "projected": "🟡"}.get(
+            game.get("lineup_status", "projected"), "⚪"
+        )
+
+        away_g, home_g = _game_grades(game)
+        rec = _bet_rec(away, home, away_g, home_g, game)
+
+        ml_str = "—"
+        if rec["ml"] is not None:
+            v = rec["ml"]
+            ml_str = f"+{v}" if v > 0 else str(v)
+
+        if status == "final":
+            score    = game.get("final_score", "")
+            game_lbl = f"✅ Final: {score}" if score else "✅ Final"
+        elif status == "in_progress":
+            score    = game.get("final_score", "")
+            game_lbl = f"🔴 Live: {score}" if score else "🔴 Live"
+        else:
+            game_lbl = f"{lineup_icon} {game.get('lineup_status','projected').title()}"
+
+        rows.append({
+            "Time":     time_str,
+            "Matchup":  f"{away} @ {home}",
+            "Status":   game_lbl,
+            "Away":     away_g,
+            "Home":     home_g,
+            "Gap":      rec["gap"] if rec["gap"] is not None else "—",
+            "Bet":      rec["label"],
+            "ML":       ml_str,
+            "Signal":   rec["signal"],
+        })
+
+    df = pd.DataFrame(rows)
+
+    # ── Styling ───────────────────────────────────────────────────────────────
+    _SIG_STYLE = {
+        "💎 VALUE": "background-color:#4CAF50;color:white;font-weight:700",
+        "🔥":       "background-color:#FF5722;color:white;font-weight:700",
+        "⭐⭐":     "background-color:#FF9800;color:black;font-weight:700",
+        "⭐":       "background-color:#FFD700;color:black",
+        "=":        "background-color:#eeeeee;color:#444",
+    }
+
+    def _style_all(frame: pd.DataFrame) -> pd.DataFrame:
+        out = pd.DataFrame("", index=frame.index, columns=frame.columns)
+        for col in ("Away", "Home"):
+            out[col] = frame[col].map(lambda v: GRADE_STYLE.get(str(v).strip(), ""))
+        out["Signal"] = frame["Signal"].map(lambda v: _SIG_STYLE.get(str(v).strip(), ""))
+        # Highlight entire row for VALUE bets
+        mask = frame["Signal"].str.startswith("💎")
+        for col in frame.columns:
+            out.loc[mask, col] = out.loc[mask, col].map(
+                lambda s: s + ";outline:2px solid #4CAF50" if s else "outline:2px solid #4CAF50"
+            )
+        return out
+
+    styled = df.style.apply(_style_all, axis=None)
+    row_h  = min(50 + len(rows) * 38, 650)
+    st.dataframe(styled, use_container_width=True, hide_index=True, height=row_h)
+
+    # ── Weights reminder ──────────────────────────────────────────────────────
+    with st.expander("📖 How overall grades are calculated"):
+        st.markdown("""
+| Component | Weight |
+|---|---|
+| Offense (team xwOBA rank) | 50% |
+| Starting Pitcher grade | 21% |
+| Bullpen (xwOBA-against proxy) | 9% |
+| Defense (OAA rank) | 15% |
+| Platoon Advantage | 5% |
+
+**Value flag (💎):** Grade gap ≥ 3 levels AND recommended team's moneyline is better than -175.
+This means the model sees a clear mismatch that the betting market hasn't fully priced in.
+        """)
+
+
 def render_legend() -> None:
     st.divider()
     with st.expander("📖 Legend & Methodology"):
@@ -708,52 +915,58 @@ def main() -> None:
                 for e in errors:
                     st.caption(e)
 
-    game = next(g for g in games if g["game_pk"] == selected_pk)
+    # ── Tabs ──────────────────────────────────────────────────────────────────
+    tab_summary, tab_detail = st.tabs(["📋 Summary", "🔍 Game Detail"])
 
-    render_header(game)
+    with tab_summary:
+        render_summary_tab(games)
 
-    # Matchup summary with inline lineup status subtitle
-    lineup_status = game.get("lineup_status", "projected")
-    fp_utc = game.get("first_pitch_utc", "")
+    with tab_detail:
+        game = next(g for g in games if g["game_pk"] == selected_pk)
 
-    if lineup_status == "confirmed":
-        status_note = "🟢 Lineups confirmed"
-    elif lineup_status == "frozen":
-        status_note = "🔵 Lineups locked — game in progress"
-    else:
-        # Projected: compute T-60 time
-        if fp_utc:
-            try:
-                fp_dt = datetime.fromisoformat(fp_utc.replace("Z", "+00:00"))
-                t60_et = (fp_dt - timedelta(minutes=60)).astimezone(ET)
-                t60_str = t60_et.strftime("%I:%M %p ET").lstrip("0")
-                status_note = f"🟡 Projected starters — confirmed lineups expected around {t60_str}"
-            except Exception:
-                status_note = "🟡 Projected starters — lineups not yet confirmed"
+        render_header(game)
+
+        # Matchup summary with inline lineup status subtitle
+        lineup_status = game.get("lineup_status", "projected")
+        fp_utc = game.get("first_pitch_utc", "")
+
+        if lineup_status == "confirmed":
+            status_note = "🟢 Lineups confirmed"
+        elif lineup_status == "frozen":
+            status_note = "🔵 Lineups locked — game in progress"
         else:
-            status_note = "🟡 Projected starters — lineups not yet confirmed"
+            if fp_utc:
+                try:
+                    fp_dt = datetime.fromisoformat(fp_utc.replace("Z", "+00:00"))
+                    t60_et = (fp_dt - timedelta(minutes=60)).astimezone(ET)
+                    t60_str = t60_et.strftime("%I:%M %p ET").lstrip("0")
+                    status_note = f"🟡 Projected starters — confirmed lineups expected around {t60_str}"
+                except Exception:
+                    status_note = "🟡 Projected starters — lineups not yet confirmed"
+            else:
+                status_note = "🟡 Projected starters — lineups not yet confirmed"
 
-    st.markdown(f"### Matchup Summary")
-    st.caption(status_note)
-    render_matchup_summary(game)
+        st.markdown("### Matchup Summary")
+        st.caption(status_note)
+        render_matchup_summary(game)
 
-    st.divider()
+        st.divider()
 
-    st.markdown("### Starting Pitcher Matchup")
-    render_pitcher_matchup(game, current_year)
+        st.markdown("### Starting Pitcher Matchup")
+        render_pitcher_matchup(game, current_year)
 
-    st.divider()
+        st.divider()
 
-    st.markdown("### Lineups")
-    col_al, col_hl = st.columns(2)
-    with col_al:
-        st.caption(f"**{game['away_team']}** — Away")
-        render_lineup_table(game["lineups"].get("away", []), current_year)
-    with col_hl:
-        st.caption(f"**{game['home_team']}** — Home")
-        render_lineup_table(game["lineups"].get("home", []), current_year)
+        st.markdown("### Lineups")
+        col_al, col_hl = st.columns(2)
+        with col_al:
+            st.caption(f"**{game['away_team']}** — Away")
+            render_lineup_table(game["lineups"].get("away", []), current_year)
+        with col_hl:
+            st.caption(f"**{game['home_team']}** — Home")
+            render_lineup_table(game["lineups"].get("home", []), current_year)
 
-    render_legend()
+        render_legend()
 
 
 if __name__ == "__main__":

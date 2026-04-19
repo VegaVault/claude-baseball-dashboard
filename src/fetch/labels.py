@@ -101,3 +101,25 @@ def score_to_grade(score: float) -> str:
     if score >= 0.27: return "D"
     if score >= 0.20: return "D-"
     return "F"
+
+
+# ── Grade comparison utilities ────────────────────────────────────────────────
+
+# Ordered worst → best (index 0 = F, index 12 = A+)
+GRADE_ORDER = ["F", "D-", "D", "D+", "C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+"]
+
+
+def grade_to_num(grade: str) -> int | None:
+    """Convert letter grade to 0–12 int (0=F, 12=A+). Returns None for '—'."""
+    try:
+        return GRADE_ORDER.index(grade)
+    except ValueError:
+        return None
+
+
+def grade_gap(g1: str, g2: str) -> int | None:
+    """Absolute grade-level gap between two letter grades. None if either is unknown."""
+    n1, n2 = grade_to_num(g1), grade_to_num(g2)
+    if n1 is None or n2 is None:
+        return None
+    return abs(n1 - n2)

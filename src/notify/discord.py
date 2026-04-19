@@ -131,6 +131,24 @@ def _platoon_str(lineup: list, opp_throws: str | None) -> str:
               and (b.get("bats") or "?").upper() != opp_throws.upper())
     return f"{adv}/{len(lineup)}"
 
+def _game_ov_grade(game: dict, side: str) -> str:
+    """Compute overall letter grade for one side of a game dict."""
+    pitchers   = game.get("pitchers", {})
+    tr         = (game.get("team_ranks", {}) or {}).get(side) or {}
+    bp         = (game.get("bullpen",    {}) or {}).get(side) or {}
+    lineup     = (game.get("lineups",    {}) or {}).get(side, [])
+    opp        = "home" if side == "away" else "away"
+    opp_throws = (pitchers.get(opp) or {}).get("throws")
+    sp_sc      = _sp_score(pitchers.get(side))
+    bp_sc      = _bp_score(bp)
+    plat       = _platoon_score(lineup, opp_throws)
+    sc = _overall_score(
+        tr.get("hitting_xwoba_rank"), sp_sc, bp_sc,
+        tr.get("defense_oaa_rank"), plat,
+    )
+    return score_to_grade(sc) if sc is not None else "—"
+
+
 def _overall_score(off_rank, sp_sc, bp_sc, def_rank, plat) -> float | None:
     off  = rank_to_score(off_rank)
     defn = rank_to_score(def_rank)
@@ -352,6 +370,147 @@ def _build_embed(game: dict) -> dict:
     }
 
 
+# ── Summary board ─────────────────────────────────────────────────────────────
+
+_GRADE_ORDER = ["F", "D-", "D", "D+", "C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+"]
+
+def _grade_num(g: str) -> int | None:
+    try:   return _GRADE_ORDER.index(g)
+    except ValueError: return None
+
+
+def _summary_rec(game: dict) -> dict:
+    """Betting recommendation for one game. Returns team/label/signal/ml/gap."""
+    away    = game["away_team"]
+    home    = game["home_team"]
+    away_g  = _game_ov_grade(game, "away")
+    home_g  = _game_ov_grade(game, "home")
+    an, hn  = _grade_num(away_g), _grade_num(home_g)
+
+    ml_data = (game.get("odds") or {}).get("moneyline") or {}
+    away_ml = ml_data.get("away_ml")
+    home_ml = ml_data.get("home_ml")
+
+    if an is None or hn is None:
+        return {"team": "—", "label": "—", "signal": "❓",
+                "away_g": away_g, "home_g": home_g, "gap": None, "ml": None}
+
+    gap = abs(an - hn)
+    if gap >= 3:   signal = "🔥 STRONG"
+    elif gap == 2: signal = "⭐⭐ LEAN"
+    elif gap == 1: signal = "⭐ SLIGHT"
+    else:          signal = "= TOSS-UP"
+
+    if gap == 0:
+        if away_ml is not None and home_ml is not None:
+            team, team_ml = (away, away_ml) if away_ml >= home_ml else (home, home_ml)
+        else:
+            team, team_ml = "—", None
+        label = f"{team}(dog)" if team != "—" else "—"
+    else:
+        team, team_ml = (away, away_ml) if an > hn else (home, home_ml)
+        label = team
+
+    if gap >= 3 and team_ml is not None and team_ml > -175:
+        signal = "💎 VALUE"
+
+    return {"team": team, "label": label, "signal": signal,
+            "away_g": away_g, "home_g": home_g, "gap": gap, "ml": team_ml}
+
+
+def _build_summary_embed(games: list[dict], date_str: str) -> dict:
+    """Single embed with the full day's betting board."""
+    from datetime import date as _date
+    try:
+        d = _date.fromisoformat(date_str)
+        date_label = d.strftime("%a %b %-d")
+    except Exception:
+        date_label = date_str
+
+    # Only upcoming / in-progress games (skip finals from board)
+    active = [g for g in games if g.get("status") not in ("final",)]
+
+    if not active:
+        return {
+            "title":       f"📋 Betting Board — {date_label}",
+            "description": "No upcoming games today.",
+            "color":       0x2C3E50,
+        }
+
+    # Build monospace table
+    col_time  = 7
+    col_match = 11
+    col_grade = 4
+    col_bet   = 13
+
+    header = (
+        f"{'TIME':<{col_time}} {'MATCHUP':<{col_match}} "
+        f"{'AWAY':^{col_grade}} {'HOME':^{col_grade}} "
+        f"{'BET':<{col_bet}} SIGNAL"
+    )
+    sep = "─" * len(header)
+    rows = [header, sep]
+
+    for game in active:
+        away     = game["away_team"]
+        home     = game["home_team"]
+        time_str = _to_et_str(game.get("first_pitch_utc", ""))
+        # Compact: "7:05 PM ET" → "7:05p"
+        ts = time_str.replace(" PM", "p").replace(" AM", "a").replace(" ET", "")
+
+        rec    = _summary_rec(game)
+        ml_str = ""
+        if rec["ml"] is not None:
+            v = rec["ml"]
+            ml_str = f" {'+' if v > 0 else ''}{v}"
+        bet_str = f"{rec['label']}{ml_str}"
+
+        rows.append(
+            f"{ts:<{col_time}} {f'{away}@{home}':<{col_match}} "
+            f"{rec['away_g']:^{col_grade}} {rec['home_g']:^{col_grade}} "
+            f"{bet_str:<{col_bet}} {rec['signal']}"
+        )
+
+    board = "```\n" + "\n".join(rows) + "\n```"
+
+    # Tally signals for footer note
+    strong = sum(1 for g in active if _summary_rec(g)["signal"] in ("🔥 STRONG", "💎 VALUE"))
+    value  = sum(1 for g in active if _summary_rec(g)["signal"] == "💎 VALUE")
+    note_parts = []
+    if value:  note_parts.append(f"{value} 💎 value bet{'s' if value > 1 else ''}")
+    if strong: note_parts.append(f"{strong} 🔥 strong play{'s' if strong > 1 else ''}")
+    note = "  ·  ".join(note_parts) if note_parts else "No strong plays today"
+
+    return {
+        "title":       f"📋 Betting Board — {date_label}",
+        "description": board,
+        "color":       0x2C3E50,
+        "fields": [{"name": "Today's highlights", "value": note, "inline": False}],
+        "footer": {"text": "💎=VALUE(gap≥3, odds>-175)  🔥=STRONG(gap≥3)  ⭐⭐=LEAN  ⭐=SLIGHT  ==TOSS-UP"},
+    }
+
+
+def post_summary(date: str | None = None, force: bool = False) -> None:
+    """Post the betting board embed to Discord."""
+    if date is None:
+        date = _utc_now().strftime("%Y-%m-%d")
+
+    snapshot_path = DATA_DIR / f"{date}.json"
+    if not snapshot_path.exists():
+        print(f"No snapshot for {date} — run the snapshot builder first.")
+        return
+
+    snapshot = json.loads(snapshot_path.read_text())
+    games    = snapshot.get("games", [])
+
+    embed = _build_summary_embed(games, date)
+    print(f"  Posting betting board for {date}…")
+    if _post_embed(embed):
+        print("  ✓ Betting board posted.")
+    else:
+        print("  ✗ Failed to post betting board.")
+
+
 # ── Post + main ───────────────────────────────────────────────────────────────
 
 def _post_embed(embed: dict) -> bool:
@@ -396,6 +555,12 @@ def notify_upcoming_games(
     if sent_path.exists() and not force:
         already_sent = set(json.loads(sent_path.read_text()))
 
+    # Morning briefing: post the summary board first
+    if morning:
+        embed = _build_summary_embed(games, date)
+        print("  Posting morning betting board…")
+        _post_embed(embed)
+
     now    = _utc_now()
     posted: list[int] = []
 
@@ -434,8 +599,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Send Discord game report cards.")
     parser.add_argument("--date",    default=None,        help="YYYY-MM-DD (default: today)")
     parser.add_argument("--all",     action="store_true", help="Post all games (does NOT block T-60 cards)")
-    parser.add_argument("--morning", action="store_true", help="Morning briefing — all games, separate tracker")
+    parser.add_argument("--morning", action="store_true", help="Morning briefing — summary board + all games, separate tracker")
+    parser.add_argument("--summary", action="store_true", help="Post only the betting board summary embed")
     parser.add_argument("--force",   action="store_true", help="Re-post already-sent games")
     args = parser.parse_args()
     print(f"Discord notifier — {args.date or 'today'}")
-    notify_upcoming_games(args.date, post_all=args.all, force=args.force, morning=args.morning)
+
+    if args.summary:
+        post_summary(args.date, force=args.force)
+    else:
+        notify_upcoming_games(args.date, post_all=args.all, force=args.force, morning=args.morning)
