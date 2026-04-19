@@ -34,6 +34,9 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Update lineups
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          OPENWEATHERMAP_API_KEY: ${{ secrets.OPENWEATHERMAP_API_KEY }}
         run: python -m src.build.lineup_update
 
       - name: Send Discord notifications

@@ -29,6 +29,7 @@ from src.fetch.team_form     import fetch_team_form
 from src.fetch.bullpen_stats import fetch_bullpen_stats
 from src.fetch.umpire_stats  import fetch_umpire_stats, fetch_game_umpire
 from src.fetch.weather       import fetch_weather
+from src.fetch.odds          import fetch_odds
 from src.models import (
     Batter, BatterSeasonStats,
     DailySnapshot, Game,
@@ -123,6 +124,12 @@ def build_snapshot(date_str: str) -> None:
     umpire_stats = _safe_fetch(
         "umpire_stats",
         lambda: fetch_umpire_stats(), fetch_errors, {}
+    )
+
+    logger.info("Fetching odds...")
+    all_odds = _safe_fetch(
+        "odds",
+        lambda: fetch_odds(), fetch_errors, {}
     )
 
     # ------------------------------------------------------------------
@@ -259,6 +266,10 @@ def build_snapshot(date_str: str) -> None:
             fetch_errors, None,
         )
 
+        # --- Odds ---
+        odds_key  = f"{sg['away_team']}_{sg['home_team']}"
+        game_odds = all_odds.get(odds_key)
+
         # --- Park factor ---
         pf = get_park_factor(sg["home_team"])
 
@@ -291,6 +302,7 @@ def build_snapshot(date_str: str) -> None:
             "lineup_status":      lineup_status,
             "lineup_last_checked": _now_utc(),
             "umpire":             umpire_info,
+            "odds":               game_odds,
             "weather":            weather,
             "park_factor":        pf,
             "team_form":          {"away": away_form, "home": home_form},

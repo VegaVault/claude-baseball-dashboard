@@ -68,6 +68,35 @@ def _to_et_str(utc_str: str) -> str:
 def _fmt(val, d=3):
     return "—" if val is None else f"{val:.{d}f}"
 
+def _fmt_ml(v: int | None) -> str:
+    if v is None: return "—"
+    return f"+{v}" if v > 0 else str(v)
+
+def _odds_line(game: dict) -> str:
+    """Single line: ML · O/U · RL"""
+    odds = game.get("odds") or {}
+    ml   = odds.get("moneyline") or {}
+    tot  = odds.get("total")     or {}
+    rl   = odds.get("runline")   or {}
+    away = game["away_team"]
+    home = game["home_team"]
+
+    parts = []
+    if ml.get("away_ml") is not None:
+        fav     = away if ml.get("favorite") == "away" else home
+        impl    = ml.get("away_impl") if ml.get("favorite") == "away" else ml.get("home_impl")
+        fav_ml  = ml["away_ml"] if ml.get("favorite") == "away" else ml["home_ml"]
+        dog_ml  = ml["home_ml"] if ml.get("favorite") == "away" else ml["away_ml"]
+        parts.append(f"**{fav}** {_fmt_ml(fav_ml)}  /  {_fmt_ml(dog_ml)}  *({impl}%)*")
+    if tot.get("line") is not None:
+        o = _fmt_ml(tot.get("over_odds"))
+        parts.append(f"O/U **{tot['line']}** ({o})")
+    if rl.get("away_point") is not None:
+        away_pt = f"{rl['away_point']:+.1f}"
+        home_pt = f"{rl['home_point']:+.1f}"
+        parts.append(f"RL: {away} {away_pt} / {home} {home_pt}")
+    return "\n".join(parts) if parts else "—"
+
 def _sp_score(p: dict | None) -> float | None:
     if not p:
         return None
@@ -144,6 +173,10 @@ def _context_description(game: dict, away: str, home: str) -> str:
         lines.append("  ·  ".join(parts))
 
     lines.append(f"📋  {_lineup_badge(game.get('lineup_status','projected'))}")
+
+    odds_str = _odds_line(game)
+    if odds_str != "—":
+        lines.append(f"💰  {odds_str}")
 
     tf = game.get("team_form") or {}
     for side, team in (("away", away), ("home", home)):

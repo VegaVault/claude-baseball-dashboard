@@ -311,6 +311,23 @@ def render_header(game: dict) -> None:
     wx      = game.get("weather") or {}
     wx_str  = wx.get("display", "")
 
+    # Odds
+    odds    = game.get("odds") or {}
+    ml      = odds.get("moneyline") or {}
+    tot     = odds.get("total") or {}
+    rl      = odds.get("runline") or {}
+    odds_parts = []
+    if ml.get("away_ml") is not None:
+        def _fmt_ml(v): return f"+{v}" if v > 0 else str(v)
+        fav = away if ml.get("favorite") == "away" else home
+        odds_parts.append(f"ML: {away} {_fmt_ml(ml['away_ml'])} / {home} {_fmt_ml(ml['home_ml'])}  (fav: {fav})")
+    if tot.get("line") is not None:
+        o = f"+{tot['over_odds']}" if tot.get('over_odds', 0) > 0 else str(tot.get('over_odds',''))
+        odds_parts.append(f"O/U {tot['line']} ({o})")
+    if rl.get("away_point") is not None:
+        odds_parts.append(f"RL: {away} {rl['away_point']:+.1f} / {home} {rl['home_point']:+.1f}")
+    odds_str = "  ·  ".join(odds_parts)
+
     col_a, col_mid, col_h = st.columns([2, 1, 2])
     with col_a:
         st.markdown(f"## {away}")
@@ -337,6 +354,8 @@ def render_header(game: dict) -> None:
     if ump_str:
         caption += f"  ·  {ump_str}"
     st.caption(caption)
+    if odds_str:
+        st.caption(f"💰 {odds_str}")
     st.divider()
 
 
