@@ -2,8 +2,8 @@
 Fetcher: team bullpen stats (FIP, xwOBA against) for a given year.
 
 Sources:
-  Reliever list + IP : pybaseball.pitching_stats_bref() (GS==0 filter, has mlbID)
-  FIP                : bref standard pitching page (direct scrape, best-effort)
+  Reliever list + IP : MLB Stats API  (reliable — same source as schedule/lineups)
+  FIP                : bref standard pitching page (best-effort, may fail in CI)
   xwOBA against      : Savant statcast_pitcher_expected_stats()
 
 Returns {team_abbr: dict} keyed by our 3-letter abbreviations.
@@ -30,44 +30,41 @@ pybaseball.cache.enable()
 
 _BREF_HEADERS = {"User-Agent": "Mozilla/5.0"}
 
-# pybaseball bref returns full city/team names in Tm column
-_CITY_TO_OURS: dict[str, str] = {
-    "Arizona":       "ARI", "Atlanta":       "ATL", "Baltimore":    "BAL",
-    "Boston":        "BOS", "Chicago":       "CHC", "Chicago":      "CHC",
-    "Cincinnati":    "CIN", "Cleveland":     "CLE", "Colorado":     "COL",
-    "Detroit":       "DET", "Houston":       "HOU", "Kansas City":  "KC",
-    "Los Angeles":   "LAD", "Miami":         "MIA", "Milwaukee":    "MIL",
-    "Minnesota":     "MIN", "New York":      "NYY", "Oakland":      "ATH",
-    "Athletics":     "ATH", "Philadelphia":  "PHI", "Pittsburgh":   "PIT",
-    "San Diego":     "SD",  "San Francisco": "SF",  "Seattle":      "SEA",
-    "St. Louis":     "STL", "Tampa Bay":     "TB",  "Texas":        "TEX",
-    "Toronto":       "TOR", "Washington":    "WSH", "Angels":       "LAA",
-    "White Sox":     "CWS", "Cubs":          "CHC", "Mets":         "NYM",
-    "Yankees":       "NYY", "Dodgers":       "LAD", "Padres":       "SD",
-    "Giants":        "SF",  "Mariners":      "SEA", "Cardinals":    "STL",
-    "Rays":          "TB",  "Rangers":       "TEX", "Blue Jays":    "TOR",
-    "Nationals":     "WSH", "Braves":        "ATL", "Orioles":      "BAL",
-    "Red Sox":       "BOS", "Reds":          "CIN", "Guardians":    "CLE",
-    "Rockies":       "COL", "Tigers":        "DET", "Astros":       "HOU",
-    "Royals":        "KC",  "Marlins":       "MIA", "Brewers":      "MIL",
-    "Twins":         "MIN", "Pirates":       "PIT", "Phillies":     "PHI",
+# Full team names as returned by MLB Stats API → our abbreviations
+_FULL_NAME_TO_OURS: dict[str, str] = {
+    "Arizona Diamondbacks":  "ARI", "Atlanta Braves":        "ATL",
+    "Baltimore Orioles":     "BAL", "Boston Red Sox":        "BOS",
+    "Chicago Cubs":          "CHC", "Chicago White Sox":     "CWS",
+    "Cincinnati Reds":       "CIN", "Cleveland Guardians":   "CLE",
+    "Colorado Rockies":      "COL", "Detroit Tigers":        "DET",
+    "Houston Astros":        "HOU", "Kansas City Royals":    "KC",
+    "Los Angeles Angels":    "LAA", "Los Angeles Dodgers":   "LAD",
+    "Miami Marlins":         "MIA", "Milwaukee Brewers":     "MIL",
+    "Minnesota Twins":       "MIN", "New York Mets":         "NYM",
+    "New York Yankees":      "NYY", "Oakland Athletics":     "ATH",
+    "Sacramento Athletics":  "ATH", "Athletics":             "ATH",
+    "Philadelphia Phillies": "PHI",
+    "Pittsburgh Pirates":    "PIT", "San Diego Padres":      "SD",
+    "San Francisco Giants":  "SF",  "Seattle Mariners":      "SEA",
+    "St. Louis Cardinals":   "STL", "Tampa Bay Rays":        "TB",
+    "Texas Rangers":         "TEX", "Toronto Blue Jays":     "TOR",
+    "Washington Nationals":  "WSH",
 }
 
-# Also handle 3-letter bref abbreviations that differ from ours
+# bref-style 3-letter abbreviations → our abbreviations (kept for FIP matching)
 _ABBR_TO_OURS: dict[str, str] = {
-    "CHW": "CWS", "KCR": "KC", "SDP": "SD",
-    "SFG": "SF",  "TBR": "TB", "WSN": "WSH", "OAK": "ATH",
+    "CHW": "CWS", "KCR": "KC",  "SDP": "SD",
+    "SFG": "SF",  "TBR": "TB",  "WSN": "WSH", "OAK": "ATH",
+    "ANA": "LAA", "FLA": "MIA",
 }
 
-def _our_abbr(t: str) -> str:
-    t = str(t).strip()
-    # Try city/name lookup first
-    if t in _CITY_TO_OURS:
-        return _CITY_TO_OURS[t]
-    # Try 3-letter abbr remapping
-    if t in _ABBR_TO_OURS:
-        return _ABBR_TO_OURS[t]
-    return t
+def _our_abbr(s: str) -> str:
+    s = str(s).strip()
+    # Try full name first (MLB Stats API returns full names)
+    if s in _FULL_NAME_TO_OURS:
+        return _FULL_NAME_TO_OURS[s]
+    # Fall back to abbreviation remapping
+    return _ABBR_TO_OURS.get(s, s)
 
 def _clean_name(name: str) -> str:
     return re.sub(r"[*#]", "", str(name)).strip().lower()
@@ -78,50 +75,74 @@ def _to_float(v) -> float | None:
     except (ValueError, TypeError):
         return None
 
-
-# ── pybaseball bref: reliever list + IP (reliable in CI) ─────────────────────
-
-def _fetch_pb_relievers(year: int) -> pd.DataFrame:
+def _parse_ip(ip_str) -> float:
     """
-    Use pybaseball.pitching_stats_bref() for GS, IP, Team, mlbID.
-    Returns DataFrame with columns: mlbam, team, ip, clean_name.
+    Convert MLB Stats API innings-pitched string to a float.
+    Format: whole.thirds  e.g. "45.1" = 45 + 1/3 innings = 45.333...
     """
-    df = pybaseball.pitching_stats_bref(year)
-    df = df.dropna(subset=["mlbID"])
-    df["mlbID"] = df["mlbID"].astype(int).astype(str)
+    try:
+        s     = str(ip_str).strip()
+        parts = s.split(".")
+        whole = int(parts[0])
+        thirds = int(parts[1][0]) if len(parts) > 1 and parts[1] else 0
+        return whole + thirds / 3.0
+    except Exception:
+        return 0.0
 
-    # Filter relievers: GS == 0
-    df["gs_int"] = df["GS"].apply(lambda x: int(float(x)) if pd.notna(x) else None)
-    rel = df[df["gs_int"] == 0].copy()
 
-    # Team column: pybaseball bref uses "Tm"
-    team_col = "Tm" if "Tm" in rel.columns else None
+# ── MLB Stats API: reliever list + IP (very reliable) ────────────────────────
+
+def _fetch_mlb_relievers(year: int) -> pd.DataFrame:
+    """
+    Pull all pitchers' season stats from the MLB Stats API.
+    Filter to relievers: gamesStarted <= 3 and IP >= 1.
+    Returns DataFrame: mlbam, team, ip, name.
+    """
+    url = (
+        "https://statsapi.mlb.com/api/v1/stats"
+        f"?stats=season&group=pitching&gameType=R&season={year}"
+        "&playerPool=All&limit=3000"
+    )
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    data = resp.json()
 
     rows = []
-    for _, row in rel.iterrows():
-        ip = _to_float(row.get("IP"))
-        if not ip or ip < 2:
-            continue
-        team = _our_abbr(row[team_col]) if team_col else None
-        if not team:
-            continue
-        rows.append({
-            "mlbam":      row["mlbID"],
-            "clean_name": _clean_name(row["Name"]),
-            "team":       team,
-            "ip":         ip,
-        })
+    for stat_group in data.get("stats", []):
+        for split in stat_group.get("splits", []):
+            stat   = split.get("stat",   {})
+            player = split.get("player", {})
+            team   = split.get("team",   {})
 
-    return pd.DataFrame(rows)
+            gs = int(stat.get("gamesStarted") or 0)
+            if gs > 3:          # skip clear starters (allow openers ≤ 3 GS)
+                continue
+
+            ip = _parse_ip(stat.get("inningsPitched", "0"))
+            if ip < 1.0:        # skip tiny samples
+                continue
+
+            mlbam   = str(player.get("id", "")).strip()
+            tm_name = (team.get("name") or "").strip()   # e.g. "San Diego Padres"
+            our_tm  = _our_abbr(tm_name)
+            name    = player.get("fullName", "")
+
+            if not mlbam or not our_tm:
+                continue
+
+            rows.append({"mlbam": mlbam, "team": our_tm, "ip": ip, "name": name})
+
+    df = pd.DataFrame(rows) if rows else pd.DataFrame(columns=["mlbam","team","ip","name"])
+    logger.info("MLB API relievers: %d rows for %d", len(df), year)
+    return df
 
 
 # ── bref direct scrape: FIP (best-effort) ────────────────────────────────────
 
 def _fetch_bref_fip(year: int) -> dict[str, float]:
     """
-    Scrape bref standard pitching page for FIP.
-    Returns {cleaned_name: fip}.
-    May fail on GitHub Actions — falls back gracefully.
+    Scrape bref standard pitching for FIP by player name.
+    Best-effort — may be blocked on GitHub Actions IPs.
     """
     url  = f"https://www.baseball-reference.com/leagues/majors/{year}-standard-pitching.shtml"
     resp = requests.get(url, headers=_BREF_HEADERS, timeout=30)
@@ -135,23 +156,22 @@ def _fetch_bref_fip(year: int) -> dict[str, float]:
         if "Player" in t.columns and "FIP" in t.columns:
             df = t
             break
-
     if df is None:
         return {}
 
     df = df[df["Player"] != "Player"].dropna(subset=["Player"])
-    out = {}
+    out: dict[str, float] = {}
     for _, row in df.iterrows():
-        name = _clean_name(row["Player"])
-        fip  = _to_float(row.get("FIP"))
+        fip = _to_float(row.get("FIP"))
         if fip is not None:
-            out[name] = fip
+            out[_clean_name(row["Player"])] = fip
     return out
 
 
 # ── Savant xwOBA ──────────────────────────────────────────────────────────────
 
 def _fetch_xwoba_savant(year: int) -> dict[str, float]:
+    """Savant expected stats → {mlbam_id: xwoba}."""
     df = pybaseball.statcast_pitcher_expected_stats(year, minPA=5)
     df.columns = [c.strip() for c in df.columns]
     id_col    = next((c for c in df.columns if c.lower() in ("player_id", "playerid")), None)
@@ -169,20 +189,21 @@ def _fetch_xwoba_savant(year: int) -> dict[str, float]:
 def fetch_bullpen_stats(year: int) -> dict[str, dict]:
     """
     Return team bullpen stats for the given year.
-    Returns {team_abbr: {fip, xwoba, total_ip, fip_percentile, xwoba_percentile, grade, ...}}
+    Returns {team_abbr: {fip, xwoba, total_ip, fip_percentile,
+                         xwoba_percentile, fip_label, xwoba_label, grade}}
     """
-    # ── 1. Reliever rows (IP + team + mlbam) ──────────────────────────────
+    # ── 1. Reliever rows (MLB API — reliable) ─────────────────────────────
     rel_df = pd.DataFrame()
     try:
-        rel_df = _fetch_pb_relievers(year)
-        logger.info("bref relievers: %d rows for %d", len(rel_df), year)
+        rel_df = _fetch_mlb_relievers(year)
     except Exception as e:
-        logger.error("bref relievers failed for %d: %s", year, e)
+        logger.error("MLB API reliever fetch failed for %d: %s", year, e)
 
     if rel_df.empty:
+        logger.warning("No reliever data for %d — bullpen stats unavailable.", year)
         return {}
 
-    # ── 2. FIP by name (best-effort) ──────────────────────────────────────
+    # ── 2. FIP by name (best-effort bref scrape) ──────────────────────────
     fip_by_name: dict[str, float] = {}
     try:
         fip_by_name = _fetch_bref_fip(year)
@@ -190,7 +211,7 @@ def fetch_bullpen_stats(year: int) -> dict[str, dict]:
     except Exception as e:
         logger.warning("bref FIP scrape failed for %d (FIP will be —): %s", year, e)
 
-    # ── 3. Savant xwOBA (by mlbam) ────────────────────────────────────────
+    # ── 3. Savant xwOBA by mlbam ──────────────────────────────────────────
     xwoba_data: dict[str, float] = {}
     try:
         xwoba_data = _fetch_xwoba_savant(year)
@@ -198,17 +219,16 @@ def fetch_bullpen_stats(year: int) -> dict[str, dict]:
     except Exception as e:
         logger.warning("Savant xwOBA failed for bullpen %d: %s", year, e)
 
-    # ── 4. Aggregate by team ───────────────────────────────────────────────
+    # ── 4. Aggregate by team ──────────────────────────────────────────────
     team_pitchers: dict[str, list[dict]] = {}
     for _, row in rel_df.iterrows():
         team  = row["team"]
         mlbam = row["mlbam"]
-        fip   = fip_by_name.get(row["clean_name"])
+        name  = _clean_name(row.get("name", ""))
+        fip   = fip_by_name.get(name)
         xwoba = xwoba_data.get(mlbam)
         team_pitchers.setdefault(team, []).append({
-            "ip":    row["ip"],
-            "fip":   fip,
-            "xwoba": xwoba,
+            "ip": row["ip"], "fip": fip, "xwoba": xwoba,
         })
 
     raw: dict[str, dict] = {}
@@ -232,7 +252,7 @@ def fetch_bullpen_stats(year: int) -> dict[str, dict]:
             "total_ip": total_ip,
         }
 
-    logger.info("Bullpen stats: %d teams for %d", len(raw), year)
+    logger.info("Bullpen raw teams: %d for %d", len(raw), year)
 
     # ── 5. Cross-team percentile ranks ────────────────────────────────────
     teams = list(raw.keys())
@@ -279,6 +299,7 @@ def fetch_bullpen_stats(year: int) -> dict[str, dict]:
             "grade":            score_to_grade(score) if score is not None else "—",
         }
 
+    logger.info("Bullpen stats final: %d teams for %d", len(result), year)
     return result
 
 
@@ -286,10 +307,9 @@ if __name__ == "__main__":
     import sys
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     year = int(sys.argv[1]) if len(sys.argv) > 1 else 2026
-
     print(f"\nFetching bullpen stats for {year}...\n")
     stats = fetch_bullpen_stats(year)
-    print(f"Teams returned: {len(stats)}\n")
+    print(f"\nTeams returned: {len(stats)}\n")
     for team, d in sorted(stats.items()):
         print(f"  {team:<4}  FIP={d.get('fip')}  xwOBA={d.get('xwoba')}  "
               f"Grade={d.get('grade')}  IP={d.get('total_ip')}")
