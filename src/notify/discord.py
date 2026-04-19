@@ -131,6 +131,54 @@ def _platoon_str(lineup: list, opp_throws: str | None) -> str:
               and (b.get("bats") or "?").upper() != opp_throws.upper())
     return f"{adv}/{len(lineup)}"
 
+def _ou_model(game: dict) -> dict:
+    """O/U expected-total model (mirrors app.py logic)."""
+    tf     = game.get("team_form", {})
+    a_f    = tf.get("away") or {}
+    h_f    = tf.get("home") or {}
+    a_rpg  = a_f.get("l15_rpg")  or a_f.get("season_rpg")
+    h_rpg  = h_f.get("l15_rpg")  or h_f.get("season_rpg")
+    a_rapg = a_f.get("l15_rapg") or a_f.get("season_rapg")
+    h_rapg = h_f.get("l15_rapg") or h_f.get("season_rapg")
+    empty  = {"model_total": None, "diff": None, "lean": "—", "conf": "—", "notes": []}
+    if a_rpg is None and h_rpg is None:
+        return empty
+    away_exp = (0.6*a_rpg + 0.4*h_rapg) if (a_rpg and h_rapg) else a_rpg
+    home_exp = (0.6*h_rpg + 0.4*a_rapg) if (h_rpg and a_rapg) else h_rpg
+    if away_exp is None or home_exp is None:
+        return empty
+    total = away_exp + home_exp
+    notes = []
+    pf = game.get("park_factor")
+    if pf and abs(pf - 1.0) > 0.02:
+        total *= pf
+        if pf >= 1.08:   notes.append(f"🏟 HitterPark({pf:.2f})")
+        elif pf <= 0.93: notes.append(f"🏟 PitcherPark({pf:.2f})")
+    wx   = game.get("weather") or {}
+    adj  = 0.0
+    temp = wx.get("temp_f"); wind = wx.get("wind_mph") or 0
+    wdir = (wx.get("wind_dir") or "").lower(); cond = (wx.get("condition") or "").lower()
+    if temp and temp < 50:     adj -= 0.5; notes.append(f"🌡{int(temp)}°F")
+    if wind >= 12:
+        if "out" in wdir:      adj += 0.6; notes.append(f"💨out{int(wind)}mph")
+        elif "in" in wdir:     adj -= 0.6; notes.append(f"💨in{int(wind)}mph")
+    if any(w in cond for w in ("rain","storm","shower","drizzle")):
+        adj -= 0.5; notes.append("🌧rain")
+    total = round(total + adj, 1)
+    posted = (game.get("odds") or {}).get("total", {})
+    line   = posted.get("line") if posted else None
+    if line is None:
+        return {"model_total": total, "diff": None, "lean": "—", "conf": "—", "notes": notes}
+    diff = round(total - line, 1)
+    if diff >= 1.0:      lean, conf = "OVER",  "HIGH"
+    elif diff >= 0.5:    lean, conf = "OVER",  "MED"
+    elif diff <= -1.0:   lean, conf = "UNDER", "HIGH"
+    elif diff <= -0.5:   lean, conf = "UNDER", "MED"
+    else:                lean, conf = "PUSH",  "LOW"
+    return {"model_total": total, "posted_line": line, "diff": diff,
+            "lean": lean, "conf": conf, "notes": notes}
+
+
 def _game_ov_grade(game: dict, side: str) -> str:
     """Compute overall letter grade for one side of a game dict."""
     pitchers   = game.get("pitchers", {})
@@ -418,8 +466,46 @@ def _summary_rec(game: dict) -> dict:
             "away_g": away_g, "home_g": home_g, "gap": gap, "ml": team_ml}
 
 
+def _ev_side(game: dict, side: str) -> dict:
+    """EV data for one side. Mirrors app.py logic."""
+    pitchers = game.get("pitchers", {})
+    tr       = game.get("team_ranks", {})
+    bullpen  = game.get("bullpen", {})
+    lineups  = game.get("lineups", {})
+
+    def _sc(s):
+        t   = (tr.get(s) or {})
+        opp = "home" if s == "away" else "away"
+        opp_t = (pitchers.get(opp) or {}).get("throws")
+        sp = _sp_score(pitchers.get(s))
+        bp = _bp_score((bullpen.get(s) or {}))
+        pl = _platoon_score(lineups.get(s, []), opp_t)
+        return _overall_score(t.get("hitting_xwoba_rank"), sp, bp, t.get("defense_oaa_rank"), pl)
+
+    a_sc = _sc("away"); h_sc = _sc("home")
+    if a_sc is None or h_sc is None or (a_sc + h_sc) == 0:
+        return {}
+    total = a_sc + h_sc
+    model_p = (a_sc / total) if side == "away" else (h_sc / total)
+    ml_data = (game.get("odds") or {}).get("moneyline") or {}
+    ml      = ml_data.get(f"{side}_ml")
+    impl    = ml_data.get(f"{side}_impl")
+    if ml is None or impl is None:
+        return {"our_prob": model_p}
+    market_p = impl / 100.0
+    edge     = model_p - market_p
+    decimal  = (ml / 100 + 1) if ml > 0 else (100 / abs(ml) + 1)
+    ev_pct   = (model_p * decimal - 1) * 100
+    return {"our_prob": model_p, "market_prob": market_p,
+            "edge": edge, "ev_pct": ev_pct, "ml": ml}
+
+
 def _build_summary_embed(games: list[dict], date_str: str) -> dict:
-    """Single embed with the full day's betting board."""
+    """
+    Two-section embed:
+      1. Best Bets board (ranked by confidence then EV)
+      2. O/U leans field
+    """
     from datetime import date as _date
     try:
         d = _date.fromisoformat(date_str)
@@ -427,7 +513,6 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
     except Exception:
         date_label = date_str
 
-    # Only upcoming / in-progress games (skip finals from board)
     active = [g for g in games if g.get("status") not in ("final",)]
 
     if not active:
@@ -437,56 +522,77 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
             "color":       0x2C3E50,
         }
 
-    # Build monospace table
-    col_time  = 7
-    col_match = 11
-    col_grade = 4
-    col_bet   = 13
-
-    header = (
-        f"{'TIME':<{col_time}} {'MATCHUP':<{col_match}} "
-        f"{'AWAY':^{col_grade}} {'HOME':^{col_grade}} "
-        f"{'BET':<{col_bet}} SIGNAL"
-    )
-    sep = "─" * len(header)
-    rows = [header, sep]
-
+    # ── Rank bets ────────────────────────────────────────────────────────────
+    _CORD = {"💎 VALUE": 0, "🔥 STRONG": 1, "⭐⭐ LEAN": 2, "⭐ SLIGHT": 3, "= TOSS-UP": 4}
+    ranked = []
     for game in active:
-        away     = game["away_team"]
-        home     = game["home_team"]
-        time_str = _to_et_str(game.get("first_pitch_utc", ""))
-        # Compact: "7:05 PM ET" → "7:05p"
-        ts = time_str.replace(" PM", "p").replace(" AM", "a").replace(" ET", "")
+        rec  = _summary_rec(game)
+        side = "away" if rec["team"] == game["away_team"] else "home"
+        ev   = _ev_side(game, side)
+        ranked.append((game, rec, ev))
+    ranked.sort(key=lambda x: (_CORD.get(x[1]["signal"], 9), -(x[2].get("ev_pct") or -999)))
 
-        rec    = _summary_rec(game)
-        ml_str = ""
-        if rec["ml"] is not None:
-            v = rec["ml"]
-            ml_str = f" {'+' if v > 0 else ''}{v}"
-        bet_str = f"{rec['label']}{ml_str}"
+    # ── Best Bets board ───────────────────────────────────────────────────────
+    col_t  = 6; col_m = 10; col_g = 4; col_b = 12; col_e = 7
+    header = (f"{'TIME':<{col_t}} {'MATCHUP':<{col_m}} "
+              f"{'AW':^{col_g}} {'HM':^{col_g}} "
+              f"{'BET':<{col_b}} {'EV%':<{col_e}} SIG")
+    sep    = "─" * len(header)
+    rows   = [header, sep]
 
+    for game, rec, ev in ranked:
+        away = game["away_team"]; home = game["home_team"]
+        ts   = _to_et_str(game.get("first_pitch_utc","")).replace(" PM","p").replace(" AM","a").replace(" ET","")
+        ml   = rec["ml"]
+        ml_s = (f"+{ml}" if ml > 0 else str(ml)) if ml is not None else ""
+        bet  = f"{rec['label']} {ml_s}".strip()
+        ev_p = ev.get("ev_pct")
+        ev_s = (f"+{ev_p:.1f}%" if ev_p >= 0 else f"{ev_p:.1f}%") if ev_p is not None else "—"
+        sig  = rec["signal"].replace(" STRONG","").replace(" LEAN","").replace(" SLIGHT","").replace(" TOSS-UP","")
         rows.append(
-            f"{ts:<{col_time}} {f'{away}@{home}':<{col_match}} "
-            f"{rec['away_g']:^{col_grade}} {rec['home_g']:^{col_grade}} "
-            f"{bet_str:<{col_bet}} {rec['signal']}"
+            f"{ts:<{col_t}} {f'{away}@{home}':<{col_m}} "
+            f"{rec['away_g']:^{col_g}} {rec['home_g']:^{col_g}} "
+            f"{bet:<{col_b}} {ev_s:<{col_e}} {sig}"
         )
 
     board = "```\n" + "\n".join(rows) + "\n```"
 
-    # Tally signals for footer note
-    strong = sum(1 for g in active if _summary_rec(g)["signal"] in ("🔥 STRONG", "💎 VALUE"))
-    value  = sum(1 for g in active if _summary_rec(g)["signal"] == "💎 VALUE")
-    note_parts = []
-    if value:  note_parts.append(f"{value} 💎 value bet{'s' if value > 1 else ''}")
-    if strong: note_parts.append(f"{strong} 🔥 strong play{'s' if strong > 1 else ''}")
-    note = "  ·  ".join(note_parts) if note_parts else "No strong plays today"
+    # ── O/U leans field ───────────────────────────────────────────────────────
+    ou_lines = []
+    for game in active:
+        away = game["away_team"]; home = game["home_team"]
+        ou   = _ou_model(game)
+        line = ou.get("posted_line"); mt = ou.get("model_total")
+        lean = ou.get("lean","—");   conf = ou.get("conf","—")
+        if lean in ("OVER","UNDER") and line is not None:
+            diff  = ou.get("diff",0)
+            diff_s = f"+{diff}" if diff >= 0 else str(diff)
+            note_s = "  ".join(ou.get("notes",[]))
+            icon   = "🔺" if lean == "OVER" else "🔻"
+            conf_s = f"({conf})" if conf != "—" else ""
+            ou_lines.append(
+                f"`{away}@{home}` {icon} **{lean} {line}** · model {mt} ({diff_s})  {note_s} {conf_s}"
+            )
+
+    ou_text = "\n".join(ou_lines) if ou_lines else "No O/U lines available yet."
+
+    # ── Summary note ──────────────────────────────────────────────────────────
+    value  = sum(1 for _,r,_ in ranked if r["signal"] == "💎 VALUE")
+    strong = sum(1 for _,r,_ in ranked if r["signal"] in ("💎 VALUE","🔥 STRONG"))
+    note_p = []
+    if value:  note_p.append(f"{value} 💎 value")
+    if strong: note_p.append(f"{strong} 🔥 strong")
+    highlights = "  ·  ".join(note_p) if note_p else "No strong plays today"
 
     return {
         "title":       f"📋 Betting Board — {date_label}",
         "description": board,
         "color":       0x2C3E50,
-        "fields": [{"name": "Today's highlights", "value": note, "inline": False}],
-        "footer": {"text": "💎=VALUE(gap≥3, odds>-175)  🔥=STRONG(gap≥3)  ⭐⭐=LEAN  ⭐=SLIGHT  ==TOSS-UP"},
+        "fields": [
+            {"name": "📊 O/U Leans", "value": ou_text,    "inline": False},
+            {"name": "Highlights",   "value": highlights,  "inline": False},
+        ],
+        "footer": {"text": "EV%=(our_prob×decimal_odds)-1  ·  💎VALUE  🔥STRONG  ⭐⭐LEAN  ⭐SLIGHT  =TOSS-UP"},
     }
 
 

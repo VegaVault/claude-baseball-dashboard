@@ -324,6 +324,158 @@ def _bet_rec(away: str, home: str, away_g: str, home_g: str, game: dict) -> dict
     }
 
 
+def _raw_scores(game: dict) -> tuple[float | None, float | None]:
+    """Return (away_overall_score, home_overall_score) as 0–1 floats (pre-grade)."""
+    pitchers = game.get("pitchers", {})
+    tr       = game.get("team_ranks", {})
+    bullpen  = game.get("bullpen", {})
+    lineups  = game.get("lineups", {})
+
+    def _sc(side: str) -> float | None:
+        t          = (tr.get(side) or {})
+        opp        = "home" if side == "away" else "away"
+        opp_throws = (pitchers.get(opp) or {}).get("throws")
+        lineup     = lineups.get(side, [])
+        sp_sc      = _sp_score(pitchers.get(side))
+        bp_sc      = _bp_score(bullpen.get(side) or {})
+        plat       = _platoon_score(lineup, opp_throws)
+        return _overall_score(
+            t.get("hitting_xwoba_rank"), sp_sc, bp_sc,
+            t.get("defense_oaa_rank"), plat,
+        )
+
+    return _sc("away"), _sc("home")
+
+
+def _ev_data(game: dict) -> dict | None:
+    """
+    Expected-Value calculation for both sides of a game.
+
+    Model win probability = head-to-head normalised score.
+    EV% = (our_prob × decimal_payout − 1) × 100.
+
+    Returns dict keyed "away"/"home", each with:
+      our_prob, market_prob, edge, ev_pct, ml
+    Returns None if scores unavailable.
+    """
+    away_sc, home_sc = _raw_scores(game)
+    if away_sc is None or home_sc is None or (away_sc + home_sc) == 0:
+        return None
+
+    total_sc       = away_sc + home_sc
+    away_model_p   = away_sc / total_sc
+    home_model_p   = home_sc / total_sc
+
+    odds    = game.get("odds") or {}
+    ml_data = odds.get("moneyline") or {}
+
+    def _side(ml, model_p, impl_pct):
+        result = {"our_prob": model_p, "market_prob": None,
+                  "edge": None, "ev_pct": None, "ml": ml}
+        if ml is None or impl_pct is None:
+            return result
+        market_p       = impl_pct / 100.0
+        edge           = model_p - market_p
+        decimal        = (ml / 100 + 1) if ml > 0 else (100 / abs(ml) + 1)
+        ev_pct         = (model_p * decimal - 1) * 100
+        result.update(market_prob=market_p, edge=edge, ev_pct=ev_pct)
+        return result
+
+    return {
+        "away": _side(ml_data.get("away_ml"), away_model_p, ml_data.get("away_impl")),
+        "home": _side(ml_data.get("home_ml"), home_model_p, ml_data.get("home_impl")),
+    }
+
+
+def _ou_model(game: dict) -> dict:
+    """
+    O/U expected-total model.
+
+    Expected scoring per team = 60% own L15 RPG + 40% opponent L15 RAPG.
+    Adjusted for park factor then weather.
+    Compared to the posted total line.
+
+    Returns: model_total, posted_line, diff, lean, conf, notes
+    """
+    tf      = game.get("team_form", {})
+    away_f  = (tf.get("away") or {})
+    home_f  = (tf.get("home") or {})
+
+    # Prefer L15, fall back to season
+    a_rpg  = away_f.get("l15_rpg")  or away_f.get("season_rpg")
+    h_rpg  = home_f.get("l15_rpg")  or home_f.get("season_rpg")
+    a_rapg = away_f.get("l15_rapg") or away_f.get("season_rapg")
+    h_rapg = home_f.get("l15_rapg") or home_f.get("season_rapg")
+
+    empty = {"model_total": None, "posted_line": None, "diff": None,
+             "lean": "—", "conf": "—", "notes": []}
+
+    if a_rpg is None and h_rpg is None:
+        return empty
+
+    # Expected runs each team scores
+    away_exp = (0.6 * a_rpg  + 0.4 * h_rapg) if (a_rpg  is not None and h_rapg is not None) else a_rpg
+    home_exp = (0.6 * h_rpg  + 0.4 * a_rapg) if (h_rpg  is not None and a_rapg is not None) else h_rpg
+
+    if away_exp is None or home_exp is None:
+        return empty
+
+    model_total = away_exp + home_exp
+    notes: list[str] = []
+
+    # Park factor
+    pf = game.get("park_factor")
+    if pf and abs(pf - 1.0) > 0.02:
+        model_total *= pf
+        if pf >= 1.08:
+            notes.append(f"🏟 Hitter-friendly ({pf:.2f})")
+        elif pf <= 0.93:
+            notes.append(f"🏟 Pitcher-friendly ({pf:.2f})")
+
+    # Weather
+    wx      = game.get("weather") or {}
+    wx_adj  = 0.0
+    temp    = wx.get("temp_f")
+    wind    = wx.get("wind_mph") or 0
+    wdir    = (wx.get("wind_dir") or "").lower()
+    cond    = (wx.get("condition") or "").lower()
+
+    if temp is not None and temp < 50:
+        wx_adj -= 0.5
+        notes.append(f"🌡 Cold ({int(temp)}°F)")
+    if wind >= 12:
+        if "out" in wdir:
+            wx_adj += 0.6
+            notes.append(f"💨 Wind out {int(wind)} mph")
+        elif "in" in wdir:
+            wx_adj -= 0.6
+            notes.append(f"💨 Wind in {int(wind)} mph")
+    if any(w in cond for w in ("rain", "storm", "shower", "drizzle")):
+        wx_adj -= 0.5
+        notes.append("🌧 Rain")
+
+    model_total = round(model_total + wx_adj, 1)
+
+    # Compare to posted line
+    tot         = (game.get("odds") or {}).get("total") or {}
+    posted_line = tot.get("line")
+
+    if posted_line is None:
+        return {"model_total": model_total, "posted_line": None, "diff": None,
+                "lean": "—", "conf": "—", "notes": notes}
+
+    diff = round(model_total - posted_line, 1)
+
+    if diff >= 1.0:      lean, conf = "OVER",  "HIGH"
+    elif diff >= 0.5:    lean, conf = "OVER",  "MED"
+    elif diff <= -1.0:   lean, conf = "UNDER", "HIGH"
+    elif diff <= -0.5:   lean, conf = "UNDER", "MED"
+    else:                lean, conf = "PUSH",  "LOW"
+
+    return {"model_total": model_total, "posted_line": posted_line, "diff": diff,
+            "lean": lean, "conf": conf, "notes": notes}
+
+
 # ── General helpers ────────────────────────────────────────────────────────────
 
 def utc_to_et(utc_str: str) -> datetime:
@@ -680,91 +832,38 @@ def render_lineup_table(lineup: list[dict], current_year: int) -> None:
 
 
 def render_summary_tab(games: list[dict]) -> None:
-    """Summary board: one row per game with grades and betting recommendations."""
-    st.markdown("### 📋 Today's Betting Board")
-    st.caption(
-        "Grades update automatically as lineups are confirmed.  "
-        "Recommendations are based on overall grade comparison — see signal guide below."
-    )
+    """
+    Summary tab: Best Bets (EV-ranked), O/U Analysis, Full Grade Board.
+    All sections update automatically as lineups are confirmed.
+    """
 
     # ── Signal legend pills ───────────────────────────────────────────────────
+    pill = "display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.82rem;font-weight:600;"
     c1, c2, c3, c4, c5 = st.columns(5)
-    pill_css = (
-        "display:inline-block;padding:3px 10px;border-radius:12px;"
-        "font-size:0.82rem;font-weight:600;"
-    )
-    c1.markdown(
-        f"<span style='{pill_css}background:#4CAF50;color:white'>💎 VALUE</span>"
-        "<span style='font-size:0.75rem;margin-left:6px'>3+ gap, odds &gt; -175</span>",
-        unsafe_allow_html=True,
-    )
-    c2.markdown(
-        f"<span style='{pill_css}background:#FF5722;color:white'>🔥 STRONG</span>"
-        "<span style='font-size:0.75rem;margin-left:6px'>3+ grade gap</span>",
-        unsafe_allow_html=True,
-    )
-    c3.markdown(
-        f"<span style='{pill_css}background:#FF9800;color:black'>⭐⭐ LEAN</span>"
-        "<span style='font-size:0.75rem;margin-left:6px'>2 grade gap</span>",
-        unsafe_allow_html=True,
-    )
-    c4.markdown(
-        f"<span style='{pill_css}background:#FFD700;color:black'>⭐ SLIGHT</span>"
-        "<span style='font-size:0.75rem;margin-left:6px'>1 grade gap</span>",
-        unsafe_allow_html=True,
-    )
-    c5.markdown(
-        f"<span style='{pill_css}background:#eeeeee;color:#333'>= TOSS-UP</span>"
-        "<span style='font-size:0.75rem;margin-left:6px'>Tied → bet the dog</span>",
-        unsafe_allow_html=True,
-    )
+    c1.markdown(f"<span style='{pill}background:#4CAF50;color:white'>💎 VALUE</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>3+ gap · odds &gt;-175</span>",
+                unsafe_allow_html=True)
+    c2.markdown(f"<span style='{pill}background:#FF5722;color:white'>🔥 STRONG</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>3+ grade gap</span>",
+                unsafe_allow_html=True)
+    c3.markdown(f"<span style='{pill}background:#FF9800;color:black'>⭐⭐ LEAN</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>2 grade gap</span>",
+                unsafe_allow_html=True)
+    c4.markdown(f"<span style='{pill}background:#FFD700;color:black'>⭐ SLIGHT</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>1 grade gap</span>",
+                unsafe_allow_html=True)
+    c5.markdown(f"<span style='{pill}background:#eeeeee;color:#333'>= TOSS-UP</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>Tied → bet dog</span>",
+                unsafe_allow_html=True)
 
     st.divider()
 
-    # ── Build rows ────────────────────────────────────────────────────────────
-    rows = []
-    for game in games:
-        away         = game["away_team"]
-        home         = game["home_team"]
-        time_str     = fmt_time(game.get("first_pitch_utc", ""))
-        status       = game.get("status", "")
-        lineup_icon  = {"confirmed": "🟢", "frozen": "🔵", "projected": "🟡"}.get(
-            game.get("lineup_status", "projected"), "⚪"
-        )
+    # ── Best Bets (ranked by confidence then EV%) ─────────────────────────────
+    st.markdown("### 🏆 Best Bets")
+    st.caption("Ranked by confidence tier, then Expected Value within each tier.")
 
-        away_g, home_g = _game_grades(game)
-        rec = _bet_rec(away, home, away_g, home_g, game)
-
-        ml_str = "—"
-        if rec["ml"] is not None:
-            v = rec["ml"]
-            ml_str = f"+{v}" if v > 0 else str(v)
-
-        if status == "final":
-            score    = game.get("final_score", "")
-            game_lbl = f"✅ Final: {score}" if score else "✅ Final"
-        elif status == "in_progress":
-            score    = game.get("final_score", "")
-            game_lbl = f"🔴 Live: {score}" if score else "🔴 Live"
-        else:
-            game_lbl = f"{lineup_icon} {game.get('lineup_status','projected').title()}"
-
-        rows.append({
-            "Time":     time_str,
-            "Matchup":  f"{away} @ {home}",
-            "Status":   game_lbl,
-            "Away":     away_g,
-            "Home":     home_g,
-            "Gap":      rec["gap"] if rec["gap"] is not None else "—",
-            "Bet":      rec["label"],
-            "ML":       ml_str,
-            "Signal":   rec["signal"],
-        })
-
-    df = pd.DataFrame(rows)
-
-    # ── Styling ───────────────────────────────────────────────────────────────
-    _SIG_STYLE = {
+    _CONF_ORDER = {"💎 VALUE": 0, "🔥": 1, "⭐⭐": 2, "⭐": 3, "=": 4, "❓": 5}
+    _SIG_STYLE  = {
         "💎 VALUE": "background-color:#4CAF50;color:white;font-weight:700",
         "🔥":       "background-color:#FF5722;color:white;font-weight:700",
         "⭐⭐":     "background-color:#FF9800;color:black;font-weight:700",
@@ -772,37 +871,194 @@ def render_summary_tab(games: list[dict]) -> None:
         "=":        "background-color:#eeeeee;color:#444",
     }
 
-    def _style_all(frame: pd.DataFrame) -> pd.DataFrame:
+    bet_rows: list[dict] = []
+    for game in games:
+        if game.get("status") == "final":
+            continue
+        away, home     = game["away_team"], game["home_team"]
+        away_g, home_g = _game_grades(game)
+        rec            = _bet_rec(away, home, away_g, home_g, game)
+        ev             = _ev_data(game)
+
+        side    = "away" if rec["team"] == away else "home"
+        ev_side = ((ev or {}).get(side)) or {}
+
+        our_p    = ev_side.get("our_prob")
+        mkt_p    = ev_side.get("market_prob")
+        edge     = ev_side.get("edge")
+        ev_pct   = ev_side.get("ev_pct")
+        ml       = rec["ml"]
+        ml_str   = (f"+{ml}" if ml > 0 else str(ml)) if ml is not None else "—"
+
+        bet_rows.append({
+            "Game":       f"{away} @ {home}",
+            "Time":       fmt_time(game.get("first_pitch_utc", "")),
+            "Signal":     rec["signal"],
+            "_conf_ord":  _CONF_ORDER.get(rec["signal"], 9),
+            "_ev_num":    ev_pct if ev_pct is not None else -999.0,
+            "Bet":        rec["label"],
+            "ML":         ml_str,
+            "Our Win%":   f"{our_p*100:.1f}%" if our_p is not None else "—",
+            "Mkt Win%":   f"{mkt_p*100:.1f}%" if mkt_p is not None else "—",
+            "Edge":       (f"+{edge*100:.1f}%" if edge >= 0 else f"{edge*100:.1f}%") if edge is not None else "—",
+            "EV%":        (f"+{ev_pct:.1f}%" if ev_pct >= 0 else f"{ev_pct:.1f}%") if ev_pct is not None else "—",
+        })
+
+    bet_rows.sort(key=lambda r: (r["_conf_ord"], -r["_ev_num"]))
+    for i, r in enumerate(bet_rows, 1):
+        r["#"] = i
+
+    disp = ["#", "Game", "Time", "Signal", "Bet", "ML",
+            "Our Win%", "Mkt Win%", "Edge", "EV%"]
+    df_bets = pd.DataFrame(bet_rows)[disp] if bet_rows else pd.DataFrame(columns=disp)
+
+    def _style_bets(frame: pd.DataFrame) -> pd.DataFrame:
         out = pd.DataFrame("", index=frame.index, columns=frame.columns)
-        for col in ("Away", "Home"):
-            out[col] = frame[col].map(lambda v: GRADE_STYLE.get(str(v).strip(), ""))
-        out["Signal"] = frame["Signal"].map(lambda v: _SIG_STYLE.get(str(v).strip(), ""))
-        # Highlight entire row for VALUE bets
-        mask = frame["Signal"].str.startswith("💎")
-        for col in frame.columns:
-            out.loc[mask, col] = out.loc[mask, col].map(
-                lambda s: s + ";outline:2px solid #4CAF50" if s else "outline:2px solid #4CAF50"
-            )
+        for i, row in frame.iterrows():
+            sig = str(row.get("Signal", "")).strip()
+            if sig.startswith("💎"):
+                for col in frame.columns:
+                    out.at[i, col] = "background-color:#0d2b0d"
+            out.at[i, "Signal"] = _SIG_STYLE.get(sig, "")
+            ev_s = str(row.get("EV%", ""))
+            if ev_s.startswith("+"):
+                out.at[i, "EV%"] = "color:#4CAF50;font-weight:600"
+            elif ev_s.startswith("-"):
+                out.at[i, "EV%"] = "color:#ef5350"
+            e_s = str(row.get("Edge", ""))
+            if e_s.startswith("+"):
+                out.at[i, "Edge"] = "color:#4CAF50"
+            elif e_s.startswith("-"):
+                out.at[i, "Edge"] = "color:#ef5350"
         return out
 
-    styled = df.style.apply(_style_all, axis=None)
-    row_h  = min(50 + len(rows) * 38, 650)
-    st.dataframe(styled, use_container_width=True, hide_index=True, height=row_h)
+    st.dataframe(
+        df_bets.style.apply(_style_bets, axis=None),
+        use_container_width=True, hide_index=True,
+        height=min(65 + len(bet_rows) * 38, 660),
+    )
+    st.caption(
+        "**EV%** = (our win prob × decimal payout) − 1.  Positive = model sees edge the market underprices.  "
+        "**Our Win%** = head-to-head normalised overall score.  **Mkt Win%** = market implied probability (vig removed)."
+    )
 
-    # ── Weights reminder ──────────────────────────────────────────────────────
-    with st.expander("📖 How overall grades are calculated"):
-        st.markdown("""
-| Component | Weight |
-|---|---|
-| Offense (team xwOBA rank) | 50% |
-| Starting Pitcher grade | 21% |
-| Bullpen (xwOBA-against proxy) | 9% |
-| Defense (OAA rank) | 15% |
-| Platoon Advantage | 5% |
+    st.divider()
 
-**Value flag (💎):** Grade gap ≥ 3 levels AND recommended team's moneyline is better than -175.
-This means the model sees a clear mismatch that the betting market hasn't fully priced in.
-        """)
+    # ── O/U Analysis ──────────────────────────────────────────────────────────
+    with st.expander("📊 O/U Analysis — All Games", expanded=False):
+        st.caption(
+            "Model: 60% own L15 RPG + 40% opponent L15 RA/G · then park factor + weather adjustment.  "
+            "HIGH = model differs from line by 1+ run · MED = 0.5+ run."
+        )
+        ou_rows: list[dict] = []
+        for game in games:
+            away, home = game["away_team"], game["home_team"]
+            tf         = game.get("team_form", {})
+            a_f        = tf.get("away") or {}
+            h_f        = tf.get("home") or {}
+            ou         = _ou_model(game)
+
+            a_rpg  = a_f.get("l15_rpg");  h_rpg  = h_f.get("l15_rpg")
+            a_rapg = a_f.get("l15_rapg"); h_rapg = h_f.get("l15_rapg")
+
+            diff_str = "—"
+            if ou.get("diff") is not None:
+                diff_str = f"+{ou['diff']}" if ou["diff"] >= 0 else str(ou["diff"])
+
+            ou_rows.append({
+                "Game":        f"{away} @ {home}",
+                "Time":        fmt_time(game.get("first_pitch_utc", "")),
+                f"{away} RPG": f"{a_rpg:.1f}" if a_rpg else "—",
+                f"{home} RPG": f"{h_rpg:.1f}" if h_rpg else "—",
+                f"{away} RA":  f"{a_rapg:.1f}" if a_rapg else "—",
+                f"{home} RA":  f"{h_rapg:.1f}" if h_rapg else "—",
+                "Model":       str(ou["model_total"]) if ou.get("model_total") else "—",
+                "Line":        str(ou["posted_line"]) if ou.get("posted_line") else "—",
+                "Diff":        diff_str,
+                "Lean":        ou["lean"],
+                "Conf":        ou["conf"],
+                "Factors":     "  ".join(ou.get("notes", [])) or "—",
+            })
+
+        if ou_rows:
+            df_ou = pd.DataFrame(ou_rows)
+            _LEAN_STYLE = {
+                "OVER":  "background-color:#FF5722;color:white;font-weight:700",
+                "UNDER": "background-color:#0288D1;color:white;font-weight:700",
+                "PUSH":  "background-color:#555;color:#ccc",
+                "—":     "",
+            }
+            _CONF_STYLE_OU = {
+                "HIGH": "color:#4CAF50;font-weight:700",
+                "MED":  "color:#FF9800",
+                "LOW":  "color:#888",
+                "—":    "",
+            }
+
+            def _style_ou(frame: pd.DataFrame) -> pd.DataFrame:
+                out = pd.DataFrame("", index=frame.index, columns=frame.columns)
+                out["Lean"] = frame["Lean"].map(lambda v: _LEAN_STYLE.get(str(v), ""))
+                out["Conf"] = frame["Conf"].map(lambda v: _CONF_STYLE_OU.get(str(v), ""))
+                for i, d in enumerate(frame["Diff"]):
+                    s = str(d)
+                    if s.startswith("+"):
+                        out.at[i, "Diff"] = "color:#FF5722"
+                    elif s.startswith("-"):
+                        out.at[i, "Diff"] = "color:#0288D1"
+                return out
+
+            st.dataframe(
+                df_ou.style.apply(_style_ou, axis=None),
+                use_container_width=True, hide_index=True,
+            )
+        else:
+            st.info("No O/U data available yet.")
+
+    # ── Full Grade Board ──────────────────────────────────────────────────────
+    with st.expander("📋 Full Grade Board", expanded=False):
+        grade_rows: list[dict] = []
+        for game in games:
+            away, home     = game["away_team"], game["home_team"]
+            away_g, home_g = _game_grades(game)
+            rec            = _bet_rec(away, home, away_g, home_g, game)
+            status         = game.get("status", "")
+            lineup_icon    = {"confirmed": "🟢", "frozen": "🔵", "projected": "🟡"}.get(
+                game.get("lineup_status", "projected"), "⚪"
+            )
+            if status == "final":
+                game_lbl = f"✅ Final: {game.get('final_score','')}"
+            elif status == "in_progress":
+                game_lbl = f"🔴 Live: {game.get('final_score','')}"
+            else:
+                game_lbl = f"{lineup_icon} {game.get('lineup_status','projected').title()}"
+
+            ml = rec["ml"]
+            grade_rows.append({
+                "Time":    fmt_time(game.get("first_pitch_utc", "")),
+                "Matchup": f"{away} @ {home}",
+                "Status":  game_lbl,
+                "Away":    away_g,
+                "Home":    home_g,
+                "Gap":     rec["gap"] if rec["gap"] is not None else "—",
+                "Bet":     rec["label"],
+                "ML":      (f"+{ml}" if ml > 0 else str(ml)) if ml is not None else "—",
+                "Signal":  rec["signal"],
+            })
+
+        df_gb = pd.DataFrame(grade_rows)
+
+        def _style_gb(frame: pd.DataFrame) -> pd.DataFrame:
+            out = pd.DataFrame("", index=frame.index, columns=frame.columns)
+            for col in ("Away", "Home"):
+                out[col] = frame[col].map(lambda v: GRADE_STYLE.get(str(v).strip(), ""))
+            out["Signal"] = frame["Signal"].map(lambda v: _SIG_STYLE.get(str(v).strip(), ""))
+            return out
+
+        st.dataframe(
+            df_gb.style.apply(_style_gb, axis=None),
+            use_container_width=True, hide_index=True,
+            height=min(50 + len(grade_rows) * 38, 620),
+        )
 
 
 def render_legend() -> None:
