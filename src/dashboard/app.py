@@ -1152,10 +1152,15 @@ def main() -> None:
 
         current_year = int(selected_date[:4])
 
-        game_options = {
+        # Summary is the first "game" option — sentinel key "__summary__"
+        SUMMARY_KEY = "__summary__"
+        game_options: dict[str, str] = {
+            SUMMARY_KEY: "📋 Summary — All Games",
+        }
+        game_options.update({
             g["game_pk"]: f"{g['away_team']} @ {g['home_team']}  {fmt_time(g.get('first_pitch_utc',''))}"
             for g in games
-        }
+        })
 
         selected_pk = st.selectbox(
             "Game",
@@ -1171,18 +1176,15 @@ def main() -> None:
                 for e in errors:
                     st.caption(e)
 
-    # ── Tabs ──────────────────────────────────────────────────────────────────
-    tab_summary, tab_detail = st.tabs(["📋 Summary", "🔍 Game Detail"])
-
-    with tab_summary:
+    # ── Main content ──────────────────────────────────────────────────────────
+    if selected_pk == SUMMARY_KEY:
         render_summary_tab(games)
 
-    with tab_detail:
+    else:
         game = next(g for g in games if g["game_pk"] == selected_pk)
 
         render_header(game)
 
-        # Matchup summary with inline lineup status subtitle
         lineup_status = game.get("lineup_status", "projected")
         fp_utc = game.get("first_pitch_utc", "")
 
