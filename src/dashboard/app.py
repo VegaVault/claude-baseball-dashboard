@@ -272,8 +272,13 @@ def _bet_rec(away: str, home: str, away_g: str, home_g: str, game: dict) -> dict
     """
     Compute betting recommendation from overall grades + moneyline.
 
-    Returns dict with keys:
-      team, label, signal, conf, ml, gap, is_value
+    Signal tiers (grade gap only — VALUE badge added separately via EV):
+      🔥 STRONG  = 3+ grade levels apart
+      ⭐⭐ LEAN   = 2 grade levels apart
+      ⭐ SLIGHT  = 1 grade level apart
+      =  TOSS-UP = tied grades → bet the dog (better risk/reward)
+
+    Returns dict: team, label, signal, conf, ml, gap
     """
     an = grade_to_num(away_g)
     hn = grade_to_num(home_g)
@@ -285,21 +290,17 @@ def _bet_rec(away: str, home: str, away_g: str, home_g: str, game: dict) -> dict
 
     if an is None or hn is None:
         return {"team": "—", "label": "NO DATA", "signal": "❓",
-                "conf": "NO DATA", "ml": None, "gap": None, "is_value": False}
+                "conf": "NO DATA", "ml": None, "gap": None}
 
     gap = abs(an - hn)
 
-    if gap >= 3:
-        conf, signal = "STRONG",  "🔥"
-    elif gap == 2:
-        conf, signal = "LEAN",    "⭐⭐"
-    elif gap == 1:
-        conf, signal = "SLIGHT",  "⭐"
-    else:
-        conf, signal = "TOSS-UP", "="
+    if gap >= 3:   conf, signal = "STRONG",  "🔥"
+    elif gap == 2: conf, signal = "LEAN",    "⭐⭐"
+    elif gap == 1: conf, signal = "SLIGHT",  "⭐"
+    else:          conf, signal = "TOSS-UP", "="
 
     if gap == 0:
-        # Bet the underdog — highest ML payout
+        # TOSS-UP: bet the underdog (higher payout = better risk/reward at 50/50)
         if away_ml is not None and home_ml is not None:
             team, team_ml = (away, away_ml) if away_ml >= home_ml else (home, home_ml)
         elif away_ml is not None:
@@ -313,15 +314,8 @@ def _bet_rec(away: str, home: str, away_g: str, home_g: str, game: dict) -> dict
         team, team_ml = (away, away_ml) if an > hn else (home, home_ml)
         label = team
 
-    # Value flag: big grade gap but odds still reasonable (not a massive ML favourite)
-    is_value = (gap >= 3 and team_ml is not None and team_ml > -175)
-    if is_value:
-        signal = "💎 VALUE"
-
-    return {
-        "team": team, "label": label, "signal": signal,
-        "conf": conf, "ml": team_ml, "gap": gap, "is_value": is_value,
-    }
+    return {"team": team, "label": label, "signal": signal,
+            "conf": conf, "ml": team_ml, "gap": gap}
 
 
 def _raw_scores(game: dict) -> tuple[float | None, float | None]:
@@ -362,9 +356,16 @@ def _ev_data(game: dict) -> dict | None:
     if away_sc is None or home_sc is None or (away_sc + home_sc) == 0:
         return None
 
-    total_sc       = away_sc + home_sc
-    away_model_p   = away_sc / total_sc
-    home_model_p   = home_sc / total_sc
+    total_sc     = away_sc + home_sc
+    raw_away     = away_sc / total_sc
+    raw_home     = home_sc / total_sc
+
+    # Compress toward 50% — baseball games rarely exceed ~60% for even the
+    # best team. Raw grade scores are not calibrated win probabilities.
+    # Factor 0.55 limits max model edge to ~±27.5 pp from 50%.
+    _COMPRESS = 0.55
+    away_model_p = 0.5 + (raw_away - 0.5) * _COMPRESS
+    home_model_p = 0.5 + (raw_home - 0.5) * _COMPRESS
 
     odds    = game.get("odds") or {}
     ml_data = odds.get("moneyline") or {}
@@ -374,10 +375,10 @@ def _ev_data(game: dict) -> dict | None:
                   "edge": None, "ev_pct": None, "ml": ml}
         if ml is None or impl_pct is None:
             return result
-        market_p       = impl_pct / 100.0
-        edge           = model_p - market_p
-        decimal        = (ml / 100 + 1) if ml > 0 else (100 / abs(ml) + 1)
-        ev_pct         = (model_p * decimal - 1) * 100
+        market_p = impl_pct / 100.0
+        edge     = model_p - market_p
+        decimal  = (ml / 100 + 1) if ml > 0 else (100 / abs(ml) + 1)
+        ev_pct   = (model_p * decimal - 1) * 100
         result.update(market_prob=market_p, edge=edge, ev_pct=ev_pct)
         return result
 
@@ -423,14 +424,18 @@ def _ou_model(game: dict) -> dict:
     model_total = away_exp + home_exp
     notes: list[str] = []
 
-    # Park factor
+    # Park factor — small LINEAR nudge only, capped at ±0.3 runs.
+    # L15 RPG already reflects ~50% of park effects (half of games played there),
+    # so a full multiplier would double-count. We add a residual adjustment for
+    # the remaining half-game-worth of park influence.
     pf = game.get("park_factor")
     if pf and abs(pf - 1.0) > 0.02:
-        model_total *= pf
-        if pf >= 1.08:
-            notes.append(f"🏟 Hitter-friendly ({pf:.2f})")
-        elif pf <= 0.93:
-            notes.append(f"🏟 Pitcher-friendly ({pf:.2f})")
+        park_adj = max(-0.3, min(0.3, (pf - 1.0) * 1.5))
+        model_total += park_adj
+        if park_adj > 0:
+            notes.append(f"🏟 Hitter park (+{park_adj:.1f})")
+        else:
+            notes.append(f"🏟 Pitcher park ({park_adj:.1f})")
 
     # Weather
     wx      = game.get("weather") or {}
@@ -840,36 +845,47 @@ def render_summary_tab(games: list[dict]) -> None:
     # ── Signal legend pills ───────────────────────────────────────────────────
     pill = "display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.82rem;font-weight:600;"
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.markdown(f"<span style='{pill}background:#4CAF50;color:white'>💎 VALUE</span>"
-                "<span style='font-size:0.75rem;margin-left:5px'>3+ gap · odds &gt;-175</span>",
-                unsafe_allow_html=True)
-    c2.markdown(f"<span style='{pill}background:#FF5722;color:white'>🔥 STRONG</span>"
+    c1.markdown(f"<span style='{pill}background:#FF5722;color:white'>🔥 STRONG</span>"
                 "<span style='font-size:0.75rem;margin-left:5px'>3+ grade gap</span>",
                 unsafe_allow_html=True)
-    c3.markdown(f"<span style='{pill}background:#FF9800;color:black'>⭐⭐ LEAN</span>"
+    c2.markdown(f"<span style='{pill}background:#FF9800;color:black'>⭐⭐ LEAN</span>"
                 "<span style='font-size:0.75rem;margin-left:5px'>2 grade gap</span>",
                 unsafe_allow_html=True)
-    c4.markdown(f"<span style='{pill}background:#FFD700;color:black'>⭐ SLIGHT</span>"
+    c3.markdown(f"<span style='{pill}background:#FFD700;color:black'>⭐ SLIGHT</span>"
                 "<span style='font-size:0.75rem;margin-left:5px'>1 grade gap</span>",
                 unsafe_allow_html=True)
-    c5.markdown(f"<span style='{pill}background:#eeeeee;color:#333'>= TOSS-UP</span>"
+    c4.markdown(f"<span style='{pill}background:#eeeeee;color:#333'>= TOSS-UP</span>"
                 "<span style='font-size:0.75rem;margin-left:5px'>Tied → bet dog</span>",
+                unsafe_allow_html=True)
+    c5.markdown(f"<span style='{pill}background:#4CAF50;color:white'>💎 badge</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>EV &gt; 5% on top of any tier</span>",
                 unsafe_allow_html=True)
 
     st.divider()
 
     # ── Best Bets (ranked by confidence then EV%) ─────────────────────────────
     st.markdown("### 🏆 Best Bets")
-    st.caption("Ranked by confidence tier, then Expected Value within each tier.")
+    st.caption(
+        "Ranked by confidence tier (grade gap), then EV% within each tier.  "
+        "💎 = genuine line value: model edge > 5% after calibration."
+    )
 
-    _CONF_ORDER = {"💎 VALUE": 0, "🔥": 1, "⭐⭐": 2, "⭐": 3, "=": 4, "❓": 5}
-    _SIG_STYLE  = {
-        "💎 VALUE": "background-color:#4CAF50;color:white;font-weight:700",
-        "🔥":       "background-color:#FF5722;color:white;font-weight:700",
-        "⭐⭐":     "background-color:#FF9800;color:black;font-weight:700",
-        "⭐":       "background-color:#FFD700;color:black",
-        "=":        "background-color:#eeeeee;color:#444",
+    # Confidence sort order — base signal only (VALUE is a badge, not a tier)
+    _CONF_ORDER = {"🔥": 0, "⭐⭐": 1, "⭐": 2, "=": 3, "❓": 9}
+
+    # Signal cell styles — base signals + badge combos
+    _SIG_STYLE: dict[str, str] = {
+        "🔥 💎":  "background-color:#4CAF50;color:white;font-weight:700",
+        "🔥":     "background-color:#FF5722;color:white;font-weight:700",
+        "⭐⭐ 💎": "background-color:#2e7d32;color:white;font-weight:700",
+        "⭐⭐":   "background-color:#FF9800;color:black;font-weight:700",
+        "⭐ 💎":  "background-color:#558b2f;color:white",
+        "⭐":     "background-color:#FFD700;color:black",
+        "= 💎":   "background-color:#1b5e20;color:white",
+        "=":      "background-color:#eeeeee;color:#444",
     }
+
+    _EV_VALUE_THRESHOLD = 5.0   # % — badge fires above this
 
     bet_rows: list[dict] = []
     for game in games:
@@ -883,43 +899,50 @@ def render_summary_tab(games: list[dict]) -> None:
         side    = "away" if rec["team"] == away else "home"
         ev_side = ((ev or {}).get(side)) or {}
 
-        our_p    = ev_side.get("our_prob")
-        mkt_p    = ev_side.get("market_prob")
-        edge     = ev_side.get("edge")
-        ev_pct   = ev_side.get("ev_pct")
-        ml       = rec["ml"]
-        ml_str   = (f"+{ml}" if ml > 0 else str(ml)) if ml is not None else "—"
+        our_p  = ev_side.get("our_prob")
+        mkt_p  = ev_side.get("market_prob")
+        edge   = ev_side.get("edge")
+        ev_pct = ev_side.get("ev_pct")
+        ml     = rec["ml"]
+        ml_str = (f"+{ml}" if ml > 0 else str(ml)) if ml is not None else "—"
+
+        # Attach 💎 badge when EV clears threshold
+        base_sig = rec["signal"]
+        signal   = f"{base_sig} 💎" if (ev_pct is not None and ev_pct >= _EV_VALUE_THRESHOLD) else base_sig
 
         bet_rows.append({
-            "Game":       f"{away} @ {home}",
-            "Time":       fmt_time(game.get("first_pitch_utc", "")),
-            "Signal":     rec["signal"],
-            "_conf_ord":  _CONF_ORDER.get(rec["signal"], 9),
-            "_ev_num":    ev_pct if ev_pct is not None else -999.0,
-            "Bet":        rec["label"],
-            "ML":         ml_str,
-            "Our Win%":   f"{our_p*100:.1f}%" if our_p is not None else "—",
-            "Mkt Win%":   f"{mkt_p*100:.1f}%" if mkt_p is not None else "—",
-            "Edge":       (f"+{edge*100:.1f}%" if edge >= 0 else f"{edge*100:.1f}%") if edge is not None else "—",
-            "EV%":        (f"+{ev_pct:.1f}%" if ev_pct >= 0 else f"{ev_pct:.1f}%") if ev_pct is not None else "—",
+            "Game":      f"{away} @ {home}",
+            "Time":      fmt_time(game.get("first_pitch_utc", "")),
+            "Signal":    signal,
+            "_conf_ord": _CONF_ORDER.get(base_sig, 9),
+            "_ev_num":   ev_pct if ev_pct is not None else -999.0,
+            "Bet":       rec["label"],
+            "ML":        ml_str,
+            "Our Win%":  f"{our_p*100:.1f}%" if our_p is not None else "—",
+            "Mkt Win%":  f"{mkt_p*100:.1f}%" if mkt_p is not None else "—",
+            "Edge":      (f"+{edge*100:.1f}%" if edge >= 0 else f"{edge*100:.1f}%") if edge is not None else "—",
+            "EV%":       (f"+{ev_pct:.1f}%" if ev_pct >= 0 else f"{ev_pct:.1f}%") if ev_pct is not None else "—",
         })
 
     bet_rows.sort(key=lambda r: (r["_conf_ord"], -r["_ev_num"]))
     for i, r in enumerate(bet_rows, 1):
         r["#"] = i
 
-    disp = ["#", "Game", "Time", "Signal", "Bet", "ML",
-            "Our Win%", "Mkt Win%", "Edge", "EV%"]
+    disp    = ["#", "Game", "Time", "Signal", "Bet", "ML",
+               "Our Win%", "Mkt Win%", "Edge", "EV%"]
     df_bets = pd.DataFrame(bet_rows)[disp] if bet_rows else pd.DataFrame(columns=disp)
 
     def _style_bets(frame: pd.DataFrame) -> pd.DataFrame:
         out = pd.DataFrame("", index=frame.index, columns=frame.columns)
         for i, row in frame.iterrows():
-            sig = str(row.get("Signal", "")).strip()
-            if sig.startswith("💎"):
+            sig  = str(row.get("Signal", "")).strip()
+            cell = _SIG_STYLE.get(sig, "")
+            out.at[i, "Signal"] = cell
+            # Green row highlight for anything with the VALUE badge
+            if "💎" in sig:
                 for col in frame.columns:
-                    out.at[i, col] = "background-color:#0d2b0d"
-            out.at[i, "Signal"] = _SIG_STYLE.get(sig, "")
+                    if col != "Signal":
+                        out.at[i, col] = "background-color:#0d2b0d"
             ev_s = str(row.get("EV%", ""))
             if ev_s.startswith("+"):
                 out.at[i, "EV%"] = "color:#4CAF50;font-weight:600"
@@ -938,8 +961,10 @@ def render_summary_tab(games: list[dict]) -> None:
         height=min(65 + len(bet_rows) * 38, 660),
     )
     st.caption(
-        "**EV%** = (our win prob × decimal payout) − 1.  Positive = model sees edge the market underprices.  "
-        "**Our Win%** = head-to-head normalised overall score.  **Mkt Win%** = market implied probability (vig removed)."
+        "**EV%** = (model win prob × decimal payout) − 1.  "
+        "Model win prob is compressed toward 50% to reflect baseball's variance — "
+        "max ~62% even for a large grade mismatch.  "
+        "**💎** fires when EV > 5%."
     )
 
     st.divider()

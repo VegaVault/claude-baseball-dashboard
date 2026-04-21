@@ -151,9 +151,10 @@ def _ou_model(game: dict) -> dict:
     notes = []
     pf = game.get("park_factor")
     if pf and abs(pf - 1.0) > 0.02:
-        total *= pf
-        if pf >= 1.08:   notes.append(f"🏟 HitterPark({pf:.2f})")
-        elif pf <= 0.93: notes.append(f"🏟 PitcherPark({pf:.2f})")
+        park_adj = max(-0.3, min(0.3, (pf - 1.0) * 1.5))
+        total += park_adj
+        if park_adj > 0:   notes.append(f"🏟+{park_adj:.1f}")
+        else:              notes.append(f"🏟{park_adj:.1f}")
     wx   = game.get("weather") or {}
     adj  = 0.0
     temp = wx.get("temp_f"); wind = wx.get("wind_mph") or 0
@@ -459,9 +460,6 @@ def _summary_rec(game: dict) -> dict:
         team, team_ml = (away, away_ml) if an > hn else (home, home_ml)
         label = team
 
-    if gap >= 3 and team_ml is not None and team_ml > -175:
-        signal = "💎 VALUE"
-
     return {"team": team, "label": label, "signal": signal,
             "away_g": away_g, "home_g": home_g, "gap": gap, "ml": team_ml}
 
@@ -485,8 +483,9 @@ def _ev_side(game: dict, side: str) -> dict:
     a_sc = _sc("away"); h_sc = _sc("home")
     if a_sc is None or h_sc is None or (a_sc + h_sc) == 0:
         return {}
-    total = a_sc + h_sc
-    model_p = (a_sc / total) if side == "away" else (h_sc / total)
+    total   = a_sc + h_sc
+    raw_p   = (a_sc / total) if side == "away" else (h_sc / total)
+    model_p = 0.5 + (raw_p - 0.5) * 0.55   # compress toward 50%; caps edge at ~±27.5pp
     ml_data = (game.get("odds") or {}).get("moneyline") or {}
     ml      = ml_data.get(f"{side}_ml")
     impl    = ml_data.get(f"{side}_impl")
@@ -523,7 +522,7 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
         }
 
     # ── Rank bets ────────────────────────────────────────────────────────────
-    _CORD = {"💎 VALUE": 0, "🔥 STRONG": 1, "⭐⭐ LEAN": 2, "⭐ SLIGHT": 3, "= TOSS-UP": 4}
+    _CORD = {"🔥 STRONG": 0, "⭐⭐ LEAN": 1, "⭐ SLIGHT": 2, "= TOSS-UP": 3}
     ranked = []
     for game in active:
         rec  = _summary_rec(game)
@@ -547,8 +546,9 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
         ml_s = (f"+{ml}" if ml > 0 else str(ml)) if ml is not None else ""
         bet  = f"{rec['label']} {ml_s}".strip()
         ev_p = ev.get("ev_pct")
-        ev_s = (f"+{ev_p:.1f}%" if ev_p >= 0 else f"{ev_p:.1f}%") if ev_p is not None else "—"
-        sig  = rec["signal"].replace(" STRONG","").replace(" LEAN","").replace(" SLIGHT","").replace(" TOSS-UP","")
+        ev_s     = (f"+{ev_p:.1f}%" if ev_p >= 0 else f"{ev_p:.1f}%") if ev_p is not None else "—"
+        base_sig = rec["signal"].replace(" STRONG","").replace(" LEAN","").replace(" SLIGHT","").replace(" TOSS-UP","")
+        sig      = f"{base_sig}💎" if (ev_p is not None and ev_p >= 5.0) else base_sig
         rows.append(
             f"{ts:<{col_t}} {f'{away}@{home}':<{col_m}} "
             f"{rec['away_g']:^{col_g}} {rec['home_g']:^{col_g}} "
@@ -577,11 +577,11 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
     ou_text = "\n".join(ou_lines) if ou_lines else "No O/U lines available yet."
 
     # ── Summary note ──────────────────────────────────────────────────────────
-    value  = sum(1 for _,r,_ in ranked if r["signal"] == "💎 VALUE")
-    strong = sum(1 for _,r,_ in ranked if r["signal"] in ("💎 VALUE","🔥 STRONG"))
-    note_p = []
-    if value:  note_p.append(f"{value} 💎 value")
-    if strong: note_p.append(f"{strong} 🔥 strong")
+    diamond = sum(1 for _,r,e in ranked if (e.get("ev_pct") or 0) >= 5.0)
+    strong  = sum(1 for _,r,_ in ranked if r["signal"] == "🔥 STRONG")
+    note_p  = []
+    if diamond: note_p.append(f"{diamond} 💎 value plays")
+    if strong:  note_p.append(f"{strong} 🔥 strong")
     highlights = "  ·  ".join(note_p) if note_p else "No strong plays today"
 
     return {
@@ -592,7 +592,7 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
             {"name": "📊 O/U Leans", "value": ou_text,    "inline": False},
             {"name": "Highlights",   "value": highlights,  "inline": False},
         ],
-        "footer": {"text": "EV%=(our_prob×decimal_odds)-1  ·  💎VALUE  🔥STRONG  ⭐⭐LEAN  ⭐SLIGHT  =TOSS-UP"},
+        "footer": {"text": "EV%=(our_prob×decimal_odds)-1  ·  🔥STRONG  ⭐⭐LEAN  ⭐SLIGHT  =TOSS-UP  💎=EV>5%"},
     }
 
 
