@@ -15,8 +15,9 @@ import streamlit as st
 import sys
 
 sys.path.insert(0, str(Path(__file__).parents[2]))
-from src.fetch.labels import rank_to_grade, rank_to_score, score_to_grade, grade_to_num
-from src.fetch.park_factors import park_factor_label
+from src.fetch.labels        import rank_to_grade, rank_to_score, score_to_grade, grade_to_num
+from src.fetch.park_factors  import park_factor_label
+from src.build.picks_tracker import get_stats as _get_pick_stats, BANKROLL_START, BET_SIZE
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 DATA_DIR = Path(__file__).parents[2] / "data"
@@ -1086,6 +1087,209 @@ def render_summary_tab(games: list[dict]) -> None:
         )
 
 
+def render_tracker_tab(year: int) -> None:
+    """
+    Pick Tracker — running tally for the season, organized by confidence tier.
+    Bankroll starts at $10,000, flat $100/bet.
+    """
+    try:
+        stats = _get_pick_stats(year)
+    except Exception as e:
+        st.error(f"Could not load picks: {e}")
+        return
+
+    picks       = stats["picks"]
+    bankroll    = stats["bankroll"]
+    total_pnl   = stats["total_pnl"]
+    total_bets  = stats["total_bets"]
+    total_wins  = stats["total_wins"]
+    total_losses= stats["total_losses"]
+    pending     = stats["total_pending"]
+    win_pct     = stats["win_pct"]
+
+    # ── Bankroll hero banner ─────────────────────────────────────────────────
+    pnl_color = "#4CAF50" if total_pnl >= 0 else "#F44336"
+    pnl_sign  = "+" if total_pnl >= 0 else ""
+    pct_gain  = (total_pnl / BANKROLL_START * 100)
+    st.markdown(
+        f"""
+        <div style="background:linear-gradient(135deg,#1a237e,#283593);
+                    border-radius:12px;padding:24px 32px;margin-bottom:16px;
+                    display:flex;align-items:center;gap:40px;flex-wrap:wrap;">
+          <div>
+            <div style="color:#90caf9;font-size:0.85rem;font-weight:600;letter-spacing:1px">BANKROLL</div>
+            <div style="color:white;font-size:2.2rem;font-weight:800">${bankroll:,.2f}</div>
+            <div style="color:{pnl_color};font-size:1rem;font-weight:600">
+              {pnl_sign}${total_pnl:,.2f} &nbsp;·&nbsp; {pnl_sign}{pct_gain:.1f}%
+            </div>
+          </div>
+          <div style="border-left:1px solid #3949ab;padding-left:32px">
+            <div style="color:#90caf9;font-size:0.85rem;font-weight:600;letter-spacing:1px">RECORD</div>
+            <div style="color:white;font-size:1.8rem;font-weight:800">{total_wins}-{total_losses}</div>
+            <div style="color:#b3c5ff;font-size:0.9rem">
+              {win_pct:.1f}% win rate &nbsp;·&nbsp; ${BET_SIZE:.0f}/bet flat
+            </div>
+          </div>
+          <div style="border-left:1px solid #3949ab;padding-left:32px">
+            <div style="color:#90caf9;font-size:0.85rem;font-weight:600;letter-spacing:1px">BETS</div>
+            <div style="color:white;font-size:1.8rem;font-weight:800">{total_bets}</div>
+            <div style="color:#b3c5ff;font-size:0.9rem">{pending} pending</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    ) if total_bets > 0 else st.info("No resolved picks yet — results will appear after games go final.")
+
+    if total_bets == 0 and pending == 0:
+        st.info(
+            "No picks recorded yet. Picks are automatically recorded each morning "
+            "when the snapshot runs. Check back after the next scheduled build."
+        )
+        return
+
+    st.divider()
+
+    # ── By confidence tier ───────────────────────────────────────────────────
+    st.markdown("### 📊 By Confidence Tier")
+
+    _TIER_STYLE = {
+        "🔥 STRONG":  "background-color:#FF5722;color:white",
+        "⭐⭐ LEAN":   "background-color:#FF9800;color:black",
+        "⭐ SLIGHT":  "background-color:#FFD700;color:black",
+        "= TOSS-UP":  "background-color:#eeeeee;color:#333",
+    }
+
+    tier_rows = []
+    for sig in stats["signal_order"]:
+        d    = stats["by_signal"][sig]
+        wp   = f"{d['win_pct']:.1f}%" if d["win_pct"] is not None else "—"
+        pnl  = f"+${d['pnl']:,.2f}" if d["pnl"] >= 0 else f"-${abs(d['pnl']):,.2f}"
+        tier_rows.append({
+            "Signal":  sig,
+            "Bets":    d["bets"],
+            "W":       d["wins"],
+            "L":       d["losses"],
+            "Pending": d["pending"],
+            "Win %":   wp,
+            "P&L":     pnl,
+        })
+    # Totals row
+    total_pnl_str = f"+${total_pnl:,.2f}" if total_pnl >= 0 else f"-${abs(total_pnl):,.2f}"
+    tier_rows.append({
+        "Signal":  "TOTAL",
+        "Bets":    total_bets,
+        "W":       total_wins,
+        "L":       total_losses,
+        "Pending": pending,
+        "Win %":   f"{win_pct:.1f}%" if win_pct is not None else "—",
+        "P&L":     total_pnl_str,
+    })
+
+    df_tier = pd.DataFrame(tier_rows)
+
+    def _style_tier(df):
+        styles = pd.DataFrame("", index=df.index, columns=df.columns)
+        for i, row in df.iterrows():
+            sig = row["Signal"]
+            if sig in _TIER_STYLE:
+                styles.loc[i, "Signal"] = _TIER_STYLE[sig] + ";font-weight:700;border-radius:4px"
+            elif sig == "TOTAL":
+                styles.loc[i, :] = "font-weight:800;border-top:2px solid #555"
+            # Color P&L
+            pnl_val = row["P&L"]
+            if str(pnl_val).startswith("+"):
+                styles.loc[i, "P&L"] = "color:#4CAF50;font-weight:700"
+            elif str(pnl_val).startswith("-"):
+                styles.loc[i, "P&L"] = "color:#F44336;font-weight:700"
+        return styles
+
+    st.dataframe(
+        df_tier.style.apply(_style_tier, axis=None),
+        use_container_width=True,
+        hide_index=True,
+        height=min(50 + len(tier_rows) * 38, 400),
+    )
+
+    st.divider()
+
+    # ── Recent picks log ─────────────────────────────────────────────────────
+    st.markdown("### 📋 Pick Log")
+
+    resolved_picks = [p for p in reversed(picks) if p["result"] in ("win", "loss")]
+    pending_picks  = [p for p in reversed(picks) if p["result"] == "pending"]
+
+    def _picks_df(pick_list: list[dict], show_result: bool) -> pd.DataFrame | None:
+        rows = []
+        for p in pick_list:
+            ml_s = (f"+{p['ml']}" if p["ml"] > 0 else str(p["ml"])) if p["ml"] is not None else "—"
+            ev_s = (f"+{p['ev_pct']:.1f}%" if p["ev_pct"] >= 0 else f"{p['ev_pct']:.1f}%") if p.get("ev_pct") is not None else "—"
+            row = {
+                "Date":    p["date"][5:],   # MM-DD
+                "Matchup": f"{p['away_team']}@{p['home_team']}",
+                "Pick":    p["pick_team"],
+                "ML":      ml_s,
+                "Signal":  p["signal"],
+                "AW":      p["away_grade"],
+                "HM":      p["home_grade"],
+                "EV%":     ev_s,
+            }
+            if show_result:
+                pnl = p.get("pnl")
+                pnl_s = f"+${pnl:.2f}" if pnl and pnl >= 0 else (f"-${abs(pnl):.2f}" if pnl else "—")
+                score_s = f"{p['away_score']}-{p['home_score']}" if p.get("away_score") is not None else "—"
+                row["Result"] = "✅ W" if p["result"] == "win" else "❌ L"
+                row["Score"]  = score_s
+                row["P&L"]    = pnl_s
+            rows.append(row)
+        return pd.DataFrame(rows) if rows else None
+
+    def _style_picks(df, show_result: bool):
+        styles = pd.DataFrame("", index=df.index, columns=df.columns)
+        for col in ("AW", "HM"):
+            if col in df.columns:
+                styles[col] = df[col].map(lambda g: GRADE_STYLE.get(str(g).strip(), ""))
+        sig_map = {
+            "🔥 STRONG":  "background-color:#FF5722;color:white;font-weight:700",
+            "⭐⭐ LEAN":   "background-color:#FF9800;color:black;font-weight:700",
+            "⭐ SLIGHT":  "background-color:#FFD700;color:black;font-weight:700",
+            "= TOSS-UP":  "background-color:#eeeeee;color:#333;font-weight:700",
+        }
+        if "Signal" in df.columns:
+            styles["Signal"] = df["Signal"].map(lambda s: sig_map.get(s, ""))
+        if show_result and "Result" in df.columns:
+            styles["Result"] = df["Result"].map(
+                lambda r: "color:#4CAF50;font-weight:700" if "W" in str(r)
+                          else ("color:#F44336;font-weight:700" if "L" in str(r) else "")
+            )
+        if show_result and "P&L" in df.columns:
+            styles["P&L"] = df["P&L"].map(
+                lambda v: "color:#4CAF50;font-weight:700" if str(v).startswith("+")
+                          else ("color:#F44336;font-weight:700" if str(v).startswith("-") else "")
+            )
+        return styles
+
+    if pending_picks:
+        with st.expander(f"⏳ Pending ({len(pending_picks)} games today / tonight)", expanded=True):
+            df_pend = _picks_df(pending_picks, show_result=False)
+            if df_pend is not None:
+                st.dataframe(
+                    df_pend.style.apply(lambda df: _style_picks(df, False), axis=None),
+                    use_container_width=True, hide_index=True,
+                    height=min(50 + len(pending_picks) * 38, 500),
+                )
+
+    if resolved_picks:
+        df_res = _picks_df(resolved_picks[:50], show_result=True)   # last 50
+        if df_res is not None:
+            st.dataframe(
+                df_res.style.apply(lambda df: _style_picks(df, True), axis=None),
+                use_container_width=True, hide_index=True,
+                height=min(50 + min(len(resolved_picks), 50) * 38, 720),
+            )
+    elif total_bets == 0:
+        st.info("No resolved picks yet.")
+
+
 def render_legend() -> None:
     st.divider()
     with st.expander("📖 Legend & Methodology"):
@@ -1177,10 +1381,12 @@ def main() -> None:
 
         current_year = int(selected_date[:4])
 
-        # Summary is the first "game" option — sentinel key "__summary__"
+        # Summary + Tracker are sentinel keys at top of dropdown
         SUMMARY_KEY = "__summary__"
+        TRACKER_KEY = "__tracker__"
         game_options: dict[str, str] = {
             SUMMARY_KEY: "📋 Summary — All Games",
+            TRACKER_KEY: "📊 Pick Tracker",
         }
         game_options.update({
             g["game_pk"]: f"{g['away_team']} @ {g['home_team']}  {fmt_time(g.get('first_pitch_utc',''))}"
@@ -1204,6 +1410,9 @@ def main() -> None:
     # ── Main content ──────────────────────────────────────────────────────────
     if selected_pk == SUMMARY_KEY:
         render_summary_tab(games)
+
+    elif selected_pk == TRACKER_KEY:
+        render_tracker_tab(current_year)
 
     else:
         game = next(g for g in games if g["game_pk"] == selected_pk)

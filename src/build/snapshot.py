@@ -17,6 +17,7 @@ from pathlib import Path
 # Allow running as script directly
 sys.path.insert(0, str(Path(__file__).parents[2]))
 
+from src.build.picks_tracker import record_and_resolve as _record_picks
 from src.fetch.schedule      import fetch_schedule, TEAM_ID_TO_ABBR
 from src.fetch.probables     import fetch_probables_mlbapi
 from src.fetch.lineups       import fetch_confirmed_lineup, fetch_projected_lineup
@@ -329,6 +330,14 @@ def build_snapshot(date_str: str) -> None:
 
     if fetch_errors:
         logger.warning("Fetch errors:\n  %s", "\n  ".join(fetch_errors))
+
+    # ------------------------------------------------------------------
+    # 8. Record / resolve picks
+    # ------------------------------------------------------------------
+    try:
+        _record_picks(games, date_str)
+    except Exception as e:
+        logger.error("picks_tracker failed: %s", e)
 
 
 if __name__ == "__main__":
