@@ -21,7 +21,8 @@ from src.build.picks_tracker import get_stats as _get_pick_stats, BANKROLL_START
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 DATA_DIR = Path(__file__).parents[2] / "data"
-ET = ZoneInfo("America/New_York")
+ET       = ZoneInfo("America/New_York")   # kept for UTC conversion reference
+LOCAL_TZ = ZoneInfo("America/Denver")     # display timezone (MT)
 
 # ── Conditional formatting color maps ─────────────────────────────────────────
 # Red (hot/good) → Yellow → Blue (cold/poor)
@@ -489,11 +490,18 @@ def utc_to_et(utc_str: str) -> datetime:
     return dt.astimezone(ET)
 
 
+def utc_to_local(utc_str: str) -> datetime:
+    dt = datetime.fromisoformat(utc_str.replace("Z", "+00:00"))
+    return dt.astimezone(LOCAL_TZ)
+
+
 def fmt_time(utc_str: str) -> str:
+    """Display game time in MT (Mountain Time)."""
     if not utc_str:
         return "TBD"
-    dt = utc_to_et(utc_str)
-    return dt.strftime("%I:%M %p ET").lstrip("0")
+    dt  = utc_to_local(utc_str)
+    tz  = "MDT" if dt.dst() else "MST"
+    return dt.strftime("%I:%M %p ").lstrip("0") + tz
 
 
 def fmt_stat(val, decimals: int = 3) -> str:
@@ -912,17 +920,17 @@ def render_summary_tab(games: list[dict]) -> None:
         signal   = f"{base_sig} 💎" if (ev_pct is not None and ev_pct >= _EV_VALUE_THRESHOLD) else base_sig
 
         bet_rows.append({
-            "Game":      f"{away} @ {home}",
-            "Time":      fmt_time(game.get("first_pitch_utc", "")),
-            "Signal":    signal,
-            "_conf_ord": _CONF_ORDER.get(base_sig, 9),
-            "_ev_num":   ev_pct if ev_pct is not None else -999.0,
-            "Bet":       rec["label"],
-            "ML":        ml_str,
-            "Our Win%":  f"{our_p*100:.1f}%" if our_p is not None else "—",
-            "Mkt Win%":  f"{mkt_p*100:.1f}%" if mkt_p is not None else "—",
-            "Edge":      (f"+{edge*100:.1f}%" if edge >= 0 else f"{edge*100:.1f}%") if edge is not None else "—",
-            "EV%":       (f"+{ev_pct:.1f}%" if ev_pct >= 0 else f"{ev_pct:.1f}%") if ev_pct is not None else "—",
+            "Game":          f"{away} @ {home}",
+            "Time":          fmt_time(game.get("first_pitch_utc", "")),
+            "Signal":        signal,
+            "_conf_ord":     _CONF_ORDER.get(base_sig, 9),
+            "_ev_num":       ev_pct if ev_pct is not None else -999.0,
+            "Bet":           rec["label"],
+            "ML":            ml_str,
+            "Model%":        f"{our_p*100:.1f}%" if our_p is not None else "—",
+            "Mkt%":          f"{mkt_p*100:.1f}%" if mkt_p is not None else "—",
+            "Edge":          (f"+{edge*100:.1f}%" if edge >= 0 else f"{edge*100:.1f}%") if edge is not None else "—",
+            "EV%":           (f"+{ev_pct:.1f}%" if ev_pct >= 0 else f"{ev_pct:.1f}%") if ev_pct is not None else "—",
         })
 
     bet_rows.sort(key=lambda r: (r["_conf_ord"], -r["_ev_num"]))
@@ -930,7 +938,7 @@ def render_summary_tab(games: list[dict]) -> None:
         r["#"] = i
 
     disp    = ["#", "Game", "Time", "Signal", "Bet", "ML",
-               "Our Win%", "Mkt Win%", "Edge", "EV%"]
+               "Model%", "Mkt%", "Edge", "EV%"]
     df_bets = pd.DataFrame(bet_rows)[disp] if bet_rows else pd.DataFrame(columns=disp)
 
     def _style_bets(frame: pd.DataFrame) -> pd.DataFrame:
@@ -962,9 +970,9 @@ def render_summary_tab(games: list[dict]) -> None:
         height=min(65 + len(bet_rows) * 38, 660),
     )
     st.caption(
-        "**EV%** = (model win prob × decimal payout) − 1.  "
-        "Model win prob is compressed toward 50% to reflect baseball's variance — "
-        "max ~62% even for a large grade mismatch.  "
+        "All columns are for the **recommended team** (Bet).  "
+        "**Model%** = our compressed win prob · **Mkt%** = implied prob from ML · "
+        "**Edge** = Model% − Mkt% · **EV%** = (Model% × decimal payout) − 1.  "
         "**💎** fires when EV > 5%."
     )
 
@@ -1400,7 +1408,14 @@ def main() -> None:
         )
 
         st.divider()
-        st.caption(f"Updated: {snapshot.get('last_updated', '?')}")
+        raw_upd = snapshot.get("last_updated", "")
+        try:
+            upd_local = utc_to_local(raw_upd)
+            tz_label  = "MDT" if upd_local.dst() else "MST"
+            upd_str   = upd_local.strftime("%-I:%M %p ") + tz_label
+        except Exception:
+            upd_str = raw_upd
+        st.caption(f"Updated: {upd_str}")
         errors = snapshot.get("fetch_errors", [])
         if errors:
             with st.expander(f"⚠️ {len(errors)} fetch error(s)"):

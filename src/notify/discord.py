@@ -392,7 +392,47 @@ def _build_embed(game: dict) -> dict:
     away_ov = _ov_grade("away")
     home_ov = _ov_grade("home")
 
+    # ── Betting rec field ──────────────────────────────────────────────────────
+    rec  = _summary_rec(game)
+    pick_side = "away" if rec["team"] == away else "home"
+    ev   = _ev_side(game, pick_side) if rec["team"] not in ("—",) else {}
+
+    def _bet_field_value() -> str:
+        if rec["signal"] == "❓":
+            return "Grade data unavailable"
+        ml_s  = (_fmt_ml(rec["ml"])) if rec["ml"] is not None else "—"
+        ev_p  = ev.get("ev_pct")
+        edge  = ev.get("edge")
+        mdl   = ev.get("our_prob")
+        mkt   = ev.get("market_prob")
+        badge = " 💎" if ev_p is not None and ev_p >= 5.0 else ""
+        lines = [
+            f"**{rec['signal']}{badge}**  →  **{rec['label']}**  `{ml_s}`",
+        ]
+        if mdl is not None and mkt is not None:
+            edge_s = (f"+{edge*100:.1f}%" if edge >= 0 else f"{edge*100:.1f}%") if edge is not None else "—"
+            ev_s   = (f"+{ev_p:.1f}%" if ev_p >= 0 else f"{ev_p:.1f}%") if ev_p is not None else "—"
+            lines.append(
+                f"Model: **{mdl*100:.1f}%**  ·  Market: {mkt*100:.1f}%  "
+                f"·  Edge: **{edge_s}**  ·  EV: **{ev_s}**"
+            )
+        lines.append(
+            f"Grades:  {away} **{away_ov}**  vs  {home} **{home_ov}**  "
+            f"(gap: {rec['gap'] if rec['gap'] is not None else '?'})"
+        )
+        return "\n".join(lines)
+
+    colour = 0x4CAF50 if "💎" in (rec.get("signal") or "") else (
+             0xFF5722 if rec["signal"] == "🔥 STRONG" else (
+             0xFF9800 if rec["signal"] == "⭐⭐ LEAN"  else (
+             0x2ECC71 if status == "confirmed" else 0x3498DB)))
+
     fields = [
+        {
+            "name":   "🎯  Betting Rec",
+            "value":  _bet_field_value(),
+            "inline": False,
+        },
         {
             "name":   "📊  Matchup",
             "value":  _matchup_table(away, home, game),
@@ -415,7 +455,7 @@ def _build_embed(game: dict) -> dict:
         "description": _context_description(game, away, home),
         "color":       colour,
         "fields":      fields,
-        "footer":      {"text": "MLB Daily Dashboard"},
+        "footer":      {"text": "MLB Daily Dashboard  ·  Edge/EV vs pick team only"},
     }
 
 
@@ -596,6 +636,78 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
     }
 
 
+def post_remaining_slate(date: str | None = None) -> None:
+    """
+    Post a compact single-message rundown of all remaining (non-final) games:
+    one line per game — pick, ML, signal, edge, O/U lean.
+    """
+    if date is None:
+        date = _utc_now().strftime("%Y-%m-%d")
+
+    snapshot_path = DATA_DIR / f"{date}.json"
+    if not snapshot_path.exists():
+        print(f"No snapshot for {date}.")
+        return
+
+    snapshot = json.loads(snapshot_path.read_text())
+    games    = snapshot.get("games", [])
+    remaining = [g for g in games if g.get("status") not in ("final", "in_progress")]
+
+    if not remaining:
+        print("  No remaining games to post.")
+        return
+
+    try:
+        from datetime import date as _date
+        d = _date.fromisoformat(date)
+        date_label = d.strftime("%a %b %-d")
+    except Exception:
+        date_label = date
+
+    lines = [f"**⚾ Remaining Slate — {date_label}**\n"]
+    for game in remaining:
+        away = game["away_team"]; home = game["home_team"]
+        ts   = _to_et_str(game.get("first_pitch_utc",""))
+        rec  = _summary_rec(game)
+        side = "away" if rec["team"] == away else "home"
+        ev   = _ev_side(game, side) if rec["team"] not in ("—",) else {}
+        ou   = _ou_model(game)
+
+        ml_s  = _fmt_ml(rec["ml"]) if rec["ml"] is not None else "—"
+        ev_p  = ev.get("ev_pct")
+        edge  = ev.get("edge")
+        ev_s  = (f"+{ev_p:.1f}%" if ev_p >= 0 else f"{ev_p:.1f}%") if ev_p is not None else ""
+        edge_s = (f"edge {edge*100:+.1f}%" ) if edge is not None else ""
+        badge = " 💎" if ev_p is not None and ev_p >= 5.0 else ""
+        sig   = rec["signal"].replace(" STRONG","").replace(" LEAN","").replace(" SLIGHT","").replace(" TOSS-UP","")
+
+        ou_lean = ""
+        if ou.get("lean") in ("OVER","UNDER") and ou.get("posted_line"):
+            icon = "🔺" if ou["lean"] == "OVER" else "🔻"
+            ou_lean = f"  {icon} {ou['lean']} {ou['posted_line']}"
+
+        lines.append(
+            f"`{ts:<12}` **{away}@{home}**  →  **{rec['label']}** `{ml_s}`  "
+            f"{sig}{badge}  {ev_s}  {edge_s}{ou_lean}"
+        )
+
+    content = "\n".join(lines)
+    # Discord message limit ~2000 chars — split if needed
+    if len(content) <= 2000:
+        resp = requests.post(WEBHOOK_URL, json={"content": content}, timeout=10)
+        ok   = resp.status_code in (200, 204)
+    else:
+        # Post as embed instead
+        embed = {
+            "title":       f"⚾ Remaining Slate — {date_label}",
+            "description": "\n".join(lines[1:]),
+            "color":       0x2C3E50,
+        }
+        ok = _post_embed(embed)
+
+    print("  ✓ Remaining slate posted." if ok else "  ✗ Failed.")
+
+
 def post_summary(date: str | None = None, force: bool = False) -> None:
     """Post the betting board embed to Discord."""
     if date is None:
@@ -703,15 +815,18 @@ def notify_upcoming_games(
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Send Discord game report cards.")
-    parser.add_argument("--date",    default=None,        help="YYYY-MM-DD (default: today)")
-    parser.add_argument("--all",     action="store_true", help="Post all games (does NOT block T-60 cards)")
-    parser.add_argument("--morning", action="store_true", help="Morning briefing — summary board + all games, separate tracker")
-    parser.add_argument("--summary", action="store_true", help="Post only the betting board summary embed")
-    parser.add_argument("--force",   action="store_true", help="Re-post already-sent games")
+    parser.add_argument("--date",      default=None,        help="YYYY-MM-DD (default: today)")
+    parser.add_argument("--all",       action="store_true", help="Post all games (does NOT block T-60 cards)")
+    parser.add_argument("--morning",   action="store_true", help="Morning briefing — summary board + all games, separate tracker")
+    parser.add_argument("--summary",   action="store_true", help="Post only the betting board summary embed")
+    parser.add_argument("--remaining", action="store_true", help="Post compact rundown of remaining (non-final) games")
+    parser.add_argument("--force",     action="store_true", help="Re-post already-sent games")
     args = parser.parse_args()
     print(f"Discord notifier — {args.date or 'today'}")
 
-    if args.summary:
+    if args.remaining:
+        post_remaining_slate(args.date)
+    elif args.summary:
         post_summary(args.date, force=args.force)
     else:
         notify_upcoming_games(args.date, post_all=args.all, force=args.force, morning=args.morning)

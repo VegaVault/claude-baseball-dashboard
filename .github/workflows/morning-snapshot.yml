@@ -8,7 +8,11 @@ on:
   workflow_dispatch: # allow manual trigger from GitHub UI
     inputs:
       post_summary:
-        description: "Post betting board to Discord now (yes/no)"
+        description: "Post full betting board to Discord (yes/no)"
+        required: false
+        default: "no"
+      post_remaining:
+        description: "Post compact remaining-games slate to Discord (yes/no)"
         required: false
         default: "no"
 
@@ -50,11 +54,18 @@ jobs:
         run: python -m src.notify.discord --morning
         continue-on-error: true
 
-      - name: Post betting board on-demand (manual trigger only)
+      - name: Post full betting board (on-demand)
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.post_summary == 'yes' }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python -m src.notify.discord --summary --force
+        continue-on-error: true
+
+      - name: Post remaining-games slate (on-demand)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.post_remaining == 'yes' }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python -m src.notify.discord --remaining
         continue-on-error: true
 
       - name: Commit and push snapshot
