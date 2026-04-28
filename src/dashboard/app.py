@@ -1298,6 +1298,323 @@ def render_tracker_tab(year: int) -> None:
         st.info("No resolved picks yet.")
 
 
+def _load_odds_history(date_str: str) -> dict:
+    """Load data/odds_history_YYYY-MM-DD.json; return empty dict if missing."""
+    path = DATA_DIR / f"odds_history_{date_str}.json"
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except Exception:
+        return {}
+
+
+def render_odds_tab(date_str: str, games: list[dict]) -> None:
+    """
+    Odds History page — Moneyline / Run Line / O/U tables.
+    Shows odds at three checkpoints: Midnight MT · 8am MT · Current (latest snapshot).
+    """
+    history   = _load_odds_history(date_str)
+    snapshots = history.get("snapshots", {})
+
+    midnight_odds = (snapshots.get("midnight") or {}).get("odds", {})
+    morning_odds  = (snapshots.get("morning")  or {}).get("odds", {})
+
+    midnight_at = (snapshots.get("midnight") or {}).get("captured_at", "")
+    morning_at  = (snapshots.get("morning")  or {}).get("captured_at", "")
+
+    def _ts(utc_iso: str) -> str:
+        if not utc_iso:
+            return "—"
+        try:
+            dt  = utc_to_local(utc_iso)
+            tz  = "MDT" if dt.dst() else "MST"
+            return dt.strftime("%-I:%M %p ") + tz
+        except Exception:
+            return utc_iso
+
+    # Pull current odds from each game's odds field
+    current_odds: dict[str, dict] = {}
+    for g in games:
+        key = f"{g['away_team']}_{g['home_team']}"
+        if g.get("odds"):
+            current_odds[key] = g["odds"]
+
+    # Build the ordered game list (by first pitch)
+    ordered_games = sorted(
+        [g for g in games if g.get("status") != "final"],
+        key=lambda g: g.get("first_pitch_utc") or "",
+    ) or games
+
+    def _fmt_ml(v: int | None) -> str:
+        if v is None: return "—"
+        return f"+{v}" if v > 0 else str(v)
+
+    def _ml_move(old_ml: int | None, new_ml: int | None) -> str:
+        """Movement text for a moneyline (negative = shorter/more favorite)."""
+        if old_ml is None or new_ml is None:
+            return "—"
+        d = new_ml - old_ml
+        if d == 0: return "—"
+        return f"{d:+d}"
+
+    def _ou_move(old_line: float | None, new_line: float | None) -> str:
+        if old_line is None or new_line is None:
+            return "—"
+        d = new_line - old_line
+        if d == 0: return "—"
+        return f"{d:+.1f}"
+
+    # ── Header chips ─────────────────────────────────────────────────────────
+    pill = ("display:inline-block;padding:4px 12px;border-radius:12px;"
+            "font-size:0.8rem;font-weight:600;margin-right:8px")
+    c1, c2, c3 = st.columns(3)
+    c1.markdown(
+        f"<span style='{pill}background:#1565C0;color:white'>🌙 Midnight MT</span>"
+        f"<span style='font-size:0.75rem;color:#888'>{_ts(midnight_at)}</span>",
+        unsafe_allow_html=True,
+    )
+    c2.markdown(
+        f"<span style='{pill}background:#E65100;color:white'>☀️ 8am MT</span>"
+        f"<span style='font-size:0.75rem;color:#888'>{_ts(morning_at)}</span>",
+        unsafe_allow_html=True,
+    )
+    c3.markdown(
+        f"<span style='{pill}background:#2E7D32;color:white'>🔴 Current</span>"
+        f"<span style='font-size:0.75rem;color:#888'>latest snapshot</span>",
+        unsafe_allow_html=True,
+    )
+
+    if not midnight_odds and not morning_odds:
+        st.info(
+            "No odds history captured yet for this date. "
+            "Snapshots are taken automatically at midnight MT and 8am MT. "
+            "You can also trigger one manually from GitHub Actions → **Odds Snapshots** → Run workflow."
+        )
+        return
+
+    st.divider()
+
+    # Helper to get one game's odds from a snapshot dict
+    def _g(snap: dict, away: str, home: str) -> dict:
+        key = f"{away}_{home}"
+        return snap.get(key) or {}
+
+    # ── Color helpers ─────────────────────────────────────────────────────────
+    def _ml_style(old_impl: float | None, new_impl: float | None) -> str:
+        """Color a ML cell green if implied prob increased ≥2pp, red if decreased."""
+        if old_impl is None or new_impl is None:
+            return ""
+        diff = new_impl - old_impl
+        if diff >= 2:   return "color:#4CAF50;font-weight:700"
+        if diff <= -2:  return "color:#ef5350;font-weight:700"
+        return ""
+
+    def _ou_style(old_l: float | None, new_l: float | None) -> str:
+        if old_l is None or new_l is None:
+            return ""
+        d = new_l - old_l
+        if d > 0:  return "color:#FF9800;font-weight:700"
+        if d < 0:  return "color:#29B6F6;font-weight:700"
+        return ""
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # TABLE 1 — MONEYLINE
+    # ═══════════════════════════════════════════════════════════════════════
+    st.markdown("### 💰 Moneyline")
+    st.caption("Away ML / Home ML at each checkpoint · **Bold fav** · Δ = midnight → current fav ML move")
+
+    ml_rows = []
+    for game in ordered_games:
+        away, home = game["away_team"], game["home_team"]
+        mid = (_g(midnight_odds, away, home).get("moneyline") or {})
+        mrn = (_g(morning_odds,  away, home).get("moneyline") or {})
+        cur = (_g(current_odds,  away, home).get("moneyline") or {})
+
+        def _ml_cell(ml_data: dict, label_away: str, label_home: str) -> str:
+            if not ml_data:
+                return "—"
+            fav = ml_data.get("favorite", "away")
+            a   = _fmt_ml(ml_data.get("away_ml"))
+            h   = _fmt_ml(ml_data.get("home_ml"))
+            if fav == "away":
+                return f"**{label_away} {a}** / {label_home} {h}"
+            else:
+                return f"{label_away} {a} / **{label_home} {h}**"
+
+        # Movement: track the favorite's ML from midnight to current
+        fav_side = cur.get("favorite") or mid.get("favorite") or "away"
+        fav_lbl  = away if fav_side == "away" else home
+        mid_fav  = mid.get(f"{fav_side}_ml")
+        cur_fav  = cur.get(f"{fav_side}_ml")
+        move     = _ml_move(mid_fav, cur_fav)
+        # Negative move = favorite getting shorter (more expensive)
+        if move != "—":
+            val = int(move)
+            move_styled = f"📈 {move}" if val < 0 else f"📉 {move}"
+        else:
+            move_styled = "—"
+
+        ml_rows.append({
+            "Game":       f"{away} @ {home}",
+            "Time":       fmt_time(game.get("first_pitch_utc", "")),
+            "Midnight":   (f"{_fmt_ml(mid.get('away_ml'))} / {_fmt_ml(mid.get('home_ml'))}"
+                           if mid else "—"),
+            "8am MT":     (f"{_fmt_ml(mrn.get('away_ml'))} / {_fmt_ml(mrn.get('home_ml'))}"
+                           if mrn else "—"),
+            "Current":    (f"{_fmt_ml(cur.get('away_ml'))} / {_fmt_ml(cur.get('home_ml'))}"
+                           if cur else "—"),
+            "_fav":       fav_lbl,
+            "_mid_impl":  mid.get(f"{fav_side}_impl"),
+            "_cur_impl":  cur.get(f"{fav_side}_impl"),
+            "Fav":        fav_lbl,
+            "Δ (fav ML)": move_styled,
+        })
+
+    def _style_ml(df: pd.DataFrame) -> pd.DataFrame:
+        out = pd.DataFrame("", index=df.index, columns=df.columns)
+        for i, row in df.iterrows():
+            mi = row.get("_mid_impl")
+            ci = row.get("_cur_impl")
+            st_ = _ml_style(mi, ci)
+            if st_:
+                out.at[i, "Current"] = st_
+            move = str(row.get("Δ (fav ML)", ""))
+            if "📈" in move:
+                out.at[i, "Δ (fav ML)"] = "color:#4CAF50;font-weight:700"
+            elif "📉" in move:
+                out.at[i, "Δ (fav ML)"] = "color:#ef5350;font-weight:700"
+        return out
+
+    df_ml = pd.DataFrame(ml_rows)[["Game", "Time", "Midnight", "8am MT", "Current", "Fav", "Δ (fav ML)"]]
+    st.dataframe(
+        df_ml.style.apply(_style_ml, axis=None),
+        use_container_width=True, hide_index=True,
+        height=min(65 + len(ml_rows) * 38, 600),
+    )
+
+    st.divider()
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # TABLE 2 — RUN LINE
+    # ═══════════════════════════════════════════════════════════════════════
+    st.markdown("### ±1.5 Run Line")
+    st.caption("Away RL odds / Home RL odds · typical spread is ±1.5 · track odds movement on the RL")
+
+    rl_rows = []
+    for game in ordered_games:
+        away, home = game["away_team"], game["home_team"]
+        mid = (_g(midnight_odds, away, home).get("runline") or {})
+        mrn = (_g(morning_odds,  away, home).get("runline") or {})
+        cur = (_g(current_odds,  away, home).get("runline") or {})
+
+        def _rl_cell(rl: dict) -> str:
+            if not rl:
+                return "—"
+            ap = rl.get("away_point"); ao = _fmt_ml(rl.get("away_odds"))
+            hp = rl.get("home_point"); ho = _fmt_ml(rl.get("home_odds"))
+            a_pt = f"{ap:+.1f}" if ap is not None else "?"
+            h_pt = f"{hp:+.1f}" if hp is not None else "?"
+            return f"{a_pt} ({ao}) / {h_pt} ({ho})"
+
+        # Odds move on away -1.5 (the favorite RL side)
+        mid_ao = mid.get("away_odds"); cur_ao = cur.get("away_odds")
+        move   = _ml_move(mid_ao, cur_ao) if (mid_ao and cur_ao) else "—"
+
+        rl_rows.append({
+            "Game":        f"{away} @ {home}",
+            "Time":        fmt_time(game.get("first_pitch_utc", "")),
+            "Midnight":    _rl_cell(mid),
+            "8am MT":      _rl_cell(mrn),
+            "Current":     _rl_cell(cur),
+            "Δ (away RL)": move if move == "—" else (f"📈 {move}" if int(move) < 0 else f"📉 {move}"),
+            "_mid_ao":     mid_ao,
+            "_cur_ao":     cur_ao,
+        })
+
+    def _style_rl(df: pd.DataFrame) -> pd.DataFrame:
+        out = pd.DataFrame("", index=df.index, columns=df.columns)
+        for i, row in df.iterrows():
+            mi = row.get("_mid_ao"); ci = row.get("_cur_ao")
+            if mi is not None and ci is not None:
+                d = ci - mi
+                if d < -5:  out.at[i, "Current"] = "color:#4CAF50;font-weight:700"
+                elif d > 5: out.at[i, "Current"] = "color:#ef5350;font-weight:700"
+            move = str(row.get("Δ (away RL)", ""))
+            if "📈" in move: out.at[i, "Δ (away RL)"] = "color:#4CAF50;font-weight:700"
+            elif "📉" in move: out.at[i, "Δ (away RL)"] = "color:#ef5350;font-weight:700"
+        return out
+
+    df_rl = pd.DataFrame(rl_rows)[["Game", "Time", "Midnight", "8am MT", "Current", "Δ (away RL)"]]
+    st.dataframe(
+        df_rl.style.apply(_style_rl, axis=None),
+        use_container_width=True, hide_index=True,
+        height=min(65 + len(rl_rows) * 38, 600),
+    )
+
+    st.divider()
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # TABLE 3 — OVER / UNDER
+    # ═══════════════════════════════════════════════════════════════════════
+    st.markdown("### 🔢 Over / Under")
+    st.caption("Total line + over/under odds at each checkpoint · orange = line moved up · blue = line moved down")
+
+    ou_rows = []
+    for game in ordered_games:
+        away, home = game["away_team"], game["home_team"]
+        mid = (_g(midnight_odds, away, home).get("total") or {})
+        mrn = (_g(morning_odds,  away, home).get("total") or {})
+        cur = (_g(current_odds,  away, home).get("total") or {})
+
+        def _ou_cell(tot: dict) -> str:
+            if not tot:
+                return "—"
+            line = tot.get("line")
+            o    = _fmt_ml(tot.get("over_odds"))
+            u    = _fmt_ml(tot.get("under_odds"))
+            return f"**{line}**  O {o} / U {u}" if line else "—"
+
+        mid_l = mid.get("line"); cur_l = cur.get("line")
+        line_move = _ou_move(mid_l, cur_l)
+
+        ou_rows.append({
+            "Game":       f"{away} @ {home}",
+            "Time":       fmt_time(game.get("first_pitch_utc", "")),
+            "Midnight":   _ou_cell(mid),
+            "8am MT":     _ou_cell(mrn),
+            "Current":    _ou_cell(cur),
+            "Δ line":     line_move,
+            "_mid_line":  mid_l,
+            "_cur_line":  cur_l,
+        })
+
+    def _style_ou(df: pd.DataFrame) -> pd.DataFrame:
+        out = pd.DataFrame("", index=df.index, columns=df.columns)
+        for i, row in df.iterrows():
+            mi = row.get("_mid_line"); ci = row.get("_cur_line")
+            if mi is not None and ci is not None:
+                d = ci - mi
+                style = _ou_style(mi, ci)
+                if style:
+                    out.at[i, "Current"] = style
+                    out.at[i, "Δ line"]  = style
+        return out
+
+    df_ou = pd.DataFrame(ou_rows)[["Game", "Time", "Midnight", "8am MT", "Current", "Δ line"]]
+    st.dataframe(
+        df_ou.style.apply(_style_ou, axis=None),
+        use_container_width=True, hide_index=True,
+        height=min(65 + len(ou_rows) * 38, 600),
+    )
+
+    st.caption(
+        "📈 = fav getting shorter (money coming in) · "
+        "📉 = fav getting longer (public fading) · "
+        "🟠 O/U line up · 🔵 O/U line down"
+    )
+
+
 def render_legend() -> None:
     st.divider()
     with st.expander("📖 Legend & Methodology"):
@@ -1389,12 +1706,14 @@ def main() -> None:
 
         current_year = int(selected_date[:4])
 
-        # Summary + Tracker are sentinel keys at top of dropdown
+        # Summary / Tracker / Odds are sentinel keys at top of dropdown
         SUMMARY_KEY = "__summary__"
         TRACKER_KEY = "__tracker__"
+        ODDS_KEY    = "__odds__"
         game_options: dict[str, str] = {
             SUMMARY_KEY: "📋 Summary — All Games",
             TRACKER_KEY: "📊 Pick Tracker",
+            ODDS_KEY:    "📈 Odds History",
         }
         game_options.update({
             g["game_pk"]: f"{g['away_team']} @ {g['home_team']}  {fmt_time(g.get('first_pitch_utc',''))}"
@@ -1428,6 +1747,9 @@ def main() -> None:
 
     elif selected_pk == TRACKER_KEY:
         render_tracker_tab(current_year)
+
+    elif selected_pk == ODDS_KEY:
+        render_odds_tab(selected_date, games)
 
     else:
         game = next(g for g in games if g["game_pk"] == selected_pk)

@@ -1,0 +1,77 @@
+name: Odds Snapshots
+
+on:
+  schedule:
+    # Midnight MDT (UTC-6) = 06:00 UTC
+    - cron: "0 6 * * *"
+    # 8am MDT (UTC-6) = 14:00 UTC
+    - cron: "0 14 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "Snapshot slot to capture (midnight / morning)"
+        required: true
+        default: "morning"
+      date:
+        description: "Date YYYY-MM-DD (default: today UTC)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Determine slot (scheduled runs)
+        if: github.event_name == 'schedule'
+        run: |
+          HOUR=$(date -u +%H)
+          if [ "$HOUR" = "06" ]; then
+            echo "SLOT=midnight" >> $GITHUB_ENV
+          else
+            echo "SLOT=morning" >> $GITHUB_ENV
+          fi
+
+      - name: Determine slot (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "SLOT=${{ github.event.inputs.slot }}" >> $GITHUB_ENV
+
+      - name: Capture odds snapshot
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          DATE_ARG=""
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            DATE_ARG="--date ${{ github.event.inputs.date }}"
+          fi
+          python -m src.fetch.odds_snapshot $SLOT $DATE_ARG
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/odds_history_*.json
+          git diff --cached --quiet \
+            && echo "No changes to commit." \
+            || (git commit -m "odds-snapshot: $SLOT $(date -u +%Y-%m-%d)" && git push)
