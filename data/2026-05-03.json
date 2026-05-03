@@ -1,6 +1,6 @@
 {
   "date": "2026-05-03",
-  "last_updated": "2026-05-03T15:35:46Z",
+  "last_updated": "2026-05-03T17:34:51Z",
   "fetch_errors": [],
   "games": [
     {
@@ -10,7 +10,7 @@
       "away_team": "TOR",
       "home_team": "MIN",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-03T15:35:08Z",
       "umpire": {
         "name": "Scott Barry",
@@ -4246,8 +4246,8 @@
       "away_team": "ARI",
       "home_team": "CHC",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-05-03T15:35:28Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-05-03T17:34:51Z",
       "umpire": {
         "name": "Doug Eddings",
         "accuracy": 92.4,
@@ -4451,26 +4451,6 @@
           },
           {
             "order": 5,
-            "name": "Lourdes Gurriel Jr.",
-            "mlbam_id": "666971",
-            "bats": "R",
-            "current_year": {
-              "pa": 42,
-              "xwoba": 0.259,
-              "xwoba_percentile": 18,
-              "xwoba_label": "Brutal",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 546,
-              "xwoba": 0.315,
-              "xwoba_percentile": 66,
-              "xwoba_label": "Solid",
-              "qualified": true
-            }
-          },
-          {
-            "order": 6,
             "name": "Nolan Arenado",
             "mlbam_id": "571448",
             "bats": "R",
@@ -4490,7 +4470,47 @@
             }
           },
           {
+            "order": 6,
+            "name": "Lourdes Gurriel Jr.",
+            "mlbam_id": "666971",
+            "bats": "R",
+            "current_year": {
+              "pa": 42,
+              "xwoba": 0.259,
+              "xwoba_percentile": 18,
+              "xwoba_label": "Brutal",
+              "qualified": false
+            },
+            "prior_year": {
+              "pa": 546,
+              "xwoba": 0.315,
+              "xwoba_percentile": 66,
+              "xwoba_label": "Solid",
+              "qualified": true
+            }
+          },
+          {
             "order": 7,
+            "name": "Gabriel Moreno",
+            "mlbam_id": "672515",
+            "bats": "R",
+            "current_year": {
+              "pa": 50,
+              "xwoba": 0.328,
+              "xwoba_percentile": 64,
+              "xwoba_label": "Solid",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 309,
+              "xwoba": 0.346,
+              "xwoba_percentile": 89,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
             "name": "Jose Fernandez",
             "mlbam_id": "699912",
             "bats": "R",
@@ -4502,26 +4522,6 @@
               "qualified": true
             },
             "prior_year": null
-          },
-          {
-            "order": 8,
-            "name": "James McCann",
-            "mlbam_id": "543510",
-            "bats": "R",
-            "current_year": {
-              "pa": 52,
-              "xwoba": 0.187,
-              "xwoba_percentile": 5,
-              "xwoba_label": "Unplayable",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 137,
-              "xwoba": 0.313,
-              "xwoba_percentile": 64,
-              "xwoba_label": "Solid",
-              "qualified": true
-            }
           },
           {
             "order": 9,
@@ -4547,21 +4547,21 @@
         "home": [
           {
             "order": 1,
-            "name": "Michael Busch",
-            "mlbam_id": "683737",
-            "bats": "L",
+            "name": "Nico Hoerner",
+            "mlbam_id": "663538",
+            "bats": "R",
             "current_year": {
-              "pa": 140,
-              "xwoba": 0.303,
-              "xwoba_percentile": 47,
-              "xwoba_label": "Mediocre",
+              "pa": 147,
+              "xwoba": 0.347,
+              "xwoba_percentile": 74,
+              "xwoba_label": "Strong",
               "qualified": true
             },
             "prior_year": {
-              "pa": 592,
-              "xwoba": 0.378,
-              "xwoba_percentile": 97,
-              "xwoba_label": "Elite",
+              "pa": 649,
+              "xwoba": 0.322,
+              "xwoba_percentile": 72,
+              "xwoba_label": "Strong",
               "qualified": true
             }
           },
@@ -4647,6 +4647,46 @@
           },
           {
             "order": 6,
+            "name": "Michael Busch",
+            "mlbam_id": "683737",
+            "bats": "L",
+            "current_year": {
+              "pa": 140,
+              "xwoba": 0.303,
+              "xwoba_percentile": 47,
+              "xwoba_label": "Mediocre",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 592,
+              "xwoba": 0.378,
+              "xwoba_percentile": 97,
+              "xwoba_label": "Elite",
+              "qualified": true
+            }
+          },
+          {
+            "order": 7,
+            "name": "Carson Kelly",
+            "mlbam_id": "608348",
+            "bats": "R",
+            "current_year": {
+              "pa": 92,
+              "xwoba": 0.361,
+              "xwoba_percentile": 80,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 421,
+              "xwoba": 0.321,
+              "xwoba_percentile": 70,
+              "xwoba_label": "Strong",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
             "name": "Pete Crow-Armstrong",
             "mlbam_id": "691718",
             "bats": "L",
@@ -4666,7 +4706,7 @@
             }
           },
           {
-            "order": 7,
+            "order": 9,
             "name": "Dansby Swanson",
             "mlbam_id": "621020",
             "bats": "R",
@@ -4682,46 +4722,6 @@
               "xwoba": 0.345,
               "xwoba_percentile": 88,
               "xwoba_label": "Dominant",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
-            "name": "Matt Shaw",
-            "mlbam_id": "807713",
-            "bats": "R",
-            "current_year": {
-              "pa": 86,
-              "xwoba": 0.308,
-              "xwoba_percentile": 53,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 437,
-              "xwoba": 0.302,
-              "xwoba_percentile": 55,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Miguel Amaya",
-            "mlbam_id": "665804",
-            "bats": "R",
-            "current_year": {
-              "pa": 62,
-              "xwoba": 0.304,
-              "xwoba_percentile": 49,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 103,
-              "xwoba": 0.295,
-              "xwoba_percentile": 47,
-              "xwoba_label": "Mediocre",
               "qualified": true
             }
           }
@@ -4769,8 +4769,8 @@
       "away_team": "ATL",
       "home_team": "COL",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-05-03T15:35:29Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-05-03T17:34:51Z",
       "umpire": null,
       "odds": {
         "away": "ATL",
@@ -4878,41 +4878,21 @@
         "away": [
           {
             "order": 1,
-            "name": "Ronald Acu\u00f1a Jr.",
-            "mlbam_id": "660670",
+            "name": "Mauricio Dub\u00f3n",
+            "mlbam_id": "643289",
             "bats": "R",
             "current_year": {
-              "pa": 152,
-              "xwoba": 0.381,
-              "xwoba_percentile": 88,
-              "xwoba_label": "Dominant",
+              "pa": 126,
+              "xwoba": 0.311,
+              "xwoba_percentile": 55,
+              "xwoba_label": "Decent",
               "qualified": true
             },
             "prior_year": {
-              "pa": 412,
-              "xwoba": 0.397,
-              "xwoba_percentile": 98,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 1,
-            "name": "Eli White",
-            "mlbam_id": "642201",
-            "bats": "R",
-            "current_year": {
-              "pa": 48,
-              "xwoba": 0.26,
-              "xwoba_percentile": 18,
-              "xwoba_label": "Brutal",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 271,
-              "xwoba": 0.31,
-              "xwoba_percentile": 62,
-              "xwoba_label": "Solid",
+              "pa": 398,
+              "xwoba": 0.278,
+              "xwoba_percentile": 35,
+              "xwoba_label": "Shaky",
               "qualified": true
             }
           },
@@ -4978,66 +4958,6 @@
           },
           {
             "order": 5,
-            "name": "Michael Harris II",
-            "mlbam_id": "671739",
-            "bats": "L",
-            "current_year": {
-              "pa": 113,
-              "xwoba": 0.443,
-              "xwoba_percentile": 97,
-              "xwoba_label": "Elite",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 641,
-              "xwoba": 0.315,
-              "xwoba_percentile": 66,
-              "xwoba_label": "Solid",
-              "qualified": true
-            }
-          },
-          {
-            "order": 5,
-            "name": "Dominic Smith",
-            "mlbam_id": "642086",
-            "bats": "L",
-            "current_year": {
-              "pa": 72,
-              "xwoba": 0.399,
-              "xwoba_percentile": 93,
-              "xwoba_label": "Elite",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 225,
-              "xwoba": 0.306,
-              "xwoba_percentile": 60,
-              "xwoba_label": "Solid",
-              "qualified": true
-            }
-          },
-          {
-            "order": 6,
-            "name": "Mauricio Dub\u00f3n",
-            "mlbam_id": "643289",
-            "bats": "R",
-            "current_year": {
-              "pa": 126,
-              "xwoba": 0.311,
-              "xwoba_percentile": 55,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 398,
-              "xwoba": 0.278,
-              "xwoba_percentile": 35,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            }
-          },
-          {
-            "order": 7,
             "name": "Austin Riley",
             "mlbam_id": "663586",
             "bats": "R",
@@ -5057,27 +4977,47 @@
             }
           },
           {
-            "order": 8,
-            "name": "Mike Yastrzemski",
-            "mlbam_id": "573262",
-            "bats": "L",
+            "order": 6,
+            "name": "Eli White",
+            "mlbam_id": "642201",
+            "bats": "R",
             "current_year": {
-              "pa": 106,
-              "xwoba": 0.257,
-              "xwoba_percentile": 17,
+              "pa": 48,
+              "xwoba": 0.26,
+              "xwoba_percentile": 18,
               "xwoba_label": "Brutal",
-              "qualified": true
+              "qualified": false
             },
             "prior_year": {
-              "pa": 558,
-              "xwoba": 0.329,
-              "xwoba_percentile": 78,
-              "xwoba_label": "Strong",
+              "pa": 271,
+              "xwoba": 0.31,
+              "xwoba_percentile": 62,
+              "xwoba_label": "Solid",
               "qualified": true
             }
           },
           {
-            "order": 9,
+            "order": 7,
+            "name": "Jonah Heim",
+            "mlbam_id": "641680",
+            "bats": "S",
+            "current_year": {
+              "pa": 40,
+              "xwoba": 0.264,
+              "xwoba_percentile": 20,
+              "xwoba_label": "Weak",
+              "qualified": false
+            },
+            "prior_year": {
+              "pa": 433,
+              "xwoba": 0.276,
+              "xwoba_percentile": 34,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
             "name": "Jorge Mateo",
             "mlbam_id": "622761",
             "bats": "R",
@@ -5095,65 +5035,65 @@
               "xwoba_label": "Unplayable",
               "qualified": true
             }
+          },
+          {
+            "order": 9,
+            "name": "Jos\u00e9 Azocar",
+            "mlbam_id": "640492",
+            "bats": "R",
+            "current_year": null,
+            "prior_year": {
+              "pa": 21,
+              "xwoba": 0.343,
+              "xwoba_percentile": 87,
+              "xwoba_label": "Dominant",
+              "qualified": false
+            }
           }
         ],
         "home": [
           {
             "order": 1,
-            "name": "Jordan Beck",
-            "mlbam_id": "687597",
-            "bats": "R",
+            "name": "Edouard Julien",
+            "mlbam_id": "666397",
+            "bats": "L",
             "current_year": {
-              "pa": 71,
-              "xwoba": 0.246,
-              "xwoba_percentile": 13,
-              "xwoba_label": "Brutal",
+              "pa": 96,
+              "xwoba": 0.368,
+              "xwoba_percentile": 82,
+              "xwoba_label": "Dominant",
               "qualified": true
             },
             "prior_year": {
-              "pa": 588,
-              "xwoba": 0.301,
-              "xwoba_percentile": 54,
-              "xwoba_label": "Decent",
+              "pa": 208,
+              "xwoba": 0.329,
+              "xwoba_percentile": 78,
+              "xwoba_label": "Strong",
               "qualified": true
             }
           },
           {
             "order": 2,
-            "name": "Brenton Doyle",
-            "mlbam_id": "686668",
-            "bats": "R",
+            "name": "Mickey Moniak",
+            "mlbam_id": "666160",
+            "bats": "L",
             "current_year": {
-              "pa": 98,
-              "xwoba": 0.254,
-              "xwoba_percentile": 15,
-              "xwoba_label": "Brutal",
+              "pa": 102,
+              "xwoba": 0.333,
+              "xwoba_percentile": 66,
+              "xwoba_label": "Solid",
               "qualified": true
             },
             "prior_year": {
-              "pa": 538,
-              "xwoba": 0.296,
-              "xwoba_percentile": 49,
-              "xwoba_label": "Mediocre",
+              "pa": 461,
+              "xwoba": 0.337,
+              "xwoba_percentile": 84,
+              "xwoba_label": "Dominant",
               "qualified": true
             }
           },
           {
             "order": 3,
-            "name": "TJ Rumfield",
-            "mlbam_id": "681198",
-            "bats": "L",
-            "current_year": {
-              "pa": 135,
-              "xwoba": 0.332,
-              "xwoba_percentile": 66,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": null
-          },
-          {
-            "order": 4,
             "name": "Hunter Goodman",
             "mlbam_id": "696100",
             "bats": "R",
@@ -5173,7 +5113,41 @@
             }
           },
           {
+            "order": 4,
+            "name": "TJ Rumfield",
+            "mlbam_id": "681198",
+            "bats": "L",
+            "current_year": {
+              "pa": 135,
+              "xwoba": 0.332,
+              "xwoba_percentile": 66,
+              "xwoba_label": "Solid",
+              "qualified": true
+            },
+            "prior_year": null
+          },
+          {
             "order": 5,
+            "name": "Troy Johnston",
+            "mlbam_id": "687859",
+            "bats": "L",
+            "current_year": {
+              "pa": 113,
+              "xwoba": 0.314,
+              "xwoba_percentile": 58,
+              "xwoba_label": "Decent",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 121,
+              "xwoba": 0.338,
+              "xwoba_percentile": 84,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            }
+          },
+          {
+            "order": 6,
             "name": "Willi Castro",
             "mlbam_id": "650489",
             "bats": "S",
@@ -5193,7 +5167,7 @@
             }
           },
           {
-            "order": 6,
+            "order": 7,
             "name": "Brett Sullivan",
             "mlbam_id": "664954",
             "bats": "L",
@@ -5210,26 +5184,6 @@
               "xwoba_percentile": 96,
               "xwoba_label": "Elite",
               "qualified": false
-            }
-          },
-          {
-            "order": 7,
-            "name": "Kyle Karros",
-            "mlbam_id": "691720",
-            "bats": "R",
-            "current_year": {
-              "pa": 115,
-              "xwoba": 0.357,
-              "xwoba_percentile": 78,
-              "xwoba_label": "Strong",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 156,
-              "xwoba": 0.258,
-              "xwoba_percentile": 24,
-              "xwoba_label": "Weak",
-              "qualified": true
             }
           },
           {
@@ -5254,21 +5208,21 @@
           },
           {
             "order": 9,
-            "name": "Troy Johnston",
-            "mlbam_id": "687859",
+            "name": "Jake McCarthy",
+            "mlbam_id": "664983",
             "bats": "L",
             "current_year": {
-              "pa": 113,
-              "xwoba": 0.314,
-              "xwoba_percentile": 58,
-              "xwoba_label": "Decent",
+              "pa": 69,
+              "xwoba": 0.304,
+              "xwoba_percentile": 49,
+              "xwoba_label": "Mediocre",
               "qualified": true
             },
             "prior_year": {
-              "pa": 121,
-              "xwoba": 0.338,
-              "xwoba_percentile": 84,
-              "xwoba_label": "Dominant",
+              "pa": 222,
+              "xwoba": 0.286,
+              "xwoba_percentile": 40,
+              "xwoba_label": "Mediocre",
               "qualified": true
             }
           }
