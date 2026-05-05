@@ -360,20 +360,219 @@ def get_stats(year: int) -> dict:
     }
 
 
+def _parse_score(raw) -> tuple[int | None, int | None]:
+    """Return (away_score, home_score) from either a dict or 'A-H' string."""
+    if isinstance(raw, dict):
+        return raw.get("away"), raw.get("home")
+    if isinstance(raw, str) and "-" in raw:
+        try:
+            parts = raw.split("-")
+            return int(parts[0]), int(parts[1])
+        except (ValueError, IndexError):
+            pass
+    return None, None
+
+
+def _fetch_live_results(date_str: str) -> dict[int, tuple[int, int]]:
+    """
+    Pull final scores from MLB Stats API for the given date.
+    Returns {game_pk: (away_score, home_score)} for finished games only.
+    """
+    try:
+        import statsapi
+        raw_games = statsapi.schedule(date=date_str)
+        results = {}
+        for g in raw_games:
+            if g.get("status") not in ("Final", "Game Over", "Completed Early"):
+                continue
+            pk = g.get("game_id")
+            a  = g.get("away_score")
+            h  = g.get("home_score")
+            if pk and a != "" and h != "" and a is not None and h is not None:
+                try:
+                    results[int(pk)] = (int(a), int(h))
+                except (TypeError, ValueError):
+                    pass
+        return results
+    except Exception as e:
+        logger.warning("Could not fetch live results for %s: %s", date_str, e)
+        return {}
+
+
+def backfill_picks(through_date: str | None = None) -> None:
+    """
+    Scan all snapshot files in data/ and back-populate picks_YYYY.json.
+
+    For each game in each historical snapshot:
+      - Computes the pick from the snapshot data (grades + odds)
+      - Fetches the actual final score from MLB Stats API to resolve it
+      - Skips game_pks already in picks_YYYY.json (re-resolves pending ones)
+
+    Args:
+        through_date: Only process snapshots up to this date (YYYY-MM-DD).
+                      If None, processes all available snapshots.
+    """
+    from datetime import date as _date, timezone as _tz, datetime as _dt
+
+    today   = _dt.now(_tz.utc).date()
+    cutoff  = _date.fromisoformat(through_date) if through_date else today
+
+    snap_files = sorted(DATA_DIR.glob("????-??-??.json"))
+    if not snap_files:
+        print("No snapshot files found in data/")
+        return
+
+    total_added = total_resolved = total_skipped = 0
+
+    for snap_path in snap_files:
+        date_str = snap_path.stem
+        try:
+            snap_date = _date.fromisoformat(date_str)
+        except ValueError:
+            continue
+        if snap_date > cutoff:
+            continue
+
+        year = snap_date.year
+        data = load_picks(year)
+        picks = data["picks"]
+        existing_pks = {p["game_pk"] for p in picks}
+        changed = False
+
+        try:
+            snapshot = json.loads(snap_path.read_text())
+        except Exception as e:
+            logger.warning("Could not read %s: %s", snap_path, e)
+            continue
+
+        games = snapshot.get("games", [])
+
+        # Only bother hitting the API if the date is in the past
+        live_results: dict[int, tuple[int, int]] = {}
+        if snap_date < today:
+            live_results = _fetch_live_results(date_str)
+
+        added = resolved = skipped = 0
+
+        for game in games:
+            pk = game["game_pk"]
+
+            # ── Already tracked — re-resolve if still pending ───────────────
+            if pk in existing_pks:
+                for pick in picks:
+                    if pick["game_pk"] == pk and pick["result"] == "pending":
+                        scores = live_results.get(pk)
+                        if scores is None:
+                            continue
+                        a_s, h_s = scores
+                        winner = game["away_team"] if a_s > h_s else game["home_team"]
+                        result = "win" if pick["pick_team"] == winner else "loss"
+                        pick.update({
+                            "result":      result,
+                            "pnl":         _pnl(pick["ml"], result),
+                            "away_score":  a_s,
+                            "home_score":  h_s,
+                            "resolved_at": _now_utc(),
+                        })
+                        changed = True
+                        resolved += 1
+                skipped += 1
+                continue
+
+            # ── New game — compute pick from snapshot data ───────────────────
+            pd_ = _compute_pick(game)
+            if pd_ is None:
+                skipped += 1
+                continue
+
+            # Resolve immediately if we have a live result
+            a_s = h_s = None
+            result = "pending"
+            pnl_val = None
+            resolved_at = None
+
+            scores = live_results.get(pk)
+            if scores is not None:
+                a_s, h_s = scores
+                winner  = game["away_team"] if a_s > h_s else game["home_team"]
+                result  = "win" if pd_["pick_team"] == winner else "loss"
+                pnl_val = _pnl(pd_["ml"], result)
+                resolved_at = _now_utc()
+
+            picks.append({
+                "game_pk":     pk,
+                "date":        date_str,
+                "away_team":   game["away_team"],
+                "home_team":   game["home_team"],
+                "pick_team":   pd_["pick_team"],
+                "signal":      pd_["signal"],
+                "gap":         pd_["gap"],
+                "ml":          pd_["ml"],
+                "ev_pct":      pd_["ev_pct"],
+                "away_grade":  pd_["away_grade"],
+                "home_grade":  pd_["home_grade"],
+                "result":      result,
+                "pnl":         pnl_val,
+                "away_score":  a_s,
+                "home_score":  h_s,
+                "recorded_at": _now_utc(),
+                "resolved_at": resolved_at,
+            })
+            changed = True
+            added += 1
+
+        if changed:
+            data["picks"] = sorted(picks, key=lambda p: (p["date"], p["game_pk"]))
+            save_picks(data, year)
+
+        day_picks = [p for p in picks if p.get("date") == date_str]
+        wins   = sum(1 for p in day_picks if p.get("result") == "win")
+        losses = sum(1 for p in day_picks if p.get("result") == "loss")
+        pend   = sum(1 for p in day_picks if p.get("result") == "pending")
+        print(f"  {date_str}  live_finals={len(live_results)}  "
+              f"added={added}  resolved={resolved}  skip={skipped}  "
+              f"record={wins}-{losses}  pending={pend}")
+        total_added    += added
+        total_resolved += resolved
+        total_skipped  += skipped
+
+    print(f"\nBackfill complete — {total_added} added, "
+          f"{total_resolved} resolved, {total_skipped} skipped.")
+
+    for year in sorted({int(f.stem.split("_")[1]) for f in DATA_DIR.glob("picks_????.json")}):
+        stats = get_stats(year)
+        print(f"\n{year}: {stats['total_wins']}-{stats['total_losses']} "
+              f"({stats['win_pct']}% win rate)  "
+              f"P&L: ${stats['total_pnl']:+,.2f}  Bankroll: ${stats['bankroll']:,.2f}")
+
+
 if __name__ == "__main__":
-    import sys
+    import argparse
     import logging
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    year = int(sys.argv[1]) if len(sys.argv) > 1 else 2025
-    stats = get_stats(year)
-    print(f"\nPick Tracker — {year}")
-    print(f"Bankroll: ${stats['bankroll']:,.2f}  (P&L: ${stats['total_pnl']:+,.2f})")
-    print(f"Record:   {stats['total_wins']}-{stats['total_losses']}  "
-          f"({stats['win_pct']}%)  {stats['total_pending']} pending\n")
-    print(f"{'Signal':<14} {'Bets':>4} {'W':>3} {'L':>3} {'Pend':>4} {'Win%':>6} {'P&L':>9}")
-    print("─" * 50)
-    for sig in stats["signal_order"]:
-        d = stats["by_signal"][sig]
-        wp = f"{d['win_pct']:.1f}%" if d["win_pct"] is not None else "—"
-        print(f"{sig:<14} {d['bets']:>4} {d['wins']:>3} {d['losses']:>3} "
-              f"{d['pending']:>4} {wp:>6} {d['pnl']:>+9.2f}")
+
+    parser = argparse.ArgumentParser(description="Pick Tracker CLI")
+    parser.add_argument("--backfill",   action="store_true",
+                        help="Back-populate picks from all historical snapshots")
+    parser.add_argument("--through",    default=None,
+                        help="Only backfill through this date YYYY-MM-DD (default: all)")
+    parser.add_argument("--year",       type=int, default=2026,
+                        help="Year for stats display (default: 2026)")
+    args = parser.parse_args()
+
+    if args.backfill:
+        print(f"Backfilling picks{' through ' + args.through if args.through else ''}…\n")
+        backfill_picks(args.through)
+    else:
+        stats = get_stats(args.year)
+        print(f"\nPick Tracker — {args.year}")
+        print(f"Bankroll: ${stats['bankroll']:,.2f}  (P&L: ${stats['total_pnl']:+,.2f})")
+        print(f"Record:   {stats['total_wins']}-{stats['total_losses']}  "
+              f"({stats['win_pct']}%)  {stats['total_pending']} pending\n")
+        print(f"{'Signal':<14} {'Bets':>4} {'W':>3} {'L':>3} {'Pend':>4} {'Win%':>6} {'P&L':>9}")
+        print("─" * 50)
+        for sig in stats["signal_order"]:
+            d = stats["by_signal"][sig]
+            wp = f"{d['win_pct']:.1f}%" if d["win_pct"] is not None else "—"
+            print(f"{sig:<14} {d['bets']:>4} {d['wins']:>3} {d['losses']:>3} "
+                  f"{d['pending']:>4} {wp:>6} {d['pnl']:>+9.2f}")
