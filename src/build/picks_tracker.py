@@ -239,9 +239,20 @@ def record_and_resolve(games: list[dict], date_str: str) -> None:
         if status == "final":
             for pick in picks:
                 if pick["game_pk"] == pk and pick["result"] == "pending":
-                    score = game.get("final_score") or {}
-                    a_s   = score.get("away")
-                    h_s   = score.get("home")
+                    # final_score may be a dict {"away":5,"home":3} OR a
+                    # legacy string "5-3" from schedule.py — handle both
+                    raw_score = game.get("final_score")
+                    if isinstance(raw_score, dict):
+                        a_s = raw_score.get("away")
+                        h_s = raw_score.get("home")
+                    elif isinstance(raw_score, str) and "-" in str(raw_score):
+                        try:
+                            parts = str(raw_score).split("-")
+                            a_s, h_s = int(parts[0]), int(parts[1])
+                        except (ValueError, IndexError):
+                            a_s = h_s = None
+                    else:
+                        a_s = h_s = None
                     if a_s is None or h_s is None:
                         continue  # score not recorded yet
                     winner = game["away_team"] if a_s > h_s else game["home_team"]

@@ -20,9 +20,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[2]))
 
-from src.fetch.lineups    import fetch_confirmed_lineup
-from src.fetch.handedness import fetch_handedness
+from src.fetch.lineups      import fetch_confirmed_lineup
+from src.fetch.handedness   import fetch_handedness
 from src.fetch.batter_stats import fetch_batter_stats
+from src.fetch.schedule     import fetch_schedule
+from src.build.picks_tracker import record_and_resolve as _resolve_picks
 
 logger = logging.getLogger(__name__)
 
@@ -174,6 +176,56 @@ def update_lineups(date_str: str) -> None:
         logger.info(
             "  ✓ Confirmed lineup set for %s @ %s.", away_team, home_team
         )
+
+    # ------------------------------------------------------------------
+    # Pass 4: refresh game status + final scores from MLB Stats API.
+    # This lets the picks tracker see finals even though the full snapshot
+    # only rebuilds once a day at 9am ET.
+    # ------------------------------------------------------------------
+    try:
+        live_schedule = fetch_schedule(date_str)
+        live_by_pk    = {g["game_pk"]: g for g in live_schedule}
+
+        for game in data["games"]:
+            live = live_by_pk.get(game["game_pk"])
+            if not live:
+                continue
+
+            new_status = live.get("status")
+            if new_status and new_status != game.get("status"):
+                logger.info(
+                    "Status update: %s @ %s  %s → %s",
+                    game["away_team"], game["home_team"],
+                    game.get("status"), new_status,
+                )
+                game["status"] = new_status
+                changed = True
+
+            # Update final score when the game ends
+            if new_status == "final" and live.get("final_score"):
+                raw = live["final_score"]          # e.g. "5-3"
+                # Normalise to dict so picks_tracker.py always sees {"away":5,"home":3}
+                if isinstance(raw, str) and "-" in raw:
+                    try:
+                        parts = raw.split("-")
+                        game["final_score"] = {"away": int(parts[0]), "home": int(parts[1])}
+                        changed = True
+                    except (ValueError, IndexError):
+                        pass
+                elif isinstance(raw, dict):
+                    game["final_score"] = raw
+                    changed = True
+
+    except Exception as exc:
+        logger.error("Status/score refresh failed: %s", exc)
+
+    # ------------------------------------------------------------------
+    # Pass 5: resolve any pending picks now that statuses are up to date
+    # ------------------------------------------------------------------
+    try:
+        _resolve_picks(data["games"], date_str)
+    except Exception as exc:
+        logger.error("picks_tracker resolve failed: %s", exc)
 
     # ------------------------------------------------------------------
     # Write JSON only if something changed
