@@ -1,16 +1,16 @@
 {
   "date": "2026-05-10",
-  "last_updated": "2026-05-10T15:40:52Z",
+  "last_updated": "2026-05-10T17:40:11Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 823868,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-10T16:15:00Z",
       "away_team": "WSH",
       "home_team": "MIA",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-10T15:40:31Z",
       "umpire": {
         "name": "Chris Guccione",
@@ -528,12 +528,12 @@
     },
     {
       "game_pk": 824845,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-10T17:35:00Z",
       "away_team": "ATH",
       "home_team": "BAL",
       "final_score": null,
-      "lineup_status": "projected",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-10T15:40:33Z",
       "umpire": {
         "name": "Carlos Torres",
@@ -1157,12 +1157,12 @@
     },
     {
       "game_pk": 824765,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-10T17:35:00Z",
       "away_team": "TB",
       "home_team": "BOS",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-10T15:40:35Z",
       "umpire": {
         "name": "John Libka",
@@ -1680,12 +1680,12 @@
     },
     {
       "game_pk": 823463,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-10T17:35:00Z",
       "away_team": "COL",
       "home_team": "PHI",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-10T15:40:37Z",
       "umpire": {
         "name": "Edwin Moscoso",
@@ -2203,12 +2203,12 @@
     },
     {
       "game_pk": 822819,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-10T17:37:00Z",
       "away_team": "LAA",
       "home_team": "TOR",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-10T15:40:38Z",
       "umpire": {
         "name": "Lance Barrett",
@@ -2715,7 +2715,7 @@
       "away_team": "HOU",
       "home_team": "CIN",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-10T15:40:39Z",
       "umpire": {
         "name": "Adam Beck",
@@ -3244,7 +3244,7 @@
       "away_team": "MIN",
       "home_team": "CLE",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-10T15:40:41Z",
       "umpire": {
         "name": "Quinn Wolcott",
@@ -4781,8 +4781,8 @@
       "away_team": "CHC",
       "home_team": "TEX",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-05-10T15:40:45Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-05-10T17:40:10Z",
       "umpire": {
         "name": "Adam Hamari",
         "accuracy": 93.6,
@@ -4925,62 +4925,42 @@
             }
           },
           {
-            "order": 1,
-            "name": "Nicky Lopez",
-            "mlbam_id": "670032",
-            "bats": "L",
-            "current_year": {
-              "pa": 5,
-              "xwoba": 0.144,
-              "xwoba_percentile": 2,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 28,
-              "xwoba": 0.24,
-              "xwoba_percentile": 16,
-              "xwoba_label": "Brutal",
-              "qualified": false
-            }
-          },
-          {
             "order": 2,
-            "name": "Michael Conforto",
-            "mlbam_id": "624424",
+            "name": "Mois\u00e9s Ballesteros",
+            "mlbam_id": "694208",
             "bats": "L",
             "current_year": {
-              "pa": 55,
-              "xwoba": 0.442,
-              "xwoba_percentile": 97,
-              "xwoba_label": "Elite",
+              "pa": 106,
+              "xwoba": 0.348,
+              "xwoba_percentile": 75,
+              "xwoba_label": "Strong",
               "qualified": true
             },
             "prior_year": {
-              "pa": 486,
-              "xwoba": 0.33,
-              "xwoba_percentile": 79,
-              "xwoba_label": "Strong",
+              "pa": 66,
+              "xwoba": 0.334,
+              "xwoba_percentile": 82,
+              "xwoba_label": "Dominant",
               "qualified": true
             }
           },
           {
             "order": 3,
-            "name": "Alex Bregman",
-            "mlbam_id": "608324",
+            "name": "Seiya Suzuki",
+            "mlbam_id": "673548",
             "bats": "R",
             "current_year": {
-              "pa": 183,
-              "xwoba": 0.322,
-              "xwoba_percentile": 61,
-              "xwoba_label": "Solid",
+              "pa": 115,
+              "xwoba": 0.391,
+              "xwoba_percentile": 91,
+              "xwoba_label": "Elite",
               "qualified": true
             },
             "prior_year": {
-              "pa": 495,
-              "xwoba": 0.337,
-              "xwoba_percentile": 84,
-              "xwoba_label": "Dominant",
+              "pa": 651,
+              "xwoba": 0.352,
+              "xwoba_percentile": 91,
+              "xwoba_label": "Elite",
               "qualified": true
             }
           },
@@ -5006,26 +4986,6 @@
           },
           {
             "order": 5,
-            "name": "Seiya Suzuki",
-            "mlbam_id": "673548",
-            "bats": "R",
-            "current_year": {
-              "pa": 115,
-              "xwoba": 0.391,
-              "xwoba_percentile": 91,
-              "xwoba_label": "Elite",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 651,
-              "xwoba": 0.352,
-              "xwoba_percentile": 91,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 6,
             "name": "Michael Busch",
             "mlbam_id": "683737",
             "bats": "L",
@@ -5045,7 +5005,7 @@
             }
           },
           {
-            "order": 7,
+            "order": 6,
             "name": "Carson Kelly",
             "mlbam_id": "608348",
             "bats": "R",
@@ -5066,26 +5026,6 @@
           },
           {
             "order": 7,
-            "name": "Mois\u00e9s Ballesteros",
-            "mlbam_id": "694208",
-            "bats": "L",
-            "current_year": {
-              "pa": 106,
-              "xwoba": 0.348,
-              "xwoba_percentile": 75,
-              "xwoba_label": "Strong",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 66,
-              "xwoba": 0.334,
-              "xwoba_percentile": 82,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
             "name": "Pete Crow-Armstrong",
             "mlbam_id": "691718",
             "bats": "L",
@@ -5105,7 +5045,7 @@
             }
           },
           {
-            "order": 9,
+            "order": 8,
             "name": "Dansby Swanson",
             "mlbam_id": "621020",
             "bats": "R",
@@ -5163,26 +5103,6 @@
               "xwoba": 0.321,
               "xwoba_percentile": 70,
               "xwoba_label": "Strong",
-              "qualified": true
-            }
-          },
-          {
-            "order": 1,
-            "name": "Sam Haggerty",
-            "mlbam_id": "664059",
-            "bats": "S",
-            "current_year": {
-              "pa": 32,
-              "xwoba": 0.172,
-              "xwoba_percentile": 4,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 182,
-              "xwoba": 0.304,
-              "xwoba_percentile": 57,
-              "xwoba_label": "Decent",
               "qualified": true
             }
           },
@@ -5308,21 +5228,21 @@
           },
           {
             "order": 8,
-            "name": "Kyle Higashioka",
-            "mlbam_id": "543309",
+            "name": "Danny Jansen",
+            "mlbam_id": "643376",
             "bats": "R",
             "current_year": {
-              "pa": 63,
-              "xwoba": 0.28,
-              "xwoba_percentile": 30,
-              "xwoba_label": "Shaky",
+              "pa": 92,
+              "xwoba": 0.245,
+              "xwoba_percentile": 14,
+              "xwoba_label": "Brutal",
               "qualified": true
             },
             "prior_year": {
-              "pa": 327,
-              "xwoba": 0.295,
-              "xwoba_percentile": 47,
-              "xwoba_label": "Mediocre",
+              "pa": 337,
+              "xwoba": 0.299,
+              "xwoba_percentile": 52,
+              "xwoba_label": "Decent",
               "qualified": true
             }
           },
