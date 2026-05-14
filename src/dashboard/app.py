@@ -211,7 +211,10 @@ def _overall_score(
 ) -> float | None:
     """
     Weighted overall:
-      Offense 50% | Pitching 30% (SP 70% + bullpen 30%) | Defense 15% | Platoon 5%
+      Pitching 60% (SP 70% + bullpen 30%) | Offense 20% | Defense 15% | Platoon 0%
+
+    Data-driven from n=398 sample:
+      SP Δ=+8.0%  BP Δ=+5.9%  Off Δ=+3.7%  Def Δ=-0.9%  Plat Δ=-8.2% (dropped)
     """
     off  = rank_to_score(offense_rank)
     defn = rank_to_score(defense_rank)
@@ -225,7 +228,8 @@ def _overall_score(
     else:
         pitch = None
 
-    components = [(off, 0.50), (pitch, 0.30), (defn, 0.15), (platoon, 0.05)]
+    # platoon dropped — projected lineups are too noisy, hurts prediction
+    components = [(off, 0.20), (pitch, 0.60), (defn, 0.15)]
     valid = [(s, w) for s, w in components if s is not None]
     if not valid:
         return None

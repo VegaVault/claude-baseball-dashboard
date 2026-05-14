@@ -93,6 +93,7 @@ def _platoon_score(lineup: list, opp_throws: str | None) -> float | None:
 
 
 def _overall_score(off_rank, sp_sc, bp_sc, def_rank, plat) -> float | None:
+    # plat param kept for signature compat but weight = 0 (projected lineups too noisy)
     off  = rank_to_score(off_rank)
     defn = rank_to_score(def_rank)
     if sp_sc is not None and bp_sc is not None:
@@ -100,7 +101,7 @@ def _overall_score(off_rank, sp_sc, bp_sc, def_rank, plat) -> float | None:
     else:
         pitch = sp_sc or bp_sc
     scores, weights = [], []
-    for val, w in [(off, 0.50), (pitch, 0.30), (defn, 0.15), (plat, 0.05)]:
+    for val, w in [(off, 0.20), (pitch, 0.60), (defn, 0.15)]:
         if val is not None:
             scores.append(val * w)
             weights.append(w)
@@ -550,6 +551,8 @@ def backfill_picks(through_date: str | None = None) -> None:
 if __name__ == "__main__":
     import argparse
     import logging
+    import sys as _sys
+    _sys.stdout.reconfigure(encoding="utf-8")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
     parser = argparse.ArgumentParser(description="Pick Tracker CLI")
