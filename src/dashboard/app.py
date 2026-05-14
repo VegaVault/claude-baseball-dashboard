@@ -274,13 +274,14 @@ def _bet_rec(away: str, home: str, away_g: str, home_g: str, game: dict) -> dict
     """
     Compute betting recommendation from overall grades + moneyline.
 
-    Signal tiers (grade gap only — VALUE badge added separately via EV):
-      🔥 STRONG  = 3+ grade levels apart
-      ⭐⭐ LEAN   = 2 grade levels apart
-      ⭐ SLIGHT  = 1 grade level apart
-      =  TOSS-UP = tied grades → bet the dog (better risk/reward)
+    Signal tiers (data-driven from Apr–May 2026 sample, n=398):
+      🎯 ELITE   = 6+ grade levels apart  (64.5% win, +12.1% ROI)
+      🔥 STRONG  = 3–5 grade levels apart (50.5% win, mixed — shown but flagged)
+      ⭐⭐ LEAN   = 2 grade levels apart   (55.1% win, +3.7% ROI)
+      =  TOSS-UP = tied grades → bet dog  (53.1% win, +22.3% ROI at +ML)
+      —  NO BET  = 1 grade gap (41.1% win, -12.6% ROI — below breakeven)
 
-    Returns dict: team, label, signal, conf, ml, gap
+    Returns dict: team, label, signal, conf, ml, gap, no_bet
     """
     an = grade_to_num(away_g)
     hn = grade_to_num(home_g)
@@ -292,17 +293,20 @@ def _bet_rec(away: str, home: str, away_g: str, home_g: str, game: dict) -> dict
 
     if an is None or hn is None:
         return {"team": "—", "label": "NO DATA", "signal": "❓",
-                "conf": "NO DATA", "ml": None, "gap": None}
+                "conf": "NO DATA", "ml": None, "gap": None, "no_bet": True}
 
     gap = abs(an - hn)
 
-    if gap >= 3:   conf, signal = "STRONG",  "🔥"
+    if gap >= 6:   conf, signal = "ELITE",   "🎯"
+    elif gap >= 3: conf, signal = "STRONG",  "🔥"
     elif gap == 2: conf, signal = "LEAN",    "⭐⭐"
-    elif gap == 1: conf, signal = "SLIGHT",  "⭐"
+    elif gap == 1: conf, signal = "SLIGHT",  "—"   # no bet — historical ROI -12.6%
     else:          conf, signal = "TOSS-UP", "="
 
+    no_bet = (gap == 1)  # SLIGHT — do not recommend
+
     if gap == 0:
-        # TOSS-UP: bet the underdog (higher payout = better risk/reward at 50/50)
+        # TOSS-UP: bet the underdog (higher payout = better risk/reward)
         if away_ml is not None and home_ml is not None:
             team, team_ml = (away, away_ml) if away_ml >= home_ml else (home, home_ml)
         elif away_ml is not None:
@@ -312,12 +316,15 @@ def _bet_rec(away: str, home: str, away_g: str, home_g: str, game: dict) -> dict
         else:
             team, team_ml = "—", None
         label = f"{team} (dog)" if team != "—" else "—"
+    elif no_bet:
+        team, team_ml = "—", None
+        label = "Skip (1-gap noise)"
     else:
         team, team_ml = (away, away_ml) if an > hn else (home, home_ml)
         label = team
 
     return {"team": team, "label": label, "signal": signal,
-            "conf": conf, "ml": team_ml, "gap": gap}
+            "conf": conf, "ml": team_ml, "gap": gap, "no_bet": no_bet}
 
 
 def _raw_scores(game: dict) -> tuple[float | None, float | None]:
@@ -362,10 +369,10 @@ def _ev_data(game: dict) -> dict | None:
     raw_away     = away_sc / total_sc
     raw_home     = home_sc / total_sc
 
-    # Compress toward 50% — baseball games rarely exceed ~60% for even the
-    # best team. Raw grade scores are not calibrated win probabilities.
-    # Factor 0.55 limits max model edge to ~±27.5 pp from 50%.
-    _COMPRESS = 0.55
+    # Compress toward 50% — baseball win probabilities are tightly clustered.
+    # Factor 0.35 limits max model edge to ~±17.5 pp from 50% (≈ 67.5% max).
+    # Reduced from 0.55 → 0.35 after observing model over-confidence on favorites.
+    _COMPRESS = 0.35
     away_model_p = 0.5 + (raw_away - 0.5) * _COMPRESS
     home_model_p = 0.5 + (raw_home - 0.5) * _COMPRESS
 
@@ -854,20 +861,20 @@ def render_summary_tab(games: list[dict]) -> None:
     # ── Signal legend pills ───────────────────────────────────────────────────
     pill = "display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.82rem;font-weight:600;"
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.markdown(f"<span style='{pill}background:#FF5722;color:white'>🔥 STRONG</span>"
-                "<span style='font-size:0.75rem;margin-left:5px'>3+ grade gap</span>",
+    c1.markdown(f"<span style='{pill}background:#9C27B0;color:white'>🎯 ELITE</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>6+ gap · 64% win</span>",
                 unsafe_allow_html=True)
-    c2.markdown(f"<span style='{pill}background:#FF9800;color:black'>⭐⭐ LEAN</span>"
-                "<span style='font-size:0.75rem;margin-left:5px'>2 grade gap</span>",
+    c2.markdown(f"<span style='{pill}background:#FF5722;color:white'>🔥 STRONG</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>3–5 gap · watch ML</span>",
                 unsafe_allow_html=True)
-    c3.markdown(f"<span style='{pill}background:#FFD700;color:black'>⭐ SLIGHT</span>"
-                "<span style='font-size:0.75rem;margin-left:5px'>1 grade gap</span>",
+    c3.markdown(f"<span style='{pill}background:#FF9800;color:black'>⭐⭐ LEAN</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>2 gap · 55% win</span>",
                 unsafe_allow_html=True)
     c4.markdown(f"<span style='{pill}background:#eeeeee;color:#333'>= TOSS-UP</span>"
-                "<span style='font-size:0.75rem;margin-left:5px'>Tied → bet dog</span>",
+                "<span style='font-size:0.75rem;margin-left:5px'>Tied → bet dog · 53%</span>",
                 unsafe_allow_html=True)
-    c5.markdown(f"<span style='{pill}background:#4CAF50;color:white'>💎 badge</span>"
-                "<span style='font-size:0.75rem;margin-left:5px'>EV &gt; 5% on top of any tier</span>",
+    c5.markdown(f"<span style='{pill}background:#616161;color:white'>— SKIP</span>"
+                "<span style='font-size:0.75rem;margin-left:5px'>1 gap · 41% historically</span>",
                 unsafe_allow_html=True)
 
     st.divider()
@@ -879,19 +886,20 @@ def render_summary_tab(games: list[dict]) -> None:
         "💎 = genuine line value: model edge > 5% after calibration."
     )
 
-    # Confidence sort order — base signal only (VALUE is a badge, not a tier)
-    _CONF_ORDER = {"🔥": 0, "⭐⭐": 1, "⭐": 2, "=": 3, "❓": 9}
+    # Confidence sort order
+    _CONF_ORDER = {"🎯": 0, "🔥": 1, "⭐⭐": 2, "=": 3, "—": 8, "❓": 9}
 
-    # Signal cell styles — base signals + badge combos
+    # Signal cell styles
     _SIG_STYLE: dict[str, str] = {
+        "🎯 💎":  "background-color:#6A0DAD;color:white;font-weight:700",
+        "🎯":     "background-color:#9C27B0;color:white;font-weight:700",
         "🔥 💎":  "background-color:#4CAF50;color:white;font-weight:700",
         "🔥":     "background-color:#FF5722;color:white;font-weight:700",
         "⭐⭐ 💎": "background-color:#2e7d32;color:white;font-weight:700",
         "⭐⭐":   "background-color:#FF9800;color:black;font-weight:700",
-        "⭐ 💎":  "background-color:#558b2f;color:white",
-        "⭐":     "background-color:#FFD700;color:black",
         "= 💎":   "background-color:#1b5e20;color:white",
         "=":      "background-color:#eeeeee;color:#444",
+        "—":      "background-color:#424242;color:#aaa;font-style:italic",
     }
 
     _EV_VALUE_THRESHOLD = 5.0   # % — badge fires above this
@@ -903,8 +911,11 @@ def render_summary_tab(games: list[dict]) -> None:
         away, home     = game["away_team"], game["home_team"]
         away_g, home_g = _game_grades(game)
         rec            = _bet_rec(away, home, away_g, home_g, game)
-        ev             = _ev_data(game)
 
+        if rec.get("no_bet"):   # gap=1 SLIGHT — historically -12.6% ROI, skip
+            continue
+
+        ev             = _ev_data(game)
         side    = "away" if rec["team"] == away else "home"
         ev_side = ((ev or {}).get(side)) or {}
 

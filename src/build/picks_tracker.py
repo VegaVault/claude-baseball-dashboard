@@ -13,7 +13,7 @@ Schema:
         "away_team":   str,
         "home_team":   str,
         "pick_team":   str,
-        "signal":      "🔥 STRONG" | "⭐⭐ LEAN" | "⭐ SLIGHT" | "= TOSS-UP",
+        "signal":      "🎯 ELITE" | "🔥 STRONG" | "⭐⭐ LEAN" | "= TOSS-UP",
         "gap":         int,
         "ml":          int | null,
         "ev_pct":      float | null,
@@ -51,9 +51,9 @@ logger = logging.getLogger(__name__)
 DATA_DIR       = Path(__file__).parents[2] / "data"
 BET_SIZE       = 100.0
 BANKROLL_START = 10_000.0
-_COMPRESS      = 0.55   # win-prob compression factor (mirrors app.py / discord.py)
+_COMPRESS      = 0.35   # win-prob compression factor (reduced from 0.55 — model overconfident)
 
-_SIGNAL_ORDER = ["🔥 STRONG", "⭐⭐ LEAN", "⭐ SLIGHT", "= TOSS-UP"]
+_SIGNAL_ORDER = ["🎯 ELITE", "🔥 STRONG", "⭐⭐ LEAN", "= TOSS-UP"]
 _GRADE_ORDER  = ["F","D-","D","D+","C-","C","C+","B-","B","B+","A-","A","A+"]
 
 
@@ -148,9 +148,10 @@ def _compute_pick(game: dict) -> dict | None:
     home_ml  = ml_data.get("home_ml")
 
     gap = abs(an - hn)
-    if gap >= 3:   signal = "🔥 STRONG"
+    if gap >= 6:   signal = "🎯 ELITE"
+    elif gap >= 3: signal = "🔥 STRONG"
     elif gap == 2: signal = "⭐⭐ LEAN"
-    elif gap == 1: signal = "⭐ SLIGHT"
+    elif gap == 1: return None   # gap=1 SLIGHT — historically -12.6% ROI, skip
     else:          signal = "= TOSS-UP"
 
     # ── Pick team ─────────────────────────────────────────────────────────────
@@ -569,10 +570,10 @@ if __name__ == "__main__":
         print(f"Bankroll: ${stats['bankroll']:,.2f}  (P&L: ${stats['total_pnl']:+,.2f})")
         print(f"Record:   {stats['total_wins']}-{stats['total_losses']}  "
               f"({stats['win_pct']}%)  {stats['total_pending']} pending\n")
-        print(f"{'Signal':<14} {'Bets':>4} {'W':>3} {'L':>3} {'Pend':>4} {'Win%':>6} {'P&L':>9}")
-        print("─" * 50)
+        print(f"{'Signal':<16} {'Bets':>4} {'W':>3} {'L':>3} {'Pend':>4} {'Win%':>6} {'P&L':>9}")
+        print("─" * 52)
         for sig in stats["signal_order"]:
-            d = stats["by_signal"][sig]
+            d = stats["by_signal"].get(sig, {"bets":0,"wins":0,"losses":0,"pending":0,"pnl":0.0,"win_pct":None})
             wp = f"{d['win_pct']:.1f}%" if d["win_pct"] is not None else "—"
-            print(f"{sig:<14} {d['bets']:>4} {d['wins']:>3} {d['losses']:>3} "
+            print(f"{sig:<16} {d['bets']:>4} {d['wins']:>3} {d['losses']:>3} "
                   f"{d['pending']:>4} {wp:>6} {d['pnl']:>+9.2f}")

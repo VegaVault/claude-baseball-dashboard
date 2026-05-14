@@ -422,10 +422,11 @@ def _build_embed(game: dict) -> dict:
         )
         return "\n".join(lines)
 
-    colour = 0x4CAF50 if "💎" in (rec.get("signal") or "") else (
+    colour = 0x9C27B0 if rec["signal"] == "🎯 ELITE"  else (
+             0x4CAF50 if "💎" in (rec.get("label") or "") else (
              0xFF5722 if rec["signal"] == "🔥 STRONG" else (
              0xFF9800 if rec["signal"] == "⭐⭐ LEAN"  else (
-             0x2ECC71 if status == "confirmed" else 0x3498DB)))
+             0x2ECC71 if status == "confirmed" else 0x3498DB))))
 
     fields = [
         {
@@ -485,10 +486,13 @@ def _summary_rec(game: dict) -> dict:
                 "away_g": away_g, "home_g": home_g, "gap": None, "ml": None}
 
     gap = abs(an - hn)
-    if gap >= 3:   signal = "🔥 STRONG"
+    if gap >= 6:   signal = "🎯 ELITE"
+    elif gap >= 3: signal = "🔥 STRONG"
     elif gap == 2: signal = "⭐⭐ LEAN"
-    elif gap == 1: signal = "⭐ SLIGHT"
+    elif gap == 1: signal = "— NO BET"   # historically -12.6% ROI — skip
     else:          signal = "= TOSS-UP"
+
+    no_bet = (gap == 1)
 
     if gap == 0:
         if away_ml is not None and home_ml is not None:
@@ -496,12 +500,17 @@ def _summary_rec(game: dict) -> dict:
         else:
             team, team_ml = "—", None
         label = f"{team}(dog)" if team != "—" else "—"
+    elif no_bet:
+        # Still compute the team for display, but mark as no-bet
+        team, team_ml = (away, away_ml) if an > hn else (home, home_ml)
+        label = "Skip (1-gap noise)"
     else:
         team, team_ml = (away, away_ml) if an > hn else (home, home_ml)
         label = team
 
     return {"team": team, "label": label, "signal": signal,
-            "away_g": away_g, "home_g": home_g, "gap": gap, "ml": team_ml}
+            "away_g": away_g, "home_g": home_g, "gap": gap, "ml": team_ml,
+            "no_bet": no_bet}
 
 
 def _ev_side(game: dict, side: str) -> dict:
@@ -525,7 +534,7 @@ def _ev_side(game: dict, side: str) -> dict:
         return {}
     total   = a_sc + h_sc
     raw_p   = (a_sc / total) if side == "away" else (h_sc / total)
-    model_p = 0.5 + (raw_p - 0.5) * 0.55   # compress toward 50%; caps edge at ~±27.5pp
+    model_p = 0.5 + (raw_p - 0.5) * 0.35   # compress toward 50%; reduced from 0.55 — model overconfident
     ml_data = (game.get("odds") or {}).get("moneyline") or {}
     ml      = ml_data.get(f"{side}_ml")
     impl    = ml_data.get(f"{side}_impl")
@@ -562,12 +571,12 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
         }
 
     # ── Rank bets ────────────────────────────────────────────────────────────
-    _CORD = {"🔥 STRONG": 0, "⭐⭐ LEAN": 1, "⭐ SLIGHT": 2, "= TOSS-UP": 3}
+    _CORD = {"🎯 ELITE": 0, "🔥 STRONG": 1, "⭐⭐ LEAN": 2, "= TOSS-UP": 3, "— NO BET": 8}
     ranked = []
     for game in active:
         rec  = _summary_rec(game)
         side = "away" if rec["team"] == game["away_team"] else "home"
-        ev   = _ev_side(game, side)
+        ev   = _ev_side(game, side) if not rec.get("no_bet") else {}
         ranked.append((game, rec, ev))
     ranked.sort(key=lambda x: (_CORD.get(x[1]["signal"], 9), -(x[2].get("ev_pct") or -999)))
 
@@ -580,6 +589,8 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
     rows   = [header, sep]
 
     for game, rec, ev in ranked:
+        if rec.get("no_bet"):
+            continue  # gap=1 SLIGHT — historically -12.6% ROI, skip
         away = game["away_team"]; home = game["home_team"]
         ts   = _to_et_str(game.get("first_pitch_utc","")).replace(" PM","p").replace(" AM","a").replace(" ET","")
         ml   = rec["ml"]
@@ -587,7 +598,7 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
         bet  = f"{rec['label']} {ml_s}".strip()
         ev_p = ev.get("ev_pct")
         ev_s     = (f"+{ev_p:.1f}%" if ev_p >= 0 else f"{ev_p:.1f}%") if ev_p is not None else "—"
-        base_sig = rec["signal"].replace(" STRONG","").replace(" LEAN","").replace(" SLIGHT","").replace(" TOSS-UP","")
+        base_sig = rec["signal"].replace(" ELITE","").replace(" STRONG","").replace(" LEAN","").replace(" TOSS-UP","")
         sig      = f"{base_sig}💎" if (ev_p is not None and ev_p >= 5.0) else base_sig
         rows.append(
             f"{ts:<{col_t}} {f'{away}@{home}':<{col_m}} "
@@ -617,9 +628,11 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
     ou_text = "\n".join(ou_lines) if ou_lines else "No O/U lines available yet."
 
     # ── Summary note ──────────────────────────────────────────────────────────
-    diamond = sum(1 for _,r,e in ranked if (e.get("ev_pct") or 0) >= 5.0)
+    diamond = sum(1 for _,r,e in ranked if not r.get("no_bet") and (e.get("ev_pct") or 0) >= 5.0)
+    elite   = sum(1 for _,r,_ in ranked if r["signal"] == "🎯 ELITE")
     strong  = sum(1 for _,r,_ in ranked if r["signal"] == "🔥 STRONG")
     note_p  = []
+    if elite:   note_p.append(f"{elite} 🎯 elite")
     if diamond: note_p.append(f"{diamond} 💎 value plays")
     if strong:  note_p.append(f"{strong} 🔥 strong")
     highlights = "  ·  ".join(note_p) if note_p else "No strong plays today"
@@ -632,7 +645,7 @@ def _build_summary_embed(games: list[dict], date_str: str) -> dict:
             {"name": "📊 O/U Leans", "value": ou_text,    "inline": False},
             {"name": "Highlights",   "value": highlights,  "inline": False},
         ],
-        "footer": {"text": "EV%=(our_prob×decimal_odds)-1  ·  🔥STRONG  ⭐⭐LEAN  ⭐SLIGHT  =TOSS-UP  💎=EV>5%"},
+        "footer": {"text": "EV%=(our_prob×decimal_odds)-1  ·  🎯ELITE(gap≥6)  🔥STRONG  ⭐⭐LEAN  =TOSS-UP  💎=EV>5%  gap=1→skip"},
     }
 
 
