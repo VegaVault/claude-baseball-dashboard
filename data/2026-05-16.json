@@ -1,6 +1,6 @@
 {
   "date": "2026-05-16",
-  "last_updated": "2026-05-16T14:20:05Z",
+  "last_updated": "2026-05-16T15:47:33Z",
   "fetch_errors": [],
   "games": [
     {
@@ -10,8 +10,8 @@
       "away_team": "TOR",
       "home_team": "DET",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-05-16T14:19:34Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-05-16T15:47:33Z",
       "umpire": {
         "name": "Dan Merzel",
         "accuracy": 94.4,
@@ -243,21 +243,21 @@
           },
           {
             "order": 7,
-            "name": "Ernie Clement",
-            "mlbam_id": "676391",
+            "name": "Lenyn Sosa",
+            "mlbam_id": "672820",
             "bats": "R",
             "current_year": {
-              "pa": 179,
-              "xwoba": 0.292,
-              "xwoba_percentile": 38,
-              "xwoba_label": "Shaky",
+              "pa": 91,
+              "xwoba": 0.262,
+              "xwoba_percentile": 21,
+              "xwoba_label": "Weak",
               "qualified": true
             },
             "prior_year": {
-              "pa": 588,
-              "xwoba": 0.289,
-              "xwoba_percentile": 42,
-              "xwoba_label": "Mediocre",
+              "pa": 544,
+              "xwoba": 0.326,
+              "xwoba_percentile": 75,
+              "xwoba_label": "Strong",
               "qualified": true
             }
           },
@@ -283,17 +283,23 @@
           },
           {
             "order": 9,
-            "name": "Brandon Valenzuela",
-            "mlbam_id": "678218",
+            "name": "Tyler Heineman",
+            "mlbam_id": "623168",
             "bats": "S",
             "current_year": {
-              "pa": 73,
-              "xwoba": 0.323,
-              "xwoba_percentile": 62,
-              "xwoba_label": "Solid",
+              "pa": 65,
+              "xwoba": 0.208,
+              "xwoba_percentile": 8,
+              "xwoba_label": "Unplayable",
               "qualified": true
             },
-            "prior_year": null
+            "prior_year": {
+              "pa": 174,
+              "xwoba": 0.273,
+              "xwoba_percentile": 32,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            }
           }
         ],
         "home": [
@@ -333,66 +339,20 @@
           },
           {
             "order": 3,
-            "name": "Colt Keith",
-            "mlbam_id": "690993",
-            "bats": "L",
-            "current_year": {
-              "pa": 133,
-              "xwoba": 0.314,
-              "xwoba_percentile": 56,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 468,
-              "xwoba": 0.341,
-              "xwoba_percentile": 86,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            }
-          },
-          {
-            "order": 3,
-            "name": "Jahmai Jones",
-            "mlbam_id": "663330",
+            "name": "Hao-Yu  Lee",
+            "mlbam_id": "701678",
             "bats": "R",
             "current_year": {
               "pa": 54,
-              "xwoba": 0.351,
-              "xwoba_percentile": 79,
-              "xwoba_label": "Strong",
+              "xwoba": 0.3,
+              "xwoba_percentile": 43,
+              "xwoba_label": "Mediocre",
               "qualified": true
             },
-            "prior_year": {
-              "pa": 150,
-              "xwoba": 0.399,
-              "xwoba_percentile": 99,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
+            "prior_year": null
           },
           {
             "order": 4,
-            "name": "Riley Greene",
-            "mlbam_id": "682985",
-            "bats": "L",
-            "current_year": {
-              "pa": 187,
-              "xwoba": 0.385,
-              "xwoba_percentile": 91,
-              "xwoba_label": "Elite",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 655,
-              "xwoba": 0.335,
-              "xwoba_percentile": 83,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            }
-          },
-          {
-            "order": 5,
             "name": "Matt Vierling",
             "mlbam_id": "663837",
             "bats": "R",
@@ -412,23 +372,43 @@
             }
           },
           {
-            "order": 6,
-            "name": "Gage Workman",
-            "mlbam_id": "669398",
+            "order": 5,
+            "name": "Riley Greene",
+            "mlbam_id": "682985",
             "bats": "L",
             "current_year": {
-              "pa": 15,
-              "xwoba": 0.43,
-              "xwoba_percentile": 97,
+              "pa": 187,
+              "xwoba": 0.385,
+              "xwoba_percentile": 91,
               "xwoba_label": "Elite",
-              "qualified": false
+              "qualified": true
             },
             "prior_year": {
-              "pa": 17,
-              "xwoba": 0.312,
-              "xwoba_percentile": 63,
-              "xwoba_label": "Solid",
-              "qualified": false
+              "pa": 655,
+              "xwoba": 0.335,
+              "xwoba_percentile": 83,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            }
+          },
+          {
+            "order": 6,
+            "name": "Spencer Torkelson",
+            "mlbam_id": "679529",
+            "bats": "R",
+            "current_year": {
+              "pa": 173,
+              "xwoba": 0.342,
+              "xwoba_percentile": 75,
+              "xwoba_label": "Strong",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 649,
+              "xwoba": 0.334,
+              "xwoba_percentile": 82,
+              "xwoba_label": "Dominant",
+              "qualified": true
             }
           },
           {
@@ -453,37 +433,43 @@
           },
           {
             "order": 8,
-            "name": "Spencer Torkelson",
-            "mlbam_id": "679529",
-            "bats": "R",
+            "name": "Wenceel P\u00e9rez",
+            "mlbam_id": "672761",
+            "bats": "S",
             "current_year": {
-              "pa": 173,
-              "xwoba": 0.342,
-              "xwoba_percentile": 75,
-              "xwoba_label": "Strong",
+              "pa": 95,
+              "xwoba": 0.283,
+              "xwoba_percentile": 33,
+              "xwoba_label": "Shaky",
               "qualified": true
             },
             "prior_year": {
-              "pa": 649,
-              "xwoba": 0.334,
-              "xwoba_percentile": 82,
-              "xwoba_label": "Dominant",
+              "pa": 383,
+              "xwoba": 0.31,
+              "xwoba_percentile": 62,
+              "xwoba_label": "Solid",
               "qualified": true
             }
           },
           {
             "order": 9,
-            "name": "Hao-Yu  Lee",
-            "mlbam_id": "701678",
+            "name": "Jake Rogers",
+            "mlbam_id": "668670",
             "bats": "R",
             "current_year": {
-              "pa": 54,
-              "xwoba": 0.3,
-              "xwoba_percentile": 43,
-              "xwoba_label": "Mediocre",
-              "qualified": true
+              "pa": 43,
+              "xwoba": 0.24,
+              "xwoba_percentile": 13,
+              "xwoba_label": "Brutal",
+              "qualified": false
             },
-            "prior_year": null
+            "prior_year": {
+              "pa": 142,
+              "xwoba": 0.274,
+              "xwoba_percentile": 33,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            }
           }
         ]
       },
