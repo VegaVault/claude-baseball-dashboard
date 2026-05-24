@@ -1,6 +1,6 @@
 {
   "date": "2026-05-24",
-  "last_updated": "2026-05-24T20:07:59Z",
+  "last_updated": "2026-05-24T21:10:21Z",
   "fetch_errors": [],
   "games": [
     {
@@ -1044,8 +1044,8 @@
       "away_team": "DET",
       "home_team": "BAL",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-05-24T20:07:59Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-05-24T21:10:21Z",
       "umpire": null,
       "odds": {
         "away": "DET",
@@ -1137,6 +1137,26 @@
         "away": [
           {
             "order": 1,
+            "name": "Matt Vierling",
+            "mlbam_id": "663837",
+            "bats": "R",
+            "current_year": {
+              "pa": 142,
+              "xwoba": 0.319,
+              "xwoba_percentile": 62,
+              "xwoba_label": "Solid",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 100,
+              "xwoba": 0.338,
+              "xwoba_percentile": 84,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            }
+          },
+          {
+            "order": 2,
             "name": "Kevin McGonigle",
             "mlbam_id": "805808",
             "bats": "L",
@@ -1150,7 +1170,7 @@
             "prior_year": null
           },
           {
-            "order": 2,
+            "order": 3,
             "name": "Dillon Dingler",
             "mlbam_id": "693307",
             "bats": "R",
@@ -1166,46 +1186,6 @@
               "xwoba": 0.351,
               "xwoba_percentile": 91,
               "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 3,
-            "name": "Jahmai Jones",
-            "mlbam_id": "663330",
-            "bats": "R",
-            "current_year": {
-              "pa": 64,
-              "xwoba": 0.344,
-              "xwoba_percentile": 79,
-              "xwoba_label": "Strong",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 150,
-              "xwoba": 0.399,
-              "xwoba_percentile": 99,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 3,
-            "name": "Colt Keith",
-            "mlbam_id": "690993",
-            "bats": "L",
-            "current_year": {
-              "pa": 152,
-              "xwoba": 0.3,
-              "xwoba_percentile": 46,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 468,
-              "xwoba": 0.341,
-              "xwoba_percentile": 86,
-              "xwoba_label": "Dominant",
               "qualified": true
             }
           },
@@ -1231,6 +1211,26 @@
           },
           {
             "order": 5,
+            "name": "Jahmai Jones",
+            "mlbam_id": "663330",
+            "bats": "R",
+            "current_year": {
+              "pa": 64,
+              "xwoba": 0.344,
+              "xwoba_percentile": 79,
+              "xwoba_label": "Strong",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 150,
+              "xwoba": 0.399,
+              "xwoba_percentile": 99,
+              "xwoba_label": "Elite",
+              "qualified": true
+            }
+          },
+          {
+            "order": 6,
             "name": "Spencer Torkelson",
             "mlbam_id": "679529",
             "bats": "R",
@@ -1250,7 +1250,7 @@
             }
           },
           {
-            "order": 6,
+            "order": 7,
             "name": "Wenceel P\u00e9rez",
             "mlbam_id": "672761",
             "bats": "S",
@@ -1270,47 +1270,7 @@
             }
           },
           {
-            "order": 7,
-            "name": "Zach McKinstry",
-            "mlbam_id": "656716",
-            "bats": "L",
-            "current_year": {
-              "pa": 99,
-              "xwoba": 0.245,
-              "xwoba_percentile": 15,
-              "xwoba_label": "Brutal",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 511,
-              "xwoba": 0.305,
-              "xwoba_percentile": 59,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
-          },
-          {
             "order": 8,
-            "name": "Gage Workman",
-            "mlbam_id": "669398",
-            "bats": "L",
-            "current_year": {
-              "pa": 32,
-              "xwoba": 0.347,
-              "xwoba_percentile": 80,
-              "xwoba_label": "Dominant",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 17,
-              "xwoba": 0.312,
-              "xwoba_percentile": 63,
-              "xwoba_label": "Solid",
-              "qualified": false
-            }
-          },
-          {
-            "order": 9,
             "name": "Hao-Yu  Lee",
             "mlbam_id": "701678",
             "bats": "R",
@@ -1322,6 +1282,26 @@
               "qualified": true
             },
             "prior_year": null
+          },
+          {
+            "order": 9,
+            "name": "Zack Short",
+            "mlbam_id": "670097",
+            "bats": "R",
+            "current_year": {
+              "pa": 20,
+              "xwoba": 0.301,
+              "xwoba_percentile": 47,
+              "xwoba_label": "Mediocre",
+              "qualified": false
+            },
+            "prior_year": {
+              "pa": 56,
+              "xwoba": 0.241,
+              "xwoba_percentile": 16,
+              "xwoba_label": "Brutal",
+              "qualified": true
+            }
           }
         ],
         "home": [
@@ -1466,46 +1446,6 @@
             }
           },
           {
-            "order": 7,
-            "name": "Tyler O'Neill",
-            "mlbam_id": "641933",
-            "bats": "R",
-            "current_year": {
-              "pa": 98,
-              "xwoba": 0.277,
-              "xwoba_percentile": 30,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 209,
-              "xwoba": 0.36,
-              "xwoba_percentile": 93,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
-            "name": "Coby Mayo",
-            "mlbam_id": "691723",
-            "bats": "R",
-            "current_year": {
-              "pa": 143,
-              "xwoba": 0.29,
-              "xwoba_percentile": 39,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 294,
-              "xwoba": 0.289,
-              "xwoba_percentile": 42,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
             "order": 8,
             "name": "Blaze Alexander",
             "mlbam_id": "677942",
@@ -1584,11 +1524,14 @@
     },
     {
       "game_pk": 824759,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-05-24T17:35:00Z",
       "away_team": "MIN",
       "home_team": "BOS",
-      "final_score": null,
+      "final_score": {
+        "away": 6,
+        "home": 5
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-24T16:51:49Z",
       "umpire": {
@@ -3660,11 +3603,14 @@
     },
     {
       "game_pk": 823861,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-05-24T17:40:00Z",
       "away_team": "NYM",
       "home_team": "MIA",
-      "final_score": null,
+      "final_score": {
+        "away": 0,
+        "home": 4
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-24T15:54:39Z",
       "umpire": null,
@@ -4161,11 +4107,14 @@
     },
     {
       "game_pk": 824108,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-05-24T18:10:00Z",
       "away_team": "SEA",
       "home_team": "KC",
-      "final_score": null,
+      "final_score": {
+        "away": 6,
+        "home": 8
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-24T16:51:49Z",
       "umpire": null,
@@ -4678,11 +4627,14 @@
     },
     {
       "game_pk": 823786,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-05-24T18:10:00Z",
       "away_team": "LAD",
       "home_team": "MIL",
-      "final_score": null,
+      "final_score": {
+        "away": 5,
+        "home": 1
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-24T16:51:49Z",
       "umpire": null,
@@ -5201,11 +5153,14 @@
     },
     {
       "game_pk": 824676,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-05-24T18:20:00Z",
       "away_team": "HOU",
       "home_team": "CHC",
-      "final_score": null,
+      "final_score": {
+        "away": 8,
+        "home": 5
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-24T16:51:49Z",
       "umpire": null,
@@ -6197,12 +6152,12 @@
     },
     {
       "game_pk": 825081,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-24T20:10:00Z",
       "away_team": "COL",
       "home_team": "ARI",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-24T19:00:21Z",
       "umpire": null,
       "odds": {
@@ -6684,12 +6639,12 @@
     },
     {
       "game_pk": 823297,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-24T20:10:00Z",
       "away_team": "ATH",
       "home_team": "SD",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-24T19:00:21Z",
       "umpire": null,
       "odds": {
@@ -7179,12 +7134,12 @@
     },
     {
       "game_pk": 824921,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-24T20:10:00Z",
       "away_team": "WSH",
       "home_team": "ATL",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-24T19:00:22Z",
       "umpire": null,
       "odds": {
