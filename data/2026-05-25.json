@@ -1,15 +1,18 @@
 {
   "date": "2026-05-25",
-  "last_updated": "2026-05-25T18:24:16Z",
+  "last_updated": "2026-05-25T20:06:55Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 823380,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-05-25T17:35:00Z",
       "away_team": "CHC",
       "home_team": "PIT",
-      "final_score": null,
+      "final_score": {
+        "away": 1,
+        "home": 2
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-25T15:47:10Z",
       "umpire": {
@@ -2047,12 +2050,12 @@
     },
     {
       "game_pk": 824107,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-25T19:40:00Z",
       "away_team": "NYY",
       "home_team": "KC",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-25T18:24:15Z",
       "umpire": {
         "name": "Clint Vondrak",
@@ -3086,8 +3089,8 @@
       "away_team": "ARI",
       "home_team": "SF",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-05-25T15:47:16Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-05-25T20:06:55Z",
       "umpire": null,
       "odds": {
         "away": "ARI",
@@ -3244,26 +3247,6 @@
             }
           },
           {
-            "order": 2,
-            "name": "Tim Tawa",
-            "mlbam_id": "694374",
-            "bats": "R",
-            "current_year": {
-              "pa": 66,
-              "xwoba": 0.269,
-              "xwoba_percentile": 25,
-              "xwoba_label": "Weak",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 225,
-              "xwoba": 0.29,
-              "xwoba_percentile": 44,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
             "order": 3,
             "name": "Geraldo Perdomo",
             "mlbam_id": "672695",
@@ -3304,42 +3287,22 @@
             }
           },
           {
-            "order": 4,
-            "name": "Jorge Barrosa",
-            "mlbam_id": "678489",
-            "bats": "S",
+            "order": 5,
+            "name": "Adrian Del Castillo",
+            "mlbam_id": "680728",
+            "bats": "L",
             "current_year": {
-              "pa": 94,
-              "xwoba": 0.219,
-              "xwoba_percentile": 11,
+              "pa": 114,
+              "xwoba": 0.247,
+              "xwoba_percentile": 16,
               "xwoba_label": "Brutal",
               "qualified": true
             },
             "prior_year": {
-              "pa": 77,
-              "xwoba": 0.193,
-              "xwoba_percentile": 6,
-              "xwoba_label": "Unplayable",
-              "qualified": true
-            }
-          },
-          {
-            "order": 5,
-            "name": "Ildemaro Vargas",
-            "mlbam_id": "545121",
-            "bats": "S",
-            "current_year": {
-              "pa": 189,
-              "xwoba": 0.322,
-              "xwoba_percentile": 64,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 121,
-              "xwoba": 0.287,
-              "xwoba_percentile": 41,
-              "xwoba_label": "Mediocre",
+              "pa": 131,
+              "xwoba": 0.269,
+              "xwoba_percentile": 30,
+              "xwoba_label": "Shaky",
               "qualified": true
             }
           },
@@ -3359,6 +3322,26 @@
           },
           {
             "order": 7,
+            "name": "Gabriel Moreno",
+            "mlbam_id": "672515",
+            "bats": "R",
+            "current_year": {
+              "pa": 113,
+              "xwoba": 0.337,
+              "xwoba_percentile": 74,
+              "xwoba_label": "Strong",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 309,
+              "xwoba": 0.346,
+              "xwoba_percentile": 89,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
             "name": "Jose Fernandez",
             "mlbam_id": "699912",
             "bats": "R",
@@ -3370,26 +3353,6 @@
               "qualified": true
             },
             "prior_year": null
-          },
-          {
-            "order": 8,
-            "name": "Aramis Garcia",
-            "mlbam_id": "605244",
-            "bats": "R",
-            "current_year": {
-              "pa": 7,
-              "xwoba": 0.242,
-              "xwoba_percentile": 14,
-              "xwoba_label": "Brutal",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 4,
-              "xwoba": 0.051,
-              "xwoba_percentile": 2,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            }
           },
           {
             "order": 9,
@@ -3523,36 +3486,22 @@
           },
           {
             "order": 7,
-            "name": "Jesus Rodriguez",
-            "mlbam_id": "683679",
-            "bats": "R",
-            "current_year": {
-              "pa": 39,
-              "xwoba": 0.317,
-              "xwoba_percentile": 60,
-              "xwoba_label": "Solid",
-              "qualified": false
-            },
-            "prior_year": null
-          },
-          {
-            "order": 7,
-            "name": "Drew Gilbert",
-            "mlbam_id": "687551",
+            "name": "Bryce Eldridge",
+            "mlbam_id": "805811",
             "bats": "L",
             "current_year": {
-              "pa": 106,
-              "xwoba": 0.245,
-              "xwoba_percentile": 16,
-              "xwoba_label": "Brutal",
-              "qualified": true
+              "pa": 43,
+              "xwoba": 0.304,
+              "xwoba_percentile": 48,
+              "xwoba_label": "Mediocre",
+              "qualified": false
             },
             "prior_year": {
-              "pa": 109,
-              "xwoba": 0.266,
-              "xwoba_percentile": 28,
-              "xwoba_label": "Weak",
-              "qualified": true
+              "pa": 37,
+              "xwoba": 0.362,
+              "xwoba_percentile": 94,
+              "xwoba_label": "Elite",
+              "qualified": false
             }
           },
           {
@@ -3577,36 +3526,22 @@
           },
           {
             "order": 9,
-            "name": "Victor Bericoto",
-            "mlbam_id": "682674",
-            "bats": "R",
-            "current_year": {
-              "pa": 3,
-              "xwoba": 0.047,
-              "xwoba_percentile": 1,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": null
-          },
-          {
-            "order": 9,
-            "name": "Will Brennan",
-            "mlbam_id": "686823",
+            "name": "Drew Gilbert",
+            "mlbam_id": "687551",
             "bats": "L",
             "current_year": {
-              "pa": 20,
-              "xwoba": 0.199,
-              "xwoba_percentile": 7,
-              "xwoba_label": "Unplayable",
-              "qualified": false
+              "pa": 106,
+              "xwoba": 0.245,
+              "xwoba_percentile": 16,
+              "xwoba_label": "Brutal",
+              "qualified": true
             },
             "prior_year": {
-              "pa": 13,
-              "xwoba": 0.199,
-              "xwoba_percentile": 7,
-              "xwoba_label": "Unplayable",
-              "qualified": false
+              "pa": 109,
+              "xwoba": 0.266,
+              "xwoba_percentile": 28,
+              "xwoba_label": "Weak",
+              "qualified": true
             }
           }
         ]
