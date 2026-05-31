@@ -1,15 +1,18 @@
 {
   "date": "2026-05-31",
-  "last_updated": "2026-05-31T18:16:25Z",
+  "last_updated": "2026-05-31T19:47:21Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 824832,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-05-31T16:15:00Z",
       "away_team": "TOR",
       "home_team": "BAL",
-      "final_score": null,
+      "final_score": {
+        "away": 5,
+        "home": 9
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-31T14:26:42Z",
       "umpire": {
@@ -4684,12 +4687,12 @@
     },
     {
       "game_pk": 822895,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-31T18:35:00Z",
       "away_team": "KC",
       "home_team": "TEX",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-31T17:06:40Z",
       "umpire": null,
       "odds": {
@@ -5207,12 +5210,12 @@
     },
     {
       "game_pk": 824354,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-05-31T19:10:00Z",
       "away_team": "SF",
       "home_team": "COL",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-05-31T18:16:24Z",
       "umpire": null,
       "odds": {
@@ -6246,8 +6249,8 @@
       "away_team": "ARI",
       "home_team": "SEA",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-05-31T18:16:25Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-05-31T19:47:21Z",
       "umpire": null,
       "odds": {
         "away": "ARI",
@@ -6425,46 +6428,26 @@
           },
           {
             "order": 4,
-            "name": "Gabriel Moreno",
-            "mlbam_id": "672515",
+            "name": "Nolan Arenado",
+            "mlbam_id": "571448",
             "bats": "R",
             "current_year": {
-              "pa": 130,
-              "xwoba": 0.346,
-              "xwoba_percentile": 79,
+              "pa": 196,
+              "xwoba": 0.339,
+              "xwoba_percentile": 75,
               "xwoba_label": "Strong",
               "qualified": true
             },
             "prior_year": {
-              "pa": 309,
-              "xwoba": 0.346,
-              "xwoba_percentile": 89,
-              "xwoba_label": "Dominant",
+              "pa": 436,
+              "xwoba": 0.289,
+              "xwoba_percentile": 42,
+              "xwoba_label": "Mediocre",
               "qualified": true
             }
           },
           {
             "order": 5,
-            "name": "Adrian Del Castillo",
-            "mlbam_id": "680728",
-            "bats": "L",
-            "current_year": {
-              "pa": 130,
-              "xwoba": 0.262,
-              "xwoba_percentile": 22,
-              "xwoba_label": "Weak",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 131,
-              "xwoba": 0.269,
-              "xwoba_percentile": 30,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            }
-          },
-          {
-            "order": 6,
             "name": "Ryan Waldschmidt",
             "mlbam_id": "814439",
             "bats": "R",
@@ -6478,7 +6461,7 @@
             "prior_year": null
           },
           {
-            "order": 7,
+            "order": 6,
             "name": "Ildemaro Vargas",
             "mlbam_id": "545121",
             "bats": "S",
@@ -6498,7 +6481,7 @@
             }
           },
           {
-            "order": 8,
+            "order": 7,
             "name": "Jose Fernandez",
             "mlbam_id": "699912",
             "bats": "R",
@@ -6512,18 +6495,44 @@
             "prior_year": null
           },
           {
-            "order": 9,
-            "name": "Tommy Troy",
-            "mlbam_id": "694371",
+            "order": 8,
+            "name": "Aramis Garcia",
+            "mlbam_id": "605244",
             "bats": "R",
             "current_year": {
-              "pa": 22,
-              "xwoba": 0.312,
-              "xwoba_percentile": 58,
-              "xwoba_label": "Decent",
+              "pa": 11,
+              "xwoba": 0.183,
+              "xwoba_percentile": 6,
+              "xwoba_label": "Unplayable",
               "qualified": false
             },
-            "prior_year": null
+            "prior_year": {
+              "pa": 4,
+              "xwoba": 0.051,
+              "xwoba_percentile": 2,
+              "xwoba_label": "Unplayable",
+              "qualified": false
+            }
+          },
+          {
+            "order": 9,
+            "name": "Tim Tawa",
+            "mlbam_id": "694374",
+            "bats": "R",
+            "current_year": {
+              "pa": 67,
+              "xwoba": 0.265,
+              "xwoba_percentile": 23,
+              "xwoba_label": "Weak",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 225,
+              "xwoba": 0.29,
+              "xwoba_percentile": 44,
+              "xwoba_label": "Mediocre",
+              "qualified": true
+            }
           }
         ],
         "home": [
@@ -6669,21 +6678,21 @@
           },
           {
             "order": 8,
-            "name": "Mitch Garver",
-            "mlbam_id": "641598",
+            "name": "Jhonny Pereda",
+            "mlbam_id": "640902",
             "bats": "R",
             "current_year": {
-              "pa": 88,
-              "xwoba": 0.3,
-              "xwoba_percentile": 46,
-              "xwoba_label": "Mediocre",
-              "qualified": true
+              "pa": 34,
+              "xwoba": 0.372,
+              "xwoba_percentile": 88,
+              "xwoba_label": "Dominant",
+              "qualified": false
             },
             "prior_year": {
-              "pa": 290,
-              "xwoba": 0.298,
-              "xwoba_percentile": 51,
-              "xwoba_label": "Decent",
+              "pa": 78,
+              "xwoba": 0.254,
+              "xwoba_percentile": 23,
+              "xwoba_label": "Weak",
               "qualified": true
             }
           },
