@@ -1,15 +1,18 @@
 {
   "date": "2026-06-25",
-  "last_updated": "2026-06-25T17:03:59Z",
+  "last_updated": "2026-06-25T19:16:40Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 822961,
-      "status": "scheduled",
+      "status": "final",
       "first_pitch_utc": "2026-06-25T16:10:00Z",
       "away_team": "KC",
       "home_team": "TB",
-      "final_score": null,
+      "final_score": {
+        "away": 2,
+        "home": 13
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-06-25T15:37:49Z",
       "umpire": {
@@ -534,11 +537,14 @@
     },
     {
       "game_pk": 823366,
-      "status": "scheduled",
+      "status": "final",
       "first_pitch_utc": "2026-06-25T16:35:00Z",
       "away_team": "SEA",
       "home_team": "PIT",
-      "final_score": null,
+      "final_score": {
+        "away": 1,
+        "home": 5
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-06-25T15:37:51Z",
       "umpire": {
@@ -1056,8 +1062,8 @@
       "away_team": "ATH",
       "home_team": "SF",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-06-25T15:37:53Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-06-25T19:16:40Z",
       "umpire": null,
       "odds": {
         "away": "ATH",
@@ -1249,26 +1255,6 @@
           },
           {
             "order": 5,
-            "name": "Jacob Wilson",
-            "mlbam_id": "805779",
-            "bats": "R",
-            "current_year": {
-              "pa": 214,
-              "xwoba": 0.279,
-              "xwoba_percentile": 29,
-              "xwoba_label": "Weak",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 523,
-              "xwoba": 0.304,
-              "xwoba_percentile": 57,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
-          },
-          {
-            "order": 5,
             "name": "Jonah Heim",
             "mlbam_id": "641680",
             "bats": "S",
@@ -1289,20 +1275,6 @@
           },
           {
             "order": 6,
-            "name": "Joey Meneses",
-            "mlbam_id": "608841",
-            "bats": "R",
-            "current_year": {
-              "pa": 9,
-              "xwoba": 0.319,
-              "xwoba_percentile": 64,
-              "xwoba_label": "Solid",
-              "qualified": false
-            },
-            "prior_year": null
-          },
-          {
-            "order": 7,
             "name": "Lawrence Butler",
             "mlbam_id": "671732",
             "bats": "L",
@@ -1322,7 +1294,7 @@
             }
           },
           {
-            "order": 8,
+            "order": 7,
             "name": "Max Muncy",
             "mlbam_id": "691777",
             "bats": "R",
@@ -1342,7 +1314,7 @@
             }
           },
           {
-            "order": 9,
+            "order": 8,
             "name": "Jeff McNeil",
             "mlbam_id": "643446",
             "bats": "L",
@@ -1360,6 +1332,20 @@
               "xwoba_label": "Strong",
               "qualified": true
             }
+          },
+          {
+            "order": 9,
+            "name": "Alika Williams",
+            "mlbam_id": "675961",
+            "bats": "R",
+            "current_year": {
+              "pa": 48,
+              "xwoba": 0.218,
+              "xwoba_percentile": 9,
+              "xwoba_label": "Unplayable",
+              "qualified": false
+            },
+            "prior_year": null
           }
         ],
         "home": [
@@ -1499,43 +1485,17 @@
           },
           {
             "order": 8,
-            "name": "Eric Haase",
-            "mlbam_id": "606992",
+            "name": "Daniel Susac",
+            "mlbam_id": "691740",
             "bats": "R",
             "current_year": {
-              "pa": 64,
-              "xwoba": 0.291,
-              "xwoba_percentile": 39,
+              "pa": 113,
+              "xwoba": 0.29,
+              "xwoba_percentile": 38,
               "xwoba_label": "Shaky",
               "qualified": true
             },
-            "prior_year": {
-              "pa": 77,
-              "xwoba": 0.273,
-              "xwoba_percentile": 32,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
-            "name": "Drew Gilbert",
-            "mlbam_id": "687551",
-            "bats": "L",
-            "current_year": {
-              "pa": 181,
-              "xwoba": 0.287,
-              "xwoba_percentile": 36,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 109,
-              "xwoba": 0.27,
-              "xwoba_percentile": 30,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            }
+            "prior_year": null
           },
           {
             "order": 9,
@@ -1548,20 +1508,6 @@
               "xwoba_percentile": 78,
               "xwoba_label": "Strong",
               "qualified": false
-            },
-            "prior_year": null
-          },
-          {
-            "order": 9,
-            "name": "Daniel Susac",
-            "mlbam_id": "691740",
-            "bats": "R",
-            "current_year": {
-              "pa": 113,
-              "xwoba": 0.29,
-              "xwoba_percentile": 38,
-              "xwoba_label": "Shaky",
-              "qualified": true
             },
             "prior_year": null
           }
