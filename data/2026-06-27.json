@@ -1,6 +1,6 @@
 {
   "date": "2026-06-27",
-  "last_updated": "2026-06-27T21:53:28Z",
+  "last_updated": "2026-06-27T22:53:47Z",
   "fetch_errors": [],
   "games": [
     {
@@ -1037,11 +1037,14 @@
     },
     {
       "game_pk": 822794,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-06-27T19:07:00Z",
       "away_team": "TEX",
       "home_team": "TOR",
-      "final_score": null,
+      "final_score": {
+        "away": 7,
+        "home": 4
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-06-27T18:17:05Z",
       "umpire": null,
@@ -2532,11 +2535,14 @@
     },
     {
       "game_pk": 824581,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-06-27T20:10:00Z",
       "away_team": "KC",
       "home_team": "CWS",
-      "final_score": null,
+      "final_score": {
+        "away": 1,
+        "home": 2
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-06-27T18:17:06Z",
       "umpire": null,
@@ -3037,12 +3043,12 @@
     },
     {
       "game_pk": 822960,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-06-27T22:10:00Z",
       "away_team": "ARI",
       "home_team": "TB",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-06-27T20:49:38Z",
       "umpire": null,
       "odds": {
@@ -6084,8 +6090,8 @@
       "away_team": "LAD",
       "home_team": "SD",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-06-27T14:26:30Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-06-27T22:53:47Z",
       "umpire": null,
       "odds": {
         "away": "LAD",
@@ -6302,67 +6308,7 @@
             }
           },
           {
-            "order": 5,
-            "name": "Alex Call",
-            "mlbam_id": "669743",
-            "bats": "R",
-            "current_year": {
-              "pa": 125,
-              "xwoba": 0.286,
-              "xwoba_percentile": 36,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 322,
-              "xwoba": 0.321,
-              "xwoba_percentile": 70,
-              "xwoba_label": "Strong",
-              "qualified": true
-            }
-          },
-          {
             "order": 6,
-            "name": "Kyle Tucker",
-            "mlbam_id": "663656",
-            "bats": "L",
-            "current_year": {
-              "pa": 321,
-              "xwoba": 0.32,
-              "xwoba_percentile": 66,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 597,
-              "xwoba": 0.372,
-              "xwoba_percentile": 96,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 6,
-            "name": "Miguel Rojas",
-            "mlbam_id": "500743",
-            "bats": "R",
-            "current_year": {
-              "pa": 131,
-              "xwoba": 0.326,
-              "xwoba_percentile": 69,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 317,
-              "xwoba": 0.293,
-              "xwoba_percentile": 45,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
-            "order": 7,
             "name": "Tommy Edman",
             "mlbam_id": "669242",
             "bats": "S",
@@ -6378,6 +6324,26 @@
               "xwoba": 0.321,
               "xwoba_percentile": 70,
               "xwoba_label": "Strong",
+              "qualified": true
+            }
+          },
+          {
+            "order": 7,
+            "name": "Kyle Tucker",
+            "mlbam_id": "663656",
+            "bats": "L",
+            "current_year": {
+              "pa": 321,
+              "xwoba": 0.32,
+              "xwoba_percentile": 66,
+              "xwoba_label": "Solid",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 597,
+              "xwoba": 0.372,
+              "xwoba_percentile": 96,
+              "xwoba_label": "Elite",
               "qualified": true
             }
           },
@@ -6524,20 +6490,6 @@
             }
           },
           {
-            "order": 5,
-            "name": "Jase Bowen",
-            "mlbam_id": "687749",
-            "bats": "R",
-            "current_year": {
-              "pa": 32,
-              "xwoba": 0.202,
-              "xwoba_percentile": 7,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": null
-          },
-          {
             "order": 6,
             "name": "Xander Bogaerts",
             "mlbam_id": "593428",
@@ -6553,26 +6505,6 @@
               "pa": 552,
               "xwoba": 0.327,
               "xwoba_percentile": 76,
-              "xwoba_label": "Strong",
-              "qualified": true
-            }
-          },
-          {
-            "order": 7,
-            "name": "Ty France",
-            "mlbam_id": "664034",
-            "bats": "R",
-            "current_year": {
-              "pa": 180,
-              "xwoba": 0.319,
-              "xwoba_percentile": 64,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 490,
-              "xwoba": 0.328,
-              "xwoba_percentile": 77,
               "xwoba_label": "Strong",
               "qualified": true
             }
@@ -6618,32 +6550,24 @@
             }
           },
           {
-            "order": 8,
-            "name": "Sung-Mun Song",
-            "mlbam_id": "823550",
-            "bats": "L",
-            "current_year": {
-              "pa": 61,
-              "xwoba": 0.259,
-              "xwoba_percentile": 19,
-              "xwoba_label": "Brutal",
-              "qualified": true
-            },
-            "prior_year": null
-          },
-          {
             "order": 9,
-            "name": "Rodolfo Dur\u00e1n",
-            "mlbam_id": "660710",
+            "name": "Freddy Fermin",
+            "mlbam_id": "666023",
             "bats": "R",
             "current_year": {
-              "pa": 71,
-              "xwoba": 0.285,
-              "xwoba_percentile": 35,
-              "xwoba_label": "Shaky",
+              "pa": 146,
+              "xwoba": 0.266,
+              "xwoba_percentile": 22,
+              "xwoba_label": "Weak",
               "qualified": true
             },
-            "prior_year": null
+            "prior_year": {
+              "pa": 347,
+              "xwoba": 0.271,
+              "xwoba_percentile": 31,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            }
           }
         ]
       },
