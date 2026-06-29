@@ -1,6 +1,6 @@
 {
   "date": "2026-06-29",
-  "last_updated": "2026-06-29T16:35:36Z",
+  "last_updated": "2026-06-29T21:04:12Z",
   "fetch_errors": [],
   "games": [
     {
@@ -10,8 +10,8 @@
       "away_team": "CWS",
       "home_team": "BAL",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-06-29T16:34:37Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-06-29T21:04:12Z",
       "umpire": null,
       "odds": {
         "away": "CWS",
@@ -163,46 +163,6 @@
           },
           {
             "order": 3,
-            "name": "Kyle Teel",
-            "mlbam_id": "691019",
-            "bats": "L",
-            "current_year": {
-              "pa": 20,
-              "xwoba": 0.344,
-              "xwoba_percentile": 81,
-              "xwoba_label": "Dominant",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 297,
-              "xwoba": 0.337,
-              "xwoba_percentile": 84,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            }
-          },
-          {
-            "order": 4,
-            "name": "Andrew Benintendi",
-            "mlbam_id": "643217",
-            "bats": "L",
-            "current_year": {
-              "pa": 254,
-              "xwoba": 0.327,
-              "xwoba_percentile": 70,
-              "xwoba_label": "Strong",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 470,
-              "xwoba": 0.32,
-              "xwoba_percentile": 69,
-              "xwoba_label": "Solid",
-              "qualified": true
-            }
-          },
-          {
-            "order": 5,
             "name": "Colson Montgomery",
             "mlbam_id": "695657",
             "bats": "L",
@@ -222,27 +182,47 @@
             }
           },
           {
-            "order": 6,
-            "name": "Chase Meidroth",
-            "mlbam_id": "805367",
-            "bats": "R",
+            "order": 4,
+            "name": "Kyle Teel",
+            "mlbam_id": "691019",
+            "bats": "L",
             "current_year": {
-              "pa": 339,
-              "xwoba": 0.282,
-              "xwoba_percentile": 33,
-              "xwoba_label": "Shaky",
-              "qualified": true
+              "pa": 20,
+              "xwoba": 0.344,
+              "xwoba_percentile": 81,
+              "xwoba_label": "Dominant",
+              "qualified": false
             },
             "prior_year": {
-              "pa": 505,
-              "xwoba": 0.3,
-              "xwoba_percentile": 53,
-              "xwoba_label": "Decent",
+              "pa": 297,
+              "xwoba": 0.337,
+              "xwoba_percentile": 84,
+              "xwoba_label": "Dominant",
               "qualified": true
             }
           },
           {
-            "order": 7,
+            "order": 5,
+            "name": "Randal Grichuk",
+            "mlbam_id": "545341",
+            "bats": "R",
+            "current_year": {
+              "pa": 119,
+              "xwoba": 0.39,
+              "xwoba_percentile": 96,
+              "xwoba_label": "Elite",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 293,
+              "xwoba": 0.326,
+              "xwoba_percentile": 75,
+              "xwoba_label": "Strong",
+              "qualified": true
+            }
+          },
+          {
+            "order": 6,
             "name": "Braden Montgomery",
             "mlbam_id": "695731",
             "bats": "S",
@@ -256,7 +236,7 @@
             "prior_year": null
           },
           {
-            "order": 8,
+            "order": 7,
             "name": "Tristan Peters",
             "mlbam_id": "671976",
             "bats": "L",
@@ -273,6 +253,26 @@
               "xwoba_percentile": 3,
               "xwoba_label": "Unplayable",
               "qualified": false
+            }
+          },
+          {
+            "order": 8,
+            "name": "Chase Meidroth",
+            "mlbam_id": "805367",
+            "bats": "R",
+            "current_year": {
+              "pa": 339,
+              "xwoba": 0.282,
+              "xwoba_percentile": 33,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 505,
+              "xwoba": 0.3,
+              "xwoba_percentile": 53,
+              "xwoba_label": "Decent",
+              "qualified": true
             }
           },
           {
@@ -293,26 +293,6 @@
         "home": [
           {
             "order": 1,
-            "name": "Taylor Ward",
-            "mlbam_id": "621493",
-            "bats": "R",
-            "current_year": {
-              "pa": 387,
-              "xwoba": 0.348,
-              "xwoba_percentile": 83,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 663,
-              "xwoba": 0.333,
-              "xwoba_percentile": 81,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            }
-          },
-          {
-            "order": 2,
             "name": "Gunnar Henderson",
             "mlbam_id": "683002",
             "bats": "L",
@@ -327,6 +307,26 @@
               "pa": 651,
               "xwoba": 0.341,
               "xwoba_percentile": 86,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            }
+          },
+          {
+            "order": 2,
+            "name": "Taylor Ward",
+            "mlbam_id": "621493",
+            "bats": "R",
+            "current_year": {
+              "pa": 387,
+              "xwoba": 0.348,
+              "xwoba_percentile": 83,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 663,
+              "xwoba": 0.333,
+              "xwoba_percentile": 81,
               "xwoba_label": "Dominant",
               "qualified": true
             }
@@ -392,26 +392,6 @@
             }
           },
           {
-            "order": 5,
-            "name": "Blaze Alexander",
-            "mlbam_id": "677942",
-            "bats": "R",
-            "current_year": {
-              "pa": 203,
-              "xwoba": 0.351,
-              "xwoba_percentile": 84,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 266,
-              "xwoba": 0.305,
-              "xwoba_percentile": 59,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
-          },
-          {
             "order": 6,
             "name": "Dylan Beavers",
             "mlbam_id": "687637",
@@ -432,47 +412,7 @@
             }
           },
           {
-            "order": 6,
-            "name": "Tyler O'Neill",
-            "mlbam_id": "641933",
-            "bats": "R",
-            "current_year": {
-              "pa": 156,
-              "xwoba": 0.284,
-              "xwoba_percentile": 35,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 209,
-              "xwoba": 0.36,
-              "xwoba_percentile": 93,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
             "order": 7,
-            "name": "Coby Mayo",
-            "mlbam_id": "691723",
-            "bats": "R",
-            "current_year": {
-              "pa": 231,
-              "xwoba": 0.284,
-              "xwoba_percentile": 35,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 294,
-              "xwoba": 0.289,
-              "xwoba_percentile": 42,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
             "name": "Colton Cowser",
             "mlbam_id": "681297",
             "bats": "L",
@@ -493,21 +433,21 @@
           },
           {
             "order": 8,
-            "name": "Leody Taveras",
-            "mlbam_id": "665750",
-            "bats": "S",
+            "name": "Blaze Alexander",
+            "mlbam_id": "677942",
+            "bats": "R",
             "current_year": {
-              "pa": 261,
-              "xwoba": 0.286,
-              "xwoba_percentile": 37,
-              "xwoba_label": "Shaky",
+              "pa": 203,
+              "xwoba": 0.351,
+              "xwoba_percentile": 84,
+              "xwoba_label": "Dominant",
               "qualified": true
             },
             "prior_year": {
-              "pa": 180,
-              "xwoba": 0.232,
-              "xwoba_percentile": 13,
-              "xwoba_label": "Brutal",
+              "pa": 266,
+              "xwoba": 0.305,
+              "xwoba_percentile": 59,
+              "xwoba_label": "Decent",
               "qualified": true
             }
           },
@@ -576,7 +516,7 @@
       "home_team": "PHI",
       "final_score": null,
       "lineup_status": "projected",
-      "lineup_last_checked": "2026-06-29T16:34:43Z",
+      "lineup_last_checked": "2026-06-29T21:04:12Z",
       "umpire": null,
       "odds": {
         "away": "PIT",
