@@ -1,6 +1,6 @@
 {
   "date": "2026-07-06",
-  "last_updated": "2026-07-06T22:35:05Z",
+  "last_updated": "2026-07-06T23:43:18Z",
   "fetch_errors": [],
   "games": [
     {
@@ -531,12 +531,12 @@
     },
     {
       "game_pk": 822958,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-07-06T22:40:00Z",
       "away_team": "NYY",
       "home_team": "TB",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-06T21:07:37Z",
       "umpire": null,
       "odds": {
@@ -1054,12 +1054,12 @@
     },
     {
       "game_pk": 822712,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-07-06T22:45:00Z",
       "away_team": "HOU",
       "home_team": "WSH",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-06T21:07:38Z",
       "umpire": null,
       "odds": {
@@ -1571,12 +1571,12 @@
     },
     {
       "game_pk": 824900,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-07-06T23:15:00Z",
       "away_team": "NYM",
       "home_team": "ATL",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-06T22:35:05Z",
       "umpire": null,
       "odds": {
@@ -2570,8 +2570,8 @@
       "away_team": "ARI",
       "home_team": "SD",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-07-06T16:16:22Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-07-06T23:43:18Z",
       "umpire": null,
       "odds": {
         "away": "ARI",
@@ -2788,7 +2788,7 @@
             }
           },
           {
-            "order": 5,
+            "order": 6,
             "name": "Max Kepler",
             "mlbam_id": "596146",
             "bats": "L",
@@ -2808,7 +2808,27 @@
             }
           },
           {
-            "order": 6,
+            "order": 7,
+            "name": "Nolan Arenado",
+            "mlbam_id": "571448",
+            "bats": "R",
+            "current_year": {
+              "pa": 318,
+              "xwoba": 0.296,
+              "xwoba_percentile": 44,
+              "xwoba_label": "Mediocre",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 436,
+              "xwoba": 0.289,
+              "xwoba_percentile": 42,
+              "xwoba_label": "Mediocre",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
             "name": "Ildemaro Vargas",
             "mlbam_id": "545121",
             "bats": "S",
@@ -2824,46 +2844,6 @@
               "xwoba": 0.287,
               "xwoba_percentile": 41,
               "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
-            "order": 7,
-            "name": "Tim Tawa",
-            "mlbam_id": "694374",
-            "bats": "R",
-            "current_year": {
-              "pa": 80,
-              "xwoba": 0.269,
-              "xwoba_percentile": 24,
-              "xwoba_label": "Weak",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 225,
-              "xwoba": 0.29,
-              "xwoba_percentile": 44,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
-            "name": "Pavin Smith",
-            "mlbam_id": "656976",
-            "bats": "L",
-            "current_year": {
-              "pa": 81,
-              "xwoba": 0.264,
-              "xwoba_percentile": 21,
-              "xwoba_label": "Weak",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 288,
-              "xwoba": 0.319,
-              "xwoba_percentile": 68,
-              "xwoba_label": "Solid",
               "qualified": true
             }
           },
@@ -2924,26 +2904,6 @@
             }
           },
           {
-            "order": 2,
-            "name": "Miguel Andujar",
-            "mlbam_id": "609280",
-            "bats": "R",
-            "current_year": {
-              "pa": 230,
-              "xwoba": 0.296,
-              "xwoba_percentile": 44,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 341,
-              "xwoba": 0.298,
-              "xwoba_percentile": 51,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
-          },
-          {
             "order": 3,
             "name": "Manny Machado",
             "mlbam_id": "592518",
@@ -2982,20 +2942,6 @@
               "xwoba_label": "Dominant",
               "qualified": true
             }
-          },
-          {
-            "order": 4,
-            "name": "Jase Bowen",
-            "mlbam_id": "687749",
-            "bats": "R",
-            "current_year": {
-              "pa": 36,
-              "xwoba": 0.196,
-              "xwoba_percentile": 7,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": null
           },
           {
             "order": 5,
@@ -3039,22 +2985,22 @@
           },
           {
             "order": 7,
-            "name": "Xander Bogaerts",
-            "mlbam_id": "593428",
+            "name": "Samad Taylor",
+            "mlbam_id": "669392",
             "bats": "R",
             "current_year": {
-              "pa": 336,
-              "xwoba": 0.315,
-              "xwoba_percentile": 63,
-              "xwoba_label": "Solid",
+              "pa": 96,
+              "xwoba": 0.328,
+              "xwoba_percentile": 72,
+              "xwoba_label": "Strong",
               "qualified": true
             },
             "prior_year": {
-              "pa": 552,
-              "xwoba": 0.327,
-              "xwoba_percentile": 76,
-              "xwoba_label": "Strong",
-              "qualified": true
+              "pa": 9,
+              "xwoba": 0.183,
+              "xwoba_percentile": 5,
+              "xwoba_label": "Unplayable",
+              "qualified": false
             }
           },
           {
@@ -3073,23 +3019,17 @@
           },
           {
             "order": 9,
-            "name": "Luis Campusano",
-            "mlbam_id": "669134",
+            "name": "Rodolfo Dur\u00e1n",
+            "mlbam_id": "660710",
             "bats": "R",
             "current_year": {
-              "pa": 64,
-              "xwoba": 0.337,
-              "xwoba_percentile": 76,
-              "xwoba_label": "Strong",
+              "pa": 82,
+              "xwoba": 0.26,
+              "xwoba_percentile": 19,
+              "xwoba_label": "Brutal",
               "qualified": true
             },
-            "prior_year": {
-              "pa": 27,
-              "xwoba": 0.208,
-              "xwoba_percentile": 9,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            }
+            "prior_year": null
           }
         ]
       },
