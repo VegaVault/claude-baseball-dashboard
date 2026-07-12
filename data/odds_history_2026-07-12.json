@@ -3,52 +3,52 @@
   "snapshots": {
     "morning": {
       "slot": "morning",
-      "captured_at": "2026-07-12T08:21:32Z",
+      "captured_at": "2026-07-12T15:03:14Z",
       "label": "8am MT",
       "odds": {
         "MIL_PIT": {
           "away": "MIL",
           "home": "PIT",
           "moneyline": {
-            "away_ml": 116,
-            "home_ml": -116,
+            "away_ml": 115,
+            "home_ml": -115,
             "favorite": "home",
-            "away_impl": 46.4,
-            "home_impl": 53.6
+            "away_impl": 46.5,
+            "home_impl": 53.5
           },
           "runline": {
             "away_point": 1.5,
-            "away_odds": -198,
+            "away_odds": -196,
             "home_point": -1.5,
-            "home_odds": 164
+            "home_odds": 165
           },
           "total": {
-            "line": 7.5,
-            "over_odds": -115,
-            "under_odds": -55
+            "line": 8.0,
+            "over_odds": -68,
+            "under_odds": -41
           },
-          "books_used": 8
+          "books_used": 9
         },
         "KC_BAL": {
           "away": "KC",
           "home": "BAL",
           "moneyline": {
-            "away_ml": 138,
-            "home_ml": -138,
+            "away_ml": 134,
+            "home_ml": -134,
             "favorite": "home",
-            "away_impl": 42.1,
-            "home_impl": 57.9
+            "away_impl": 42.7,
+            "home_impl": 57.3
           },
           "runline": {
             "away_point": 1.5,
-            "away_odds": -158,
+            "away_odds": -161,
             "home_point": -1.5,
-            "home_odds": 133
+            "home_odds": 136
           },
           "total": {
             "line": 9.5,
-            "over_odds": -106,
-            "under_odds": -114
+            "over_odds": -112,
+            "under_odds": -108
           },
           "books_used": 9
         },
@@ -56,86 +56,40 @@
           "away": "NYY",
           "home": "WSH",
           "moneyline": {
-            "away_ml": -104,
-            "home_ml": 104,
-            "favorite": "away",
-            "away_impl": 51.0,
-            "home_impl": 49.0
+            "away_ml": 105,
+            "home_ml": -105,
+            "favorite": "home",
+            "away_impl": 48.7,
+            "home_impl": 51.3
           },
           "runline": {
             "away_point": -1.5,
-            "away_odds": 138,
+            "away_odds": -5,
             "home_point": 1.5,
-            "home_odds": -164
+            "home_odds": -25
           },
           "total": {
-            "line": 9.0,
-            "over_odds": -37,
-            "under_odds": -33
+            "line": 9.5,
+            "over_odds": 27,
+            "under_odds": -69
           },
-          "books_used": 8
+          "books_used": 9
         },
         "BOS_NYM": {
           "away": "BOS",
           "home": "NYM",
           "moneyline": {
-            "away_ml": -111,
-            "home_ml": 111,
+            "away_ml": -102,
+            "home_ml": 102,
             "favorite": "away",
-            "away_impl": 52.6,
-            "home_impl": 47.4
+            "away_impl": 50.5,
+            "home_impl": 49.5
           },
           "runline": {
             "away_point": -1.5,
-            "away_odds": 136,
+            "away_odds": 146,
             "home_point": 1.5,
-            "home_odds": -162
-          },
-          "total": {
-            "line": 8.5,
-            "over_odds": -4,
-            "under_odds": -116
-          },
-          "books_used": 8
-        },
-        "CHC_CIN": {
-          "away": "CHC",
-          "home": "CIN",
-          "moneyline": {
-            "away_ml": -118,
-            "home_ml": 118,
-            "favorite": "away",
-            "away_impl": 54.2,
-            "home_impl": 45.8
-          },
-          "runline": {
-            "away_point": -1.5,
-            "away_odds": 122,
-            "home_point": 1.5,
-            "home_odds": -145
-          },
-          "total": {
-            "line": 9.5,
-            "over_odds": 10,
-            "under_odds": -119
-          },
-          "books_used": 9
-        },
-        "CLE_MIA": {
-          "away": "CLE",
-          "home": "MIA",
-          "moneyline": {
-            "away_ml": 104,
-            "home_ml": -104,
-            "favorite": "home",
-            "away_impl": 48.9,
-            "home_impl": 51.1
-          },
-          "runline": {
-            "away_point": -1.5,
-            "away_odds": -8,
-            "home_point": 1.5,
-            "home_odds": -27
+            "home_odds": -172
           },
           "total": {
             "line": 8.0,
@@ -144,26 +98,72 @@
           },
           "books_used": 9
         },
+        "CHC_CIN": {
+          "away": "CHC",
+          "home": "CIN",
+          "moneyline": {
+            "away_ml": -118,
+            "home_ml": 118,
+            "favorite": "away",
+            "away_impl": 54.1,
+            "home_impl": 45.9
+          },
+          "runline": {
+            "away_point": -1.5,
+            "away_odds": 125,
+            "home_point": 1.5,
+            "home_odds": -147
+          },
+          "total": {
+            "line": 9.0,
+            "over_odds": -113,
+            "under_odds": -84
+          },
+          "books_used": 9
+        },
+        "CLE_MIA": {
+          "away": "CLE",
+          "home": "MIA",
+          "moneyline": {
+            "away_ml": 102,
+            "home_ml": -102,
+            "favorite": "home",
+            "away_impl": 49.4,
+            "home_impl": 50.6
+          },
+          "runline": {
+            "away_point": -1.5,
+            "away_odds": -8,
+            "home_point": 1.5,
+            "home_odds": -26
+          },
+          "total": {
+            "line": 7.5,
+            "over_odds": -115,
+            "under_odds": -105
+          },
+          "books_used": 9
+        },
         "PHI_DET": {
           "away": "PHI",
           "home": "DET",
           "moneyline": {
-            "away_ml": 105,
-            "home_ml": -105,
+            "away_ml": 117,
+            "home_ml": -117,
             "favorite": "home",
-            "away_impl": 48.8,
-            "home_impl": 51.2
+            "away_impl": 46.0,
+            "home_impl": 54.0
           },
           "runline": {
-            "away_point": -1.5,
-            "away_odds": -5,
-            "home_point": 1.5,
-            "home_odds": -32
+            "away_point": 1.5,
+            "away_odds": -215,
+            "home_point": -1.5,
+            "home_odds": 178
           },
           "total": {
-            "line": 7.5,
-            "over_odds": 4,
-            "under_odds": -69
+            "line": 7.0,
+            "over_odds": -107,
+            "under_odds": -113
           },
           "books_used": 9
         },
@@ -171,22 +171,22 @@
           "away": "SEA",
           "home": "TB",
           "moneyline": {
-            "away_ml": 121,
-            "home_ml": -121,
+            "away_ml": 130,
+            "home_ml": -130,
             "favorite": "home",
-            "away_impl": 45.3,
-            "home_impl": 54.7
+            "away_impl": 43.5,
+            "home_impl": 56.5
           },
           "runline": {
             "away_point": 1.5,
-            "away_odds": -189,
+            "away_odds": -179,
             "home_point": -1.5,
-            "home_odds": 158
+            "home_odds": 151
           },
           "total": {
             "line": 7.5,
-            "over_odds": -93,
-            "under_odds": -16
+            "over_odds": -113,
+            "under_odds": 3
           },
           "books_used": 9
         },
@@ -194,22 +194,22 @@
           "away": "ATH",
           "home": "CWS",
           "moneyline": {
-            "away_ml": 107,
-            "home_ml": -107,
+            "away_ml": 119,
+            "home_ml": -119,
             "favorite": "home",
-            "away_impl": 48.2,
-            "home_impl": 51.8
+            "away_impl": 45.7,
+            "home_impl": 54.3
           },
           "runline": {
-            "away_point": -1.5,
-            "away_odds": 0,
-            "home_point": 1.5,
-            "home_odds": -34
+            "away_point": 1.5,
+            "away_odds": -192,
+            "home_point": -1.5,
+            "home_odds": 161
           },
           "total": {
             "line": 8.5,
-            "over_odds": -116,
-            "under_odds": -82
+            "over_odds": -119,
+            "under_odds": 10
           },
           "books_used": 9
         },
@@ -217,34 +217,11 @@
           "away": "LAA",
           "home": "MIN",
           "moneyline": {
-            "away_ml": 124,
-            "home_ml": -124,
+            "away_ml": 122,
+            "home_ml": -122,
             "favorite": "home",
-            "away_impl": 44.7,
-            "home_impl": 55.3
-          },
-          "runline": {
-            "away_point": 1.5,
-            "away_odds": -183,
-            "home_point": -1.5,
-            "home_odds": 153
-          },
-          "total": {
-            "line": 8.5,
-            "over_odds": -96,
-            "under_odds": 31
-          },
-          "books_used": 9
-        },
-        "ATL_STL": {
-          "away": "ATL",
-          "home": "STL",
-          "moneyline": {
-            "away_ml": 121,
-            "home_ml": -121,
-            "favorite": "home",
-            "away_impl": 45.2,
-            "home_impl": 54.8
+            "away_impl": 45.0,
+            "home_impl": 55.0
           },
           "runline": {
             "away_point": 1.5,
@@ -253,8 +230,31 @@
             "home_odds": 153
           },
           "total": {
-            "line": 8.5,
-            "over_odds": -37,
+            "line": 9.0,
+            "over_odds": -117,
+            "under_odds": -15
+          },
+          "books_used": 9
+        },
+        "ATL_STL": {
+          "away": "ATL",
+          "home": "STL",
+          "moneyline": {
+            "away_ml": 116,
+            "home_ml": -116,
+            "favorite": "home",
+            "away_impl": 46.3,
+            "home_impl": 53.7
+          },
+          "runline": {
+            "away_point": 1.5,
+            "away_odds": -194,
+            "home_point": -1.5,
+            "home_odds": 163
+          },
+          "total": {
+            "line": 8.0,
+            "over_odds": -59,
             "under_odds": -116
           },
           "books_used": 9
@@ -263,24 +263,24 @@
           "away": "HOU",
           "home": "TEX",
           "moneyline": {
-            "away_ml": 122,
-            "home_ml": -122,
+            "away_ml": 123,
+            "home_ml": -123,
             "favorite": "home",
-            "away_impl": 45.1,
-            "home_impl": 54.9
+            "away_impl": 44.8,
+            "home_impl": 55.2
           },
           "runline": {
             "away_point": 1.5,
-            "away_odds": -184,
+            "away_odds": -183,
             "home_point": -1.5,
             "home_odds": 154
           },
           "total": {
-            "line": 8.5,
-            "over_odds": -109,
-            "under_odds": -111
+            "line": 9.0,
+            "over_odds": -59,
+            "under_odds": -116
           },
-          "books_used": 8
+          "books_used": 9
         },
         "COL_SF": {
           "away": "COL",
@@ -294,14 +294,14 @@
           },
           "runline": {
             "away_point": 1.5,
-            "away_odds": -172,
+            "away_odds": -169,
             "home_point": -1.5,
-            "home_odds": 145
+            "home_odds": 143
           },
           "total": {
-            "line": 8.5,
-            "over_odds": -119,
-            "under_odds": -12
+            "line": 9.0,
+            "over_odds": -109,
+            "under_odds": -110
           },
           "books_used": 9
         },
@@ -309,45 +309,45 @@
           "away": "ARI",
           "home": "LAD",
           "moneyline": {
-            "away_ml": 195,
-            "home_ml": -195,
+            "away_ml": 200,
+            "home_ml": -200,
             "favorite": "home",
-            "away_impl": 33.9,
-            "home_impl": 66.1
+            "away_impl": 33.3,
+            "home_impl": 66.7
           },
           "runline": {
             "away_point": 1.5,
-            "away_odds": -83,
+            "away_odds": -85,
             "home_point": -1.5,
             "home_odds": -112
           },
           "total": {
             "line": 9.5,
-            "over_odds": -83,
-            "under_odds": -112
+            "over_odds": -59,
+            "under_odds": -116
           },
-          "books_used": 8
+          "books_used": 9
         },
         "TOR_SD": {
           "away": "TOR",
           "home": "SD",
           "moneyline": {
-            "away_ml": -116,
-            "home_ml": 116,
+            "away_ml": -118,
+            "home_ml": 118,
             "favorite": "away",
-            "away_impl": 53.8,
-            "home_impl": 46.2
+            "away_impl": 54.1,
+            "home_impl": 45.9
           },
           "runline": {
             "away_point": -1.5,
-            "away_odds": 134,
+            "away_odds": 128,
             "home_point": 1.5,
-            "home_odds": -158
+            "home_odds": -152
           },
           "total": {
             "line": 8.5,
-            "over_odds": -43,
-            "under_odds": -45
+            "over_odds": -119,
+            "under_odds": 33
           },
           "books_used": 9
         }
