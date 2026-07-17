@@ -1,6 +1,6 @@
 {
   "date": "2026-07-17",
-  "last_updated": "2026-07-17T22:21:57Z",
+  "last_updated": "2026-07-17T23:13:48Z",
   "fetch_errors": [],
   "games": [
     {
@@ -527,12 +527,12 @@
     },
     {
       "game_pk": 824737,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-07-17T23:10:00Z",
       "away_team": "TB",
       "home_team": "BOS",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-17T21:29:33Z",
       "umpire": null,
       "odds": {
@@ -998,12 +998,12 @@
     },
     {
       "game_pk": 823524,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-07-17T23:05:00Z",
       "away_team": "LAD",
       "home_team": "NYY",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-17T21:29:33Z",
       "umpire": null,
       "odds": {
@@ -1516,7 +1516,7 @@
       "away_team": "PIT",
       "home_team": "CLE",
       "final_score": null,
-      "lineup_status": "projected",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-17T22:21:56Z",
       "umpire": null,
       "odds": {
@@ -5101,8 +5101,8 @@
       "away_team": "CIN",
       "home_team": "COL",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-07-17T14:27:16Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-07-17T23:13:48Z",
       "umpire": null,
       "odds": {
         "away": "CIN",
@@ -5250,26 +5250,6 @@
           },
           {
             "order": 3,
-            "name": "Spencer Steer",
-            "mlbam_id": "668715",
-            "bats": "R",
-            "current_year": {
-              "pa": 358,
-              "xwoba": 0.346,
-              "xwoba_percentile": 83,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 568,
-              "xwoba": 0.293,
-              "xwoba_percentile": 45,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
-            "order": 4,
             "name": "JJ Bleday",
             "mlbam_id": "668709",
             "bats": "L",
@@ -5285,6 +5265,26 @@
               "xwoba": 0.276,
               "xwoba_percentile": 34,
               "xwoba_label": "Shaky",
+              "qualified": true
+            }
+          },
+          {
+            "order": 4,
+            "name": "Spencer Steer",
+            "mlbam_id": "668715",
+            "bats": "R",
+            "current_year": {
+              "pa": 358,
+              "xwoba": 0.346,
+              "xwoba_percentile": 83,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 568,
+              "xwoba": 0.293,
+              "xwoba_percentile": 45,
+              "xwoba_label": "Mediocre",
               "qualified": true
             }
           },
@@ -5330,20 +5330,20 @@
           },
           {
             "order": 7,
-            "name": "Noelvi Marte",
-            "mlbam_id": "682622",
-            "bats": "R",
+            "name": "TJ Friedl",
+            "mlbam_id": "670770",
+            "bats": "L",
             "current_year": {
-              "pa": 137,
-              "xwoba": 0.265,
-              "xwoba_percentile": 23,
-              "xwoba_label": "Weak",
+              "pa": 214,
+              "xwoba": 0.242,
+              "xwoba_percentile": 14,
+              "xwoba_label": "Brutal",
               "qualified": true
             },
             "prior_year": {
-              "pa": 360,
-              "xwoba": 0.304,
-              "xwoba_percentile": 57,
+              "pa": 685,
+              "xwoba": 0.3,
+              "xwoba_percentile": 53,
               "xwoba_label": "Decent",
               "qualified": true
             }
@@ -5381,20 +5381,6 @@
               "xwoba_label": "Shaky",
               "qualified": true
             }
-          },
-          {
-            "order": 9,
-            "name": "Ivan Johnson",
-            "mlbam_id": "671155",
-            "bats": "S",
-            "current_year": {
-              "pa": 6,
-              "xwoba": 0.21,
-              "xwoba_percentile": 9,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": null
           }
         ],
         "home": [
@@ -5494,17 +5480,23 @@
           },
           {
             "order": 6,
-            "name": "Cole Carrigg",
-            "mlbam_id": "694249",
+            "name": "Willi Castro",
+            "mlbam_id": "650489",
             "bats": "S",
             "current_year": {
-              "pa": 119,
-              "xwoba": 0.326,
-              "xwoba_percentile": 71,
-              "xwoba_label": "Strong",
+              "pa": 320,
+              "xwoba": 0.294,
+              "xwoba_percentile": 43,
+              "xwoba_label": "Mediocre",
               "qualified": true
             },
-            "prior_year": null
+            "prior_year": {
+              "pa": 454,
+              "xwoba": 0.306,
+              "xwoba_percentile": 60,
+              "xwoba_label": "Solid",
+              "qualified": true
+            }
           },
           {
             "order": 7,
