@@ -1,6 +1,6 @@
 {
   "date": "2026-07-18",
-  "last_updated": "2026-07-18T14:18:27Z",
+  "last_updated": "2026-07-18T15:43:55Z",
   "fetch_errors": [],
   "games": [
     {
@@ -10,8 +10,8 @@
       "away_team": "PIT",
       "home_team": "CLE",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-07-18T14:16:35Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-07-18T15:43:55Z",
       "umpire": {
         "name": "Roberto Ortiz",
         "accuracy": 93.2,
@@ -164,26 +164,6 @@
             }
           },
           {
-            "order": 2,
-            "name": "Tyler Callihan",
-            "mlbam_id": "682997",
-            "bats": "L",
-            "current_year": {
-              "pa": 89,
-              "xwoba": 0.289,
-              "xwoba_percentile": 38,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 6,
-              "xwoba": 0.198,
-              "xwoba_percentile": 7,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            }
-          },
-          {
             "order": 3,
             "name": "Bryan Reynolds",
             "mlbam_id": "668804",
@@ -202,20 +182,6 @@
               "xwoba_label": "Dominant",
               "qualified": true
             }
-          },
-          {
-            "order": 3,
-            "name": "Jacob Gonzalez",
-            "mlbam_id": "694378",
-            "bats": "L",
-            "current_year": {
-              "pa": 98,
-              "xwoba": 0.306,
-              "xwoba_percentile": 54,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": null
           },
           {
             "order": 4,
@@ -252,26 +218,6 @@
             }
           },
           {
-            "order": 5,
-            "name": "Billy Cook",
-            "mlbam_id": "695257",
-            "bats": "R",
-            "current_year": {
-              "pa": 35,
-              "xwoba": 0.121,
-              "xwoba_percentile": 1,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 6,
-              "xwoba": 0.382,
-              "xwoba_percentile": 97,
-              "xwoba_label": "Elite",
-              "qualified": false
-            }
-          },
-          {
             "order": 6,
             "name": "Nick Gonzales",
             "mlbam_id": "693304",
@@ -293,43 +239,37 @@
           },
           {
             "order": 7,
-            "name": "Marcell Ozuna",
-            "mlbam_id": "542303",
-            "bats": "R",
+            "name": "Tyler Callihan",
+            "mlbam_id": "682997",
+            "bats": "L",
             "current_year": {
-              "pa": 250,
-              "xwoba": 0.313,
-              "xwoba_percentile": 61,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 592,
-              "xwoba": 0.354,
-              "xwoba_percentile": 92,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
-            "name": "Jared Triolo",
-            "mlbam_id": "669707",
-            "bats": "R",
-            "current_year": {
-              "pa": 215,
-              "xwoba": 0.279,
-              "xwoba_percentile": 31,
+              "pa": 89,
+              "xwoba": 0.289,
+              "xwoba_percentile": 38,
               "xwoba_label": "Shaky",
               "qualified": true
             },
             "prior_year": {
-              "pa": 376,
-              "xwoba": 0.31,
-              "xwoba_percentile": 62,
-              "xwoba_label": "Solid",
-              "qualified": true
+              "pa": 6,
+              "xwoba": 0.198,
+              "xwoba_percentile": 7,
+              "xwoba_label": "Unplayable",
+              "qualified": false
             }
+          },
+          {
+            "order": 8,
+            "name": "Jacob Gonzalez",
+            "mlbam_id": "694378",
+            "bats": "L",
+            "current_year": {
+              "pa": 98,
+              "xwoba": 0.306,
+              "xwoba_percentile": 54,
+              "xwoba_label": "Decent",
+              "qualified": true
+            },
+            "prior_year": null
           },
           {
             "order": 9,
@@ -423,6 +363,26 @@
           },
           {
             "order": 5,
+            "name": "Rhys Hoskins",
+            "mlbam_id": "656555",
+            "bats": "R",
+            "current_year": {
+              "pa": 263,
+              "xwoba": 0.289,
+              "xwoba_percentile": 38,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 328,
+              "xwoba": 0.314,
+              "xwoba_percentile": 65,
+              "xwoba_label": "Solid",
+              "qualified": true
+            }
+          },
+          {
+            "order": 6,
             "name": "Kahlil Watson",
             "mlbam_id": "696135",
             "bats": "L",
@@ -436,7 +396,7 @@
             "prior_year": null
           },
           {
-            "order": 6,
+            "order": 7,
             "name": "Gabriel Arias",
             "mlbam_id": "672356",
             "bats": "R",
@@ -453,26 +413,6 @@
               "xwoba_percentile": 40,
               "xwoba_label": "Mediocre",
               "qualified": true
-            }
-          },
-          {
-            "order": 7,
-            "name": "Petey Halpin",
-            "mlbam_id": "690984",
-            "bats": "L",
-            "current_year": {
-              "pa": 65,
-              "xwoba": 0.233,
-              "xwoba_percentile": 12,
-              "xwoba_label": "Brutal",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 8,
-              "xwoba": 0.276,
-              "xwoba_percentile": 34,
-              "xwoba_label": "Shaky",
-              "qualified": false
             }
           },
           {
