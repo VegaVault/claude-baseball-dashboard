@@ -1,6 +1,6 @@
 {
   "date": "2026-07-18",
-  "last_updated": "2026-07-18T21:32:14Z",
+  "last_updated": "2026-07-18T22:30:04Z",
   "fetch_errors": [],
   "games": [
     {
@@ -1496,11 +1496,14 @@
     },
     {
       "game_pk": 822790,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-07-18T19:07:00Z",
       "away_team": "CWS",
       "home_team": "TOR",
-      "final_score": null,
+      "final_score": {
+        "away": 0,
+        "home": 1
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-18T17:39:00Z",
       "umpire": null,
@@ -1995,11 +1998,14 @@
     },
     {
       "game_pk": 824331,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-07-18T19:10:00Z",
       "away_team": "CIN",
       "home_team": "COL",
-      "final_score": null,
+      "final_score": {
+        "away": 3,
+        "home": 10
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-18T17:39:00Z",
       "umpire": null,
@@ -2490,7 +2496,7 @@
     },
     {
       "game_pk": 823441,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-07-18T20:05:00Z",
       "away_team": "NYM",
       "home_team": "PHI",
@@ -6066,8 +6072,8 @@
       "away_team": "SF",
       "home_team": "SEA",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-07-18T14:17:43Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-07-18T22:30:03Z",
       "umpire": null,
       "odds": {
         "away": "SF",
@@ -6345,15 +6351,15 @@
           },
           {
             "order": 9,
-            "name": "Drew Cavanaugh",
-            "mlbam_id": "701852",
-            "bats": "L",
+            "name": "Daniel Susac",
+            "mlbam_id": "691740",
+            "bats": "R",
             "current_year": {
-              "pa": 42,
-              "xwoba": 0.347,
-              "xwoba_percentile": 83,
-              "xwoba_label": "Dominant",
-              "qualified": false
+              "pa": 115,
+              "xwoba": 0.286,
+              "xwoba_percentile": 36,
+              "xwoba_label": "Shaky",
+              "qualified": true
             },
             "prior_year": null
           }
@@ -6381,21 +6387,21 @@
           },
           {
             "order": 2,
-            "name": "Randy Arozarena",
-            "mlbam_id": "668227",
+            "name": "Julio Rodr\u00edguez",
+            "mlbam_id": "677594",
             "bats": "R",
             "current_year": {
-              "pa": 383,
-              "xwoba": 0.351,
+              "pa": 378,
+              "xwoba": 0.35,
               "xwoba_percentile": 85,
               "xwoba_label": "Dominant",
               "qualified": true
             },
             "prior_year": {
-              "pa": 709,
-              "xwoba": 0.327,
-              "xwoba_percentile": 76,
-              "xwoba_label": "Strong",
+              "pa": 710,
+              "xwoba": 0.344,
+              "xwoba_percentile": 87,
+              "xwoba_label": "Dominant",
               "qualified": true
             }
           },
@@ -6421,21 +6427,21 @@
           },
           {
             "order": 4,
-            "name": "Cal Raleigh",
-            "mlbam_id": "663728",
-            "bats": "S",
+            "name": "Randy Arozarena",
+            "mlbam_id": "668227",
+            "bats": "R",
             "current_year": {
-              "pa": 284,
-              "xwoba": 0.287,
-              "xwoba_percentile": 37,
-              "xwoba_label": "Shaky",
+              "pa": 383,
+              "xwoba": 0.351,
+              "xwoba_percentile": 85,
+              "xwoba_label": "Dominant",
               "qualified": true
             },
             "prior_year": {
-              "pa": 705,
-              "xwoba": 0.371,
-              "xwoba_percentile": 95,
-              "xwoba_label": "Elite",
+              "pa": 709,
+              "xwoba": 0.327,
+              "xwoba_percentile": 76,
+              "xwoba_label": "Strong",
               "qualified": true
             }
           },
@@ -6461,6 +6467,26 @@
           },
           {
             "order": 6,
+            "name": "Cal Raleigh",
+            "mlbam_id": "663728",
+            "bats": "S",
+            "current_year": {
+              "pa": 284,
+              "xwoba": 0.287,
+              "xwoba_percentile": 37,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 705,
+              "xwoba": 0.371,
+              "xwoba_percentile": 95,
+              "xwoba_label": "Elite",
+              "qualified": true
+            }
+          },
+          {
+            "order": 7,
             "name": "Cole Young",
             "mlbam_id": "702284",
             "bats": "L",
@@ -6480,7 +6506,7 @@
             }
           },
           {
-            "order": 7,
+            "order": 8,
             "name": "Luke Raley",
             "mlbam_id": "670042",
             "bats": "L",
@@ -6496,26 +6522,6 @@
               "xwoba": 0.312,
               "xwoba_percentile": 63,
               "xwoba_label": "Solid",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
-            "name": "Victor Robles",
-            "mlbam_id": "645302",
-            "bats": "R",
-            "current_year": {
-              "pa": 109,
-              "xwoba": 0.262,
-              "xwoba_percentile": 21,
-              "xwoba_label": "Weak",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 114,
-              "xwoba": 0.237,
-              "xwoba_percentile": 15,
-              "xwoba_label": "Brutal",
               "qualified": true
             }
           },
@@ -6578,7 +6584,7 @@
       "home_team": "NYY",
       "final_score": null,
       "lineup_status": "projected",
-      "lineup_last_checked": "2026-07-18T14:18:11Z",
+      "lineup_last_checked": "2026-07-18T22:30:04Z",
       "umpire": null,
       "odds": {
         "away": "LAD",
