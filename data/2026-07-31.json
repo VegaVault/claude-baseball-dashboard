@@ -1,15 +1,18 @@
 {
   "date": "2026-07-31",
-  "last_updated": "2026-07-31T19:49:12Z",
+  "last_updated": "2026-07-31T20:52:38Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 824651,
-      "status": "scheduled",
+      "status": "final",
       "first_pitch_utc": "2026-07-31T18:20:00Z",
       "away_team": "NYY",
       "home_team": "CHC",
-      "final_score": null,
+      "final_score": {
+        "away": 2,
+        "home": 0
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-07-31T16:29:40Z",
       "umpire": null,
@@ -521,8 +524,8 @@
       "away_team": "PIT",
       "home_team": "CIN",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-07-31T15:13:56Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-07-31T20:52:37Z",
       "umpire": null,
       "odds": {
         "away": "PIT",
@@ -713,26 +716,6 @@
             "prior_year": null
           },
           {
-            "order": 4,
-            "name": "Billy Cook",
-            "mlbam_id": "695257",
-            "bats": "R",
-            "current_year": {
-              "pa": 45,
-              "xwoba": 0.138,
-              "xwoba_percentile": 2,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 6,
-              "xwoba": 0.382,
-              "xwoba_percentile": 97,
-              "xwoba_label": "Elite",
-              "qualified": false
-            }
-          },
-          {
             "order": 5,
             "name": "Ryan O'Hearn",
             "mlbam_id": "656811",
@@ -807,43 +790,23 @@
             "prior_year": null
           },
           {
-            "order": 8,
-            "name": "Jared Triolo",
-            "mlbam_id": "669707",
+            "order": 9,
+            "name": "Henry Davis",
+            "mlbam_id": "680779",
             "bats": "R",
             "current_year": {
-              "pa": 247,
-              "xwoba": 0.282,
-              "xwoba_percentile": 33,
+              "pa": 214,
+              "xwoba": 0.289,
+              "xwoba_percentile": 38,
               "xwoba_label": "Shaky",
               "qualified": true
             },
             "prior_year": {
-              "pa": 376,
-              "xwoba": 0.31,
-              "xwoba_percentile": 62,
-              "xwoba_label": "Solid",
+              "pa": 283,
+              "xwoba": 0.293,
+              "xwoba_percentile": 45,
+              "xwoba_label": "Mediocre",
               "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Jhostynxon Garcia",
-            "mlbam_id": "691373",
-            "bats": "R",
-            "current_year": {
-              "pa": 45,
-              "xwoba": 0.262,
-              "xwoba_percentile": 22,
-              "xwoba_label": "Weak",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 9,
-              "xwoba": 0.309,
-              "xwoba_percentile": 61,
-              "xwoba_label": "Solid",
-              "qualified": false
             }
           }
         ],
