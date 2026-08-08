@@ -1,15 +1,18 @@
 {
   "date": "2026-08-08",
-  "last_updated": "2026-08-08T21:19:32Z",
+  "last_updated": "2026-08-08T22:17:14Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 823514,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-08T19:05:00Z",
       "away_team": "ATL",
       "home_team": "NYY",
-      "final_score": null,
+      "final_score": {
+        "away": 4,
+        "home": 5
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-08T17:28:53Z",
       "umpire": null,
@@ -1474,12 +1477,12 @@
     },
     {
       "game_pk": 823426,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T22:05:00Z",
       "away_team": "TOR",
       "home_team": "PHI",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-08T20:45:43Z",
       "umpire": null,
       "odds": {
@@ -6535,8 +6538,8 @@
       "away_team": "LAD",
       "home_team": "ARI",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-08-08T13:41:13Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-08-08T22:17:14Z",
       "umpire": null,
       "odds": {
         "away": "LAD",
@@ -6733,26 +6736,6 @@
             }
           },
           {
-            "order": 4,
-            "name": "Enrique Hern\u00e1ndez",
-            "mlbam_id": "571771",
-            "bats": "R",
-            "current_year": {
-              "pa": 19,
-              "xwoba": 0.273,
-              "xwoba_percentile": 28,
-              "xwoba_label": "Weak",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 256,
-              "xwoba": 0.287,
-              "xwoba_percentile": 41,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
             "order": 5,
             "name": "Mookie Betts",
             "mlbam_id": "605141",
@@ -6794,26 +6777,6 @@
           },
           {
             "order": 7,
-            "name": "Teoscar Hern\u00e1ndez",
-            "mlbam_id": "606192",
-            "bats": "R",
-            "current_year": {
-              "pa": 318,
-              "xwoba": 0.318,
-              "xwoba_percentile": 67,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 546,
-              "xwoba": 0.323,
-              "xwoba_percentile": 73,
-              "xwoba_label": "Strong",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
             "name": "Tommy Edman",
             "mlbam_id": "669242",
             "bats": "S",
@@ -6828,6 +6791,26 @@
               "pa": 377,
               "xwoba": 0.321,
               "xwoba_percentile": 70,
+              "xwoba_label": "Strong",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
+            "name": "Teoscar Hern\u00e1ndez",
+            "mlbam_id": "606192",
+            "bats": "R",
+            "current_year": {
+              "pa": 318,
+              "xwoba": 0.318,
+              "xwoba_percentile": 67,
+              "xwoba_label": "Solid",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 546,
+              "xwoba": 0.323,
+              "xwoba_percentile": 73,
               "xwoba_label": "Strong",
               "qualified": true
             }
@@ -6849,46 +6832,6 @@
               "xwoba": 0.275,
               "xwoba_percentile": 33,
               "xwoba_label": "Shaky",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Miguel Rojas",
-            "mlbam_id": "500743",
-            "bats": "R",
-            "current_year": {
-              "pa": 180,
-              "xwoba": 0.318,
-              "xwoba_percentile": 67,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 317,
-              "xwoba": 0.293,
-              "xwoba_percentile": 45,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Ben Rortvedt",
-            "mlbam_id": "666163",
-            "bats": "L",
-            "current_year": {
-              "pa": 2,
-              "xwoba": 0.106,
-              "xwoba_percentile": 1,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 128,
-              "xwoba": 0.24,
-              "xwoba_percentile": 16,
-              "xwoba_label": "Brutal",
               "qualified": true
             }
           }
@@ -6995,26 +6938,6 @@
             }
           },
           {
-            "order": 5,
-            "name": "Ildemaro Vargas",
-            "mlbam_id": "545121",
-            "bats": "S",
-            "current_year": {
-              "pa": 355,
-              "xwoba": 0.317,
-              "xwoba_percentile": 66,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 121,
-              "xwoba": 0.287,
-              "xwoba_percentile": 41,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
             "order": 6,
             "name": "Nolan Arenado",
             "mlbam_id": "571448",
@@ -7036,46 +6959,6 @@
           },
           {
             "order": 7,
-            "name": "Max Kepler",
-            "mlbam_id": "596146",
-            "bats": "L",
-            "current_year": {
-              "pa": 106,
-              "xwoba": 0.282,
-              "xwoba_percentile": 33,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 474,
-              "xwoba": 0.332,
-              "xwoba_percentile": 81,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            }
-          },
-          {
-            "order": 7,
-            "name": "Jorge Barrosa",
-            "mlbam_id": "678489",
-            "bats": "S",
-            "current_year": {
-              "pa": 149,
-              "xwoba": 0.231,
-              "xwoba_percentile": 12,
-              "xwoba_label": "Brutal",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 77,
-              "xwoba": 0.193,
-              "xwoba_percentile": 6,
-              "xwoba_label": "Unplayable",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
             "name": "Tim Tawa",
             "mlbam_id": "694374",
             "bats": "R",
@@ -7091,6 +6974,26 @@
               "xwoba": 0.29,
               "xwoba_percentile": 44,
               "xwoba_label": "Mediocre",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
+            "name": "James McCann",
+            "mlbam_id": "543510",
+            "bats": "R",
+            "current_year": {
+              "pa": 104,
+              "xwoba": 0.269,
+              "xwoba_percentile": 25,
+              "xwoba_label": "Weak",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 137,
+              "xwoba": 0.313,
+              "xwoba_percentile": 64,
+              "xwoba_label": "Solid",
               "qualified": true
             }
           },
