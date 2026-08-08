@@ -1,6 +1,6 @@
 {
   "date": "2026-08-08",
-  "last_updated": "2026-08-08T23:17:42Z",
+  "last_updated": "2026-08-08T23:51:07Z",
   "fetch_errors": [],
   "games": [
     {
@@ -503,11 +503,14 @@
     },
     {
       "game_pk": 824726,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-08T20:10:00Z",
       "away_team": "ATH",
       "home_team": "BOS",
-      "final_score": null,
+      "final_score": {
+        "away": 7,
+        "home": 3
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-08T18:28:39Z",
       "umpire": null,
@@ -982,11 +985,14 @@
     },
     {
       "game_pk": 823834,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-08T20:10:00Z",
       "away_team": "LAA",
       "home_team": "MIA",
-      "final_score": null,
+      "final_score": {
+        "away": 0,
+        "home": 7
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-08T18:28:39Z",
       "umpire": null,
@@ -1982,7 +1988,7 @@
     },
     {
       "game_pk": 823348,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T22:40:00Z",
       "away_team": "NYM",
       "home_team": "PIT",
@@ -2487,7 +2493,7 @@
     },
     {
       "game_pk": 822701,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T22:45:00Z",
       "away_team": "CIN",
       "home_team": "WSH",
@@ -3004,7 +3010,7 @@
     },
     {
       "game_pk": 824079,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T23:10:00Z",
       "away_team": "CHC",
       "home_team": "KC",
@@ -3527,7 +3533,7 @@
     },
     {
       "game_pk": 823752,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T23:10:00Z",
       "away_team": "MIN",
       "home_team": "MIL",
@@ -4038,7 +4044,7 @@
     },
     {
       "game_pk": 823267,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T23:15:00Z",
       "away_team": "HOU",
       "home_team": "SD",
@@ -4551,7 +4557,7 @@
     },
     {
       "game_pk": 823188,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T23:15:00Z",
       "away_team": "DET",
       "home_team": "SF",
@@ -5034,7 +5040,7 @@
     },
     {
       "game_pk": 823021,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T23:15:00Z",
       "away_team": "COL",
       "home_team": "STL",
@@ -5533,7 +5539,7 @@
     },
     {
       "game_pk": 822864,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T23:15:00Z",
       "away_team": "BAL",
       "home_team": "TEX",
@@ -6056,7 +6062,7 @@
     },
     {
       "game_pk": 824565,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-08T23:15:00Z",
       "away_team": "CLE",
       "home_team": "CWS",
@@ -7055,8 +7061,8 @@
       "away_team": "TB",
       "home_team": "SEA",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-08-08T13:41:29Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-08-08T23:51:06Z",
       "umpire": null,
       "odds": {
         "away": "TB",
@@ -7234,22 +7240,22 @@
           },
           {
             "order": 4,
-            "name": "Liam Hicks",
-            "mlbam_id": "689414",
+            "name": "Victor Mesa Jr.",
+            "mlbam_id": "683748",
             "bats": "L",
             "current_year": {
-              "pa": 423,
-              "xwoba": 0.313,
-              "xwoba_percentile": 63,
+              "pa": 155,
+              "xwoba": 0.317,
+              "xwoba_percentile": 66,
               "xwoba_label": "Solid",
               "qualified": true
             },
             "prior_year": {
-              "pa": 390,
-              "xwoba": 0.315,
-              "xwoba_percentile": 66,
-              "xwoba_label": "Solid",
-              "qualified": true
+              "pa": 38,
+              "xwoba": 0.334,
+              "xwoba_percentile": 82,
+              "xwoba_label": "Dominant",
+              "qualified": false
             }
           },
           {
@@ -7274,46 +7280,26 @@
           },
           {
             "order": 6,
-            "name": "Jonny DeLuca",
-            "mlbam_id": "676356",
-            "bats": "R",
+            "name": "Cedric Mullins",
+            "mlbam_id": "656775",
+            "bats": "L",
             "current_year": {
-              "pa": 228,
-              "xwoba": 0.282,
-              "xwoba_percentile": 33,
-              "xwoba_label": "Shaky",
+              "pa": 380,
+              "xwoba": 0.25,
+              "xwoba_percentile": 18,
+              "xwoba_label": "Brutal",
               "qualified": true
             },
             "prior_year": {
-              "pa": 59,
-              "xwoba": 0.267,
-              "xwoba_percentile": 29,
-              "xwoba_label": "Weak",
+              "pa": 498,
+              "xwoba": 0.282,
+              "xwoba_percentile": 38,
+              "xwoba_label": "Shaky",
               "qualified": true
             }
           },
           {
             "order": 7,
-            "name": "Victor Mesa Jr.",
-            "mlbam_id": "683748",
-            "bats": "L",
-            "current_year": {
-              "pa": 155,
-              "xwoba": 0.317,
-              "xwoba_percentile": 66,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 38,
-              "xwoba": 0.334,
-              "xwoba_percentile": 82,
-              "xwoba_label": "Dominant",
-              "qualified": false
-            }
-          },
-          {
-            "order": 8,
             "name": "Richie Palacios",
             "mlbam_id": "680700",
             "bats": "L",
@@ -7330,6 +7316,26 @@
               "xwoba_percentile": 93,
               "xwoba_label": "Elite",
               "qualified": false
+            }
+          },
+          {
+            "order": 8,
+            "name": "Nick Fortes",
+            "mlbam_id": "663743",
+            "bats": "R",
+            "current_year": {
+              "pa": 262,
+              "xwoba": 0.286,
+              "xwoba_percentile": 35,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 242,
+              "xwoba": 0.27,
+              "xwoba_percentile": 30,
+              "xwoba_label": "Shaky",
+              "qualified": true
             }
           },
           {
