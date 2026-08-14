@@ -1,6 +1,6 @@
 {
   "date": "2026-08-14",
-  "last_updated": "2026-08-14T21:37:22Z",
+  "last_updated": "2026-08-14T22:14:40Z",
   "fetch_errors": [],
   "games": [
     {
@@ -519,12 +519,12 @@
     },
     {
       "game_pk": 824479,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-14T22:10:00Z",
       "away_team": "MIA",
       "home_team": "CIN",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-14T20:42:56Z",
       "umpire": null,
       "odds": {
@@ -4510,8 +4510,8 @@
       "away_team": "SEA",
       "home_team": "HOU",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-08-14T14:11:24Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-08-14T22:14:40Z",
       "umpire": null,
       "odds": {
         "away": "SEA",
@@ -4619,6 +4619,26 @@
         "away": [
           {
             "order": 1,
+            "name": "Cole Young",
+            "mlbam_id": "702284",
+            "bats": "L",
+            "current_year": {
+              "pa": 486,
+              "xwoba": 0.328,
+              "xwoba_percentile": 76,
+              "xwoba_label": "Strong",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 257,
+              "xwoba": 0.297,
+              "xwoba_percentile": 50,
+              "xwoba_label": "Decent",
+              "qualified": true
+            }
+          },
+          {
+            "order": 2,
             "name": "Randy Arozarena",
             "mlbam_id": "668227",
             "bats": "R",
@@ -4634,26 +4654,6 @@
               "xwoba": 0.327,
               "xwoba_percentile": 76,
               "xwoba_label": "Strong",
-              "qualified": true
-            }
-          },
-          {
-            "order": 2,
-            "name": "Julio Rodr\u00edguez",
-            "mlbam_id": "677594",
-            "bats": "R",
-            "current_year": {
-              "pa": 479,
-              "xwoba": 0.352,
-              "xwoba_percentile": 89,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 710,
-              "xwoba": 0.344,
-              "xwoba_percentile": 87,
-              "xwoba_label": "Dominant",
               "qualified": true
             }
           },
@@ -4678,42 +4678,22 @@
             }
           },
           {
-            "order": 3,
-            "name": "Victor Robles",
-            "mlbam_id": "645302",
+            "order": 4,
+            "name": "Julio Rodr\u00edguez",
+            "mlbam_id": "677594",
             "bats": "R",
             "current_year": {
-              "pa": 126,
-              "xwoba": 0.268,
-              "xwoba_percentile": 25,
-              "xwoba_label": "Weak",
+              "pa": 479,
+              "xwoba": 0.352,
+              "xwoba_percentile": 89,
+              "xwoba_label": "Dominant",
               "qualified": true
             },
             "prior_year": {
-              "pa": 114,
-              "xwoba": 0.237,
-              "xwoba_percentile": 15,
-              "xwoba_label": "Brutal",
-              "qualified": true
-            }
-          },
-          {
-            "order": 4,
-            "name": "Cal Raleigh",
-            "mlbam_id": "663728",
-            "bats": "S",
-            "current_year": {
-              "pa": 371,
-              "xwoba": 0.294,
-              "xwoba_percentile": 43,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 705,
-              "xwoba": 0.371,
-              "xwoba_percentile": 95,
-              "xwoba_label": "Elite",
+              "pa": 710,
+              "xwoba": 0.344,
+              "xwoba_percentile": 87,
+              "xwoba_label": "Dominant",
               "qualified": true
             }
           },
@@ -4759,97 +4739,51 @@
           },
           {
             "order": 7,
-            "name": "Weston Wilson",
-            "mlbam_id": "642215",
-            "bats": "R",
+            "name": "Cal Raleigh",
+            "mlbam_id": "663728",
+            "bats": "S",
             "current_year": {
-              "pa": 111,
-              "xwoba": 0.26,
-              "xwoba_percentile": 21,
-              "xwoba_label": "Weak",
+              "pa": 371,
+              "xwoba": 0.294,
+              "xwoba_percentile": 43,
+              "xwoba_label": "Mediocre",
               "qualified": true
             },
             "prior_year": {
-              "pa": 125,
-              "xwoba": 0.33,
-              "xwoba_percentile": 79,
-              "xwoba_label": "Strong",
+              "pa": 705,
+              "xwoba": 0.371,
+              "xwoba_percentile": 95,
+              "xwoba_label": "Elite",
               "qualified": true
             }
-          },
-          {
-            "order": 7,
-            "name": "Colt Emerson",
-            "mlbam_id": "806068",
-            "bats": "L",
-            "current_year": {
-              "pa": 241,
-              "xwoba": 0.248,
-              "xwoba_percentile": 17,
-              "xwoba_label": "Brutal",
-              "qualified": true
-            },
-            "prior_year": null
           },
           {
             "order": 8,
-            "name": "Jhonny Pereda",
-            "mlbam_id": "640902",
+            "name": "Victor Robles",
+            "mlbam_id": "645302",
             "bats": "R",
             "current_year": {
-              "pa": 74,
-              "xwoba": 0.33,
-              "xwoba_percentile": 77,
-              "xwoba_label": "Strong",
+              "pa": 126,
+              "xwoba": 0.268,
+              "xwoba_percentile": 25,
+              "xwoba_label": "Weak",
               "qualified": true
             },
             "prior_year": {
-              "pa": 78,
-              "xwoba": 0.254,
-              "xwoba_percentile": 23,
-              "xwoba_label": "Weak",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Leo Rivas",
-            "mlbam_id": "660844",
-            "bats": "S",
-            "current_year": {
-              "pa": 130,
-              "xwoba": 0.238,
+              "pa": 114,
+              "xwoba": 0.237,
               "xwoba_percentile": 15,
               "xwoba_label": "Brutal",
               "qualified": true
-            },
-            "prior_year": {
-              "pa": 111,
-              "xwoba": 0.288,
-              "xwoba_percentile": 42,
-              "xwoba_label": "Mediocre",
-              "qualified": true
             }
           },
           {
             "order": 9,
-            "name": "Cole Young",
-            "mlbam_id": "702284",
-            "bats": "L",
-            "current_year": {
-              "pa": 486,
-              "xwoba": 0.328,
-              "xwoba_percentile": 76,
-              "xwoba_label": "Strong",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 257,
-              "xwoba": 0.297,
-              "xwoba_percentile": 50,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
+            "name": "Brock Rodden",
+            "mlbam_id": "801126",
+            "bats": "S",
+            "current_year": null,
+            "prior_year": null
           }
         ],
         "home": [
@@ -4915,100 +4849,6 @@
           },
           {
             "order": 4,
-            "name": "Daulton Varsho",
-            "mlbam_id": "662139",
-            "bats": "L",
-            "current_year": {
-              "pa": 402,
-              "xwoba": 0.292,
-              "xwoba_percentile": 41,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 271,
-              "xwoba": 0.327,
-              "xwoba_percentile": 76,
-              "xwoba_label": "Strong",
-              "qualified": true
-            }
-          },
-          {
-            "order": 5,
-            "name": "LaMonte Wade Jr.",
-            "mlbam_id": "664774",
-            "bats": "L",
-            "current_year": {
-              "pa": 92,
-              "xwoba": 0.285,
-              "xwoba_percentile": 36,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 242,
-              "xwoba": 0.281,
-              "xwoba_percentile": 37,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            }
-          },
-          {
-            "order": 5,
-            "name": "Nelson Vel\u00e1zquez",
-            "mlbam_id": "676369",
-            "bats": "R",
-            "current_year": {
-              "pa": 87,
-              "xwoba": 0.359,
-              "xwoba_percentile": 91,
-              "xwoba_label": "Elite",
-              "qualified": true
-            },
-            "prior_year": null
-          },
-          {
-            "order": 5,
-            "name": "Christian Walker",
-            "mlbam_id": "572233",
-            "bats": "R",
-            "current_year": {
-              "pa": 484,
-              "xwoba": 0.306,
-              "xwoba_percentile": 56,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 640,
-              "xwoba": 0.314,
-              "xwoba_percentile": 65,
-              "xwoba_label": "Solid",
-              "qualified": true
-            }
-          },
-          {
-            "order": 6,
-            "name": "Cam Smith",
-            "mlbam_id": "701358",
-            "bats": "R",
-            "current_year": {
-              "pa": 438,
-              "xwoba": 0.331,
-              "xwoba_percentile": 78,
-              "xwoba_label": "Strong",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 493,
-              "xwoba": 0.304,
-              "xwoba_percentile": 57,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
-          },
-          {
-            "order": 7,
             "name": "Taylor Trammell",
             "mlbam_id": "666211",
             "bats": "L",
@@ -5028,22 +4868,82 @@
             }
           },
           {
-            "order": 8,
-            "name": "Nick Allen",
-            "mlbam_id": "669397",
+            "order": 5,
+            "name": "Jose Altuve",
+            "mlbam_id": "514888",
             "bats": "R",
             "current_year": {
-              "pa": 123,
-              "xwoba": 0.233,
-              "xwoba_percentile": 13,
-              "xwoba_label": "Brutal",
+              "pa": 409,
+              "xwoba": 0.277,
+              "xwoba_percentile": 31,
+              "xwoba_label": "Shaky",
               "qualified": true
             },
             "prior_year": {
-              "pa": 416,
-              "xwoba": 0.252,
-              "xwoba_percentile": 22,
-              "xwoba_label": "Weak",
+              "pa": 654,
+              "xwoba": 0.3,
+              "xwoba_percentile": 53,
+              "xwoba_label": "Decent",
+              "qualified": true
+            }
+          },
+          {
+            "order": 6,
+            "name": "Daulton Varsho",
+            "mlbam_id": "662139",
+            "bats": "L",
+            "current_year": {
+              "pa": 402,
+              "xwoba": 0.292,
+              "xwoba_percentile": 41,
+              "xwoba_label": "Mediocre",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 271,
+              "xwoba": 0.327,
+              "xwoba_percentile": 76,
+              "xwoba_label": "Strong",
+              "qualified": true
+            }
+          },
+          {
+            "order": 7,
+            "name": "Christian Walker",
+            "mlbam_id": "572233",
+            "bats": "R",
+            "current_year": {
+              "pa": 484,
+              "xwoba": 0.306,
+              "xwoba_percentile": 56,
+              "xwoba_label": "Decent",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 640,
+              "xwoba": 0.314,
+              "xwoba_percentile": 65,
+              "xwoba_label": "Solid",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
+            "name": "Cam Smith",
+            "mlbam_id": "701358",
+            "bats": "R",
+            "current_year": {
+              "pa": 438,
+              "xwoba": 0.331,
+              "xwoba_percentile": 78,
+              "xwoba_label": "Strong",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 493,
+              "xwoba": 0.304,
+              "xwoba_percentile": 57,
+              "xwoba_label": "Decent",
               "qualified": true
             }
           },
