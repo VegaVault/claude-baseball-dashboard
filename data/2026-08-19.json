@@ -1,16 +1,16 @@
 {
   "date": "2026-08-19",
-  "last_updated": "2026-08-19T15:53:49Z",
+  "last_updated": "2026-08-19T16:53:37Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 823342,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-19T16:35:00Z",
       "away_team": "DET",
       "home_team": "PIT",
       "final_score": null,
-      "lineup_status": "confirmed",
+      "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-19T15:20:08Z",
       "umpire": null,
       "odds": {
@@ -1513,8 +1513,8 @@
       "away_team": "CWS",
       "home_team": "CHC",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-08-19T13:38:07Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-08-19T16:53:37Z",
       "umpire": null,
       "odds": {
         "away": "CWS",
@@ -1774,46 +1774,6 @@
           },
           {
             "order": 9,
-            "name": "Drew Romo",
-            "mlbam_id": "691011",
-            "bats": "S",
-            "current_year": {
-              "pa": 176,
-              "xwoba": 0.246,
-              "xwoba_percentile": 16,
-              "xwoba_label": "Brutal",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 3,
-              "xwoba": 0.0,
-              "xwoba_percentile": 0,
-              "xwoba_label": "Unplayable",
-              "qualified": false
-            }
-          },
-          {
-            "order": 9,
-            "name": "Randal Grichuk",
-            "mlbam_id": "545341",
-            "bats": "R",
-            "current_year": {
-              "pa": 198,
-              "xwoba": 0.34,
-              "xwoba_percentile": 83,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 293,
-              "xwoba": 0.326,
-              "xwoba_percentile": 75,
-              "xwoba_label": "Strong",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
             "name": "Jake Rogers",
             "mlbam_id": "668670",
             "bats": "R",
@@ -1950,66 +1910,6 @@
           },
           {
             "order": 7,
-            "name": "Ian Happ",
-            "mlbam_id": "664023",
-            "bats": "S",
-            "current_year": {
-              "pa": 520,
-              "xwoba": 0.309,
-              "xwoba_percentile": 58,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 663,
-              "xwoba": 0.354,
-              "xwoba_percentile": 92,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
-            "name": "Miguel Amaya",
-            "mlbam_id": "665804",
-            "bats": "R",
-            "current_year": {
-              "pa": 208,
-              "xwoba": 0.293,
-              "xwoba_percentile": 42,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 103,
-              "xwoba": 0.295,
-              "xwoba_percentile": 47,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
-            "name": "Kevin Alc\u00e1ntara",
-            "mlbam_id": "682634",
-            "bats": "R",
-            "current_year": {
-              "pa": 25,
-              "xwoba": 0.307,
-              "xwoba_percentile": 57,
-              "xwoba_label": "Decent",
-              "qualified": false
-            },
-            "prior_year": {
-              "pa": 12,
-              "xwoba": 0.443,
-              "xwoba_percentile": 100,
-              "xwoba_label": "Elite",
-              "qualified": false
-            }
-          },
-          {
-            "order": 8,
             "name": "Carson Kelly",
             "mlbam_id": "608348",
             "bats": "R",
@@ -2029,22 +1929,42 @@
             }
           },
           {
-            "order": 9,
-            "name": "Michael Conforto",
-            "mlbam_id": "624424",
-            "bats": "L",
+            "order": 8,
+            "name": "Ian Happ",
+            "mlbam_id": "664023",
+            "bats": "S",
             "current_year": {
-              "pa": 224,
-              "xwoba": 0.314,
-              "xwoba_percentile": 64,
-              "xwoba_label": "Solid",
+              "pa": 520,
+              "xwoba": 0.309,
+              "xwoba_percentile": 58,
+              "xwoba_label": "Decent",
               "qualified": true
             },
             "prior_year": {
-              "pa": 486,
-              "xwoba": 0.33,
-              "xwoba_percentile": 79,
-              "xwoba_label": "Strong",
+              "pa": 663,
+              "xwoba": 0.354,
+              "xwoba_percentile": 92,
+              "xwoba_label": "Elite",
+              "qualified": true
+            }
+          },
+          {
+            "order": 9,
+            "name": "Tyrone Taylor",
+            "mlbam_id": "621438",
+            "bats": "R",
+            "current_year": {
+              "pa": 183,
+              "xwoba": 0.31,
+              "xwoba_percentile": 59,
+              "xwoba_label": "Decent",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 341,
+              "xwoba": 0.298,
+              "xwoba_percentile": 51,
+              "xwoba_label": "Decent",
               "qualified": true
             }
           }
