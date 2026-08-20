@@ -1,15 +1,18 @@
 {
   "date": "2026-08-20",
-  "last_updated": "2026-08-20T18:22:02Z",
+  "last_updated": "2026-08-20T20:43:48Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 824474,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-20T16:40:00Z",
       "away_team": "STL",
       "home_team": "CIN",
-      "final_score": null,
+      "final_score": {
+        "away": 10,
+        "home": 9
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-20T15:23:19Z",
       "umpire": {
@@ -504,11 +507,14 @@
     },
     {
       "game_pk": 824395,
-      "status": "scheduled",
+      "status": "final",
       "first_pitch_utc": "2026-08-20T17:10:00Z",
       "away_team": "SF",
       "home_team": "CLE",
-      "final_score": null,
+      "final_score": {
+        "away": 2,
+        "home": 5
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-20T15:23:19Z",
       "umpire": null,
@@ -997,11 +1003,14 @@
     },
     {
       "game_pk": 822934,
-      "status": "scheduled",
+      "status": "final",
       "first_pitch_utc": "2026-08-20T17:10:00Z",
       "away_team": "TOR",
       "home_team": "TB",
-      "final_score": null,
+      "final_score": {
+        "away": 5,
+        "home": 1
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-20T15:23:20Z",
       "umpire": null,
@@ -1508,7 +1517,7 @@
     },
     {
       "game_pk": 824074,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-20T18:10:00Z",
       "away_team": "ATH",
       "home_team": "KC",
@@ -2009,11 +2018,14 @@
     },
     {
       "game_pk": 824589,
-      "status": "scheduled",
+      "status": "final",
       "first_pitch_utc": "2026-08-20T18:10:00Z",
       "away_team": "ATL",
       "home_team": "CWS",
-      "final_score": null,
+      "final_score": {
+        "away": 2,
+        "home": 0
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-20T16:22:02Z",
       "umpire": null,
@@ -2504,7 +2516,7 @@
     },
     {
       "game_pk": 823747,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-20T18:10:00Z",
       "away_team": "SEA",
       "home_team": "MIL",
@@ -3020,8 +3032,8 @@
       "away_team": "NYY",
       "home_team": "BAL",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-08-20T13:40:24Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-08-20T20:43:48Z",
       "umpire": null,
       "odds": {
         "away": "NYY",
@@ -3169,26 +3181,6 @@
           },
           {
             "order": 3,
-            "name": "Luis Garc\u00eda Jr.",
-            "mlbam_id": "671277",
-            "bats": "L",
-            "current_year": {
-              "pa": 429,
-              "xwoba": 0.345,
-              "xwoba_percentile": 86,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 526,
-              "xwoba": 0.339,
-              "xwoba_percentile": 85,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            }
-          },
-          {
-            "order": 4,
             "name": "Heliot Ramos",
             "mlbam_id": "671218",
             "bats": "R",
@@ -3204,6 +3196,26 @@
               "xwoba": 0.32,
               "xwoba_percentile": 69,
               "xwoba_label": "Solid",
+              "qualified": true
+            }
+          },
+          {
+            "order": 4,
+            "name": "Luis Garc\u00eda Jr.",
+            "mlbam_id": "671277",
+            "bats": "L",
+            "current_year": {
+              "pa": 429,
+              "xwoba": 0.345,
+              "xwoba_percentile": 86,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 526,
+              "xwoba": 0.339,
+              "xwoba_percentile": 85,
+              "xwoba_label": "Dominant",
               "qualified": true
             }
           },
@@ -3229,60 +3241,6 @@
           },
           {
             "order": 6,
-            "name": "Spencer Jones",
-            "mlbam_id": "682987",
-            "bats": "L",
-            "current_year": {
-              "pa": 163,
-              "xwoba": 0.308,
-              "xwoba_percentile": 58,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": null
-          },
-          {
-            "order": 7,
-            "name": "Ryan McMahon",
-            "mlbam_id": "641857",
-            "bats": "L",
-            "current_year": {
-              "pa": 306,
-              "xwoba": 0.304,
-              "xwoba_percentile": 54,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 586,
-              "xwoba": 0.322,
-              "xwoba_percentile": 72,
-              "xwoba_label": "Strong",
-              "qualified": true
-            }
-          },
-          {
-            "order": 7,
-            "name": "Jos\u00e9 Caballero",
-            "mlbam_id": "676609",
-            "bats": "R",
-            "current_year": {
-              "pa": 362,
-              "xwoba": 0.282,
-              "xwoba_percentile": 33,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 370,
-              "xwoba": 0.299,
-              "xwoba_percentile": 52,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
             "name": "George Lombard Jr.",
             "mlbam_id": "806146",
             "bats": "R",
@@ -3296,7 +3254,21 @@
             "prior_year": null
           },
           {
-            "order": 9,
+            "order": 7,
+            "name": "Spencer Jones",
+            "mlbam_id": "682987",
+            "bats": "L",
+            "current_year": {
+              "pa": 163,
+              "xwoba": 0.308,
+              "xwoba_percentile": 58,
+              "xwoba_label": "Decent",
+              "qualified": true
+            },
+            "prior_year": null
+          },
+          {
+            "order": 8,
             "name": "Austin Wells",
             "mlbam_id": "669224",
             "bats": "L",
@@ -3312,6 +3284,26 @@
               "xwoba": 0.292,
               "xwoba_percentile": 45,
               "xwoba_label": "Mediocre",
+              "qualified": true
+            }
+          },
+          {
+            "order": 9,
+            "name": "Jos\u00e9 Caballero",
+            "mlbam_id": "676609",
+            "bats": "R",
+            "current_year": {
+              "pa": 362,
+              "xwoba": 0.282,
+              "xwoba_percentile": 33,
+              "xwoba_label": "Shaky",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 370,
+              "xwoba": 0.299,
+              "xwoba_percentile": 52,
+              "xwoba_label": "Decent",
               "qualified": true
             }
           }
@@ -3399,21 +3391,21 @@
           },
           {
             "order": 5,
-            "name": "Coby Mayo",
-            "mlbam_id": "691723",
+            "name": "Christian Encarnacion-Strand",
+            "mlbam_id": "687952",
             "bats": "R",
             "current_year": {
-              "pa": 331,
-              "xwoba": 0.309,
-              "xwoba_percentile": 59,
-              "xwoba_label": "Decent",
+              "pa": 93,
+              "xwoba": 0.363,
+              "xwoba_percentile": 93,
+              "xwoba_label": "Elite",
               "qualified": true
             },
             "prior_year": {
-              "pa": 294,
-              "xwoba": 0.289,
-              "xwoba_percentile": 42,
-              "xwoba_label": "Mediocre",
+              "pa": 137,
+              "xwoba": 0.272,
+              "xwoba_percentile": 32,
+              "xwoba_label": "Shaky",
               "qualified": true
             }
           },
@@ -3494,66 +3486,6 @@
               "xwoba": 0.293,
               "xwoba_percentile": 45,
               "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Tyler O'Neill",
-            "mlbam_id": "641933",
-            "bats": "R",
-            "current_year": {
-              "pa": 252,
-              "xwoba": 0.312,
-              "xwoba_percentile": 62,
-              "xwoba_label": "Solid",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 209,
-              "xwoba": 0.36,
-              "xwoba_percentile": 93,
-              "xwoba_label": "Elite",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Yohel Pozo",
-            "mlbam_id": "650968",
-            "bats": "R",
-            "current_year": {
-              "pa": 50,
-              "xwoba": 0.246,
-              "xwoba_percentile": 16,
-              "xwoba_label": "Brutal",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 168,
-              "xwoba": 0.276,
-              "xwoba_percentile": 34,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Christian Encarnacion-Strand",
-            "mlbam_id": "687952",
-            "bats": "R",
-            "current_year": {
-              "pa": 93,
-              "xwoba": 0.363,
-              "xwoba_percentile": 93,
-              "xwoba_label": "Elite",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 137,
-              "xwoba": 0.272,
-              "xwoba_percentile": 32,
-              "xwoba_label": "Shaky",
               "qualified": true
             }
           }
