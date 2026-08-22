@@ -1,6 +1,6 @@
 {
   "date": "2026-08-22",
-  "last_updated": "2026-08-22T22:13:45Z",
+  "last_updated": "2026-08-22T22:56:40Z",
   "fetch_errors": [],
   "games": [
     {
@@ -1009,11 +1009,14 @@
     },
     {
       "game_pk": 823831,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-22T20:10:00Z",
       "away_team": "WSH",
       "home_team": "MIA",
-      "final_score": null,
+      "final_score": {
+        "away": 2,
+        "home": 4
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-22T18:20:55Z",
       "umpire": null,
@@ -6962,8 +6965,8 @@
       "away_team": "MIN",
       "home_team": "SD",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-08-22T13:29:47Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-08-22T22:56:40Z",
       "umpire": null,
       "odds": {
         "away": "MIN",
@@ -7277,21 +7280,21 @@
           },
           {
             "order": 2,
-            "name": "Luis Rengifo",
-            "mlbam_id": "650859",
-            "bats": "S",
+            "name": "Jake Cronenworth",
+            "mlbam_id": "630105",
+            "bats": "L",
             "current_year": {
-              "pa": 333,
-              "xwoba": 0.308,
-              "xwoba_percentile": 58,
-              "xwoba_label": "Decent",
+              "pa": 295,
+              "xwoba": 0.286,
+              "xwoba_percentile": 36,
+              "xwoba_label": "Shaky",
               "qualified": true
             },
             "prior_year": {
-              "pa": 541,
-              "xwoba": 0.302,
-              "xwoba_percentile": 55,
-              "xwoba_label": "Decent",
+              "pa": 515,
+              "xwoba": 0.319,
+              "xwoba_percentile": 69,
+              "xwoba_label": "Solid",
               "qualified": true
             }
           },
@@ -7357,6 +7360,46 @@
           },
           {
             "order": 6,
+            "name": "Luis Rengifo",
+            "mlbam_id": "650859",
+            "bats": "S",
+            "current_year": {
+              "pa": 333,
+              "xwoba": 0.308,
+              "xwoba_percentile": 58,
+              "xwoba_label": "Decent",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 541,
+              "xwoba": 0.302,
+              "xwoba_percentile": 55,
+              "xwoba_label": "Decent",
+              "qualified": true
+            }
+          },
+          {
+            "order": 7,
+            "name": "Gavin Sheets",
+            "mlbam_id": "657757",
+            "bats": "L",
+            "current_year": {
+              "pa": 399,
+              "xwoba": 0.318,
+              "xwoba_percentile": 68,
+              "xwoba_label": "Solid",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 545,
+              "xwoba": 0.34,
+              "xwoba_percentile": 85,
+              "xwoba_label": "Dominant",
+              "qualified": true
+            }
+          },
+          {
+            "order": 8,
             "name": "Xander Bogaerts",
             "mlbam_id": "593428",
             "bats": "R",
@@ -7376,27 +7419,7 @@
             }
           },
           {
-            "order": 7,
-            "name": "Austin Hays",
-            "mlbam_id": "669720",
-            "bats": "R",
-            "current_year": {
-              "pa": 64,
-              "xwoba": 0.274,
-              "xwoba_percentile": 28,
-              "xwoba_label": "Weak",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 416,
-              "xwoba": 0.3,
-              "xwoba_percentile": 53,
-              "xwoba_label": "Decent",
-              "qualified": true
-            }
-          },
-          {
-            "order": 8,
+            "order": 9,
             "name": "Freddy Fermin",
             "mlbam_id": "666023",
             "bats": "R",
@@ -7412,26 +7435,6 @@
               "xwoba": 0.27,
               "xwoba_percentile": 30,
               "xwoba_label": "Shaky",
-              "qualified": true
-            }
-          },
-          {
-            "order": 9,
-            "name": "Jake Cronenworth",
-            "mlbam_id": "630105",
-            "bats": "L",
-            "current_year": {
-              "pa": 295,
-              "xwoba": 0.286,
-              "xwoba_percentile": 36,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 515,
-              "xwoba": 0.319,
-              "xwoba_percentile": 69,
-              "xwoba_label": "Solid",
               "qualified": true
             }
           }
