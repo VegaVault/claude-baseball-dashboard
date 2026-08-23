@@ -1,15 +1,18 @@
 {
   "date": "2026-08-23",
-  "last_updated": "2026-08-23T20:36:31Z",
+  "last_updated": "2026-08-23T21:15:37Z",
   "fetch_errors": [],
   "games": [
     {
       "game_pk": 824799,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-23T17:35:00Z",
       "away_team": "TB",
       "home_team": "BAL",
-      "final_score": null,
+      "final_score": {
+        "away": 3,
+        "home": 1
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-23T15:55:51Z",
       "umpire": null,
@@ -528,11 +531,14 @@
     },
     {
       "game_pk": 823421,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-23T17:35:00Z",
       "away_team": "STL",
       "home_team": "PHI",
-      "final_score": null,
+      "final_score": {
+        "away": 4,
+        "home": 6
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-23T15:55:52Z",
       "umpire": null,
@@ -1027,11 +1033,14 @@
     },
     {
       "game_pk": 823507,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-23T17:35:00Z",
       "away_team": "TOR",
       "home_team": "NYY",
-      "final_score": null,
+      "final_score": {
+        "away": 3,
+        "home": 8
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-23T15:55:52Z",
       "umpire": null,
@@ -1520,11 +1529,14 @@
     },
     {
       "game_pk": 823827,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-23T17:40:00Z",
       "away_team": "WSH",
       "home_team": "MIA",
-      "final_score": null,
+      "final_score": {
+        "away": 2,
+        "home": 6
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-23T15:55:52Z",
       "umpire": null,
@@ -2021,11 +2033,14 @@
     },
     {
       "game_pk": 824071,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-23T18:10:00Z",
       "away_team": "DET",
       "home_team": "KC",
-      "final_score": null,
+      "final_score": {
+        "away": 7,
+        "home": 11
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-23T16:13:08Z",
       "umpire": null,
@@ -2993,11 +3008,14 @@
     },
     {
       "game_pk": 824558,
-      "status": "in_progress",
+      "status": "final",
       "first_pitch_utc": "2026-08-23T18:10:00Z",
       "away_team": "NYM",
       "home_team": "CWS",
-      "final_score": null,
+      "final_score": {
+        "away": 1,
+        "home": 2
+      },
       "lineup_status": "frozen",
       "lineup_last_checked": "2026-08-23T16:13:08Z",
       "umpire": null,
@@ -4003,7 +4021,7 @@
     },
     {
       "game_pk": 824315,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-23T19:10:00Z",
       "away_team": "CLE",
       "home_team": "COL",
@@ -4492,7 +4510,7 @@
     },
     {
       "game_pk": 824720,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-23T19:15:00Z",
       "away_team": "SF",
       "home_team": "BOS",
@@ -4977,7 +4995,7 @@
     },
     {
       "game_pk": 823909,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-23T20:10:00Z",
       "away_team": "PIT",
       "home_team": "LAD",
@@ -5494,7 +5512,7 @@
     },
     {
       "game_pk": 823099,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-23T20:10:00Z",
       "away_team": "CHC",
       "home_team": "SEA",
@@ -6011,7 +6029,7 @@
     },
     {
       "game_pk": 823258,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-23T20:10:00Z",
       "away_team": "MIN",
       "home_team": "SD",
@@ -6528,7 +6546,7 @@
     },
     {
       "game_pk": 825043,
-      "status": "scheduled",
+      "status": "in_progress",
       "first_pitch_utc": "2026-08-23T20:15:00Z",
       "away_team": "CIN",
       "home_team": "ARI",
@@ -7034,8 +7052,8 @@
       "away_team": "ATL",
       "home_team": "MIL",
       "final_score": null,
-      "lineup_status": "projected",
-      "lineup_last_checked": "2026-08-23T13:28:04Z",
+      "lineup_status": "confirmed",
+      "lineup_last_checked": "2026-08-23T21:15:37Z",
       "umpire": null,
       "odds": {
         "away": "ATL",
@@ -7143,21 +7161,21 @@
         "away": [
           {
             "order": 1,
-            "name": "Drake Baldwin",
-            "mlbam_id": "686948",
+            "name": "Michael Harris II",
+            "mlbam_id": "671739",
             "bats": "L",
             "current_year": {
-              "pa": 474,
-              "xwoba": 0.373,
-              "xwoba_percentile": 96,
-              "xwoba_label": "Elite",
+              "pa": 495,
+              "xwoba": 0.345,
+              "xwoba_percentile": 86,
+              "xwoba_label": "Dominant",
               "qualified": true
             },
             "prior_year": {
-              "pa": 446,
-              "xwoba": 0.353,
-              "xwoba_percentile": 91,
-              "xwoba_label": "Elite",
+              "pa": 641,
+              "xwoba": 0.315,
+              "xwoba_percentile": 66,
+              "xwoba_label": "Solid",
               "qualified": true
             }
           },
@@ -7203,26 +7221,6 @@
           },
           {
             "order": 4,
-            "name": "Michael Harris II",
-            "mlbam_id": "671739",
-            "bats": "L",
-            "current_year": {
-              "pa": 495,
-              "xwoba": 0.345,
-              "xwoba_percentile": 86,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 641,
-              "xwoba": 0.315,
-              "xwoba_percentile": 66,
-              "xwoba_label": "Solid",
-              "qualified": true
-            }
-          },
-          {
-            "order": 5,
             "name": "Ozzie Albies",
             "mlbam_id": "645277",
             "bats": "S",
@@ -7242,47 +7240,27 @@
             }
           },
           {
-            "order": 6,
-            "name": "Mauricio Dub\u00f3n",
-            "mlbam_id": "643289",
-            "bats": "R",
-            "current_year": {
-              "pa": 496,
-              "xwoba": 0.307,
-              "xwoba_percentile": 57,
-              "xwoba_label": "Decent",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 398,
-              "xwoba": 0.278,
-              "xwoba_percentile": 35,
-              "xwoba_label": "Shaky",
-              "qualified": true
-            }
-          },
-          {
-            "order": 7,
-            "name": "Mike Yastrzemski",
-            "mlbam_id": "573262",
+            "order": 5,
+            "name": "Drake Baldwin",
+            "mlbam_id": "686948",
             "bats": "L",
             "current_year": {
-              "pa": 327,
-              "xwoba": 0.313,
-              "xwoba_percentile": 63,
-              "xwoba_label": "Solid",
+              "pa": 474,
+              "xwoba": 0.373,
+              "xwoba_percentile": 96,
+              "xwoba_label": "Elite",
               "qualified": true
             },
             "prior_year": {
-              "pa": 558,
-              "xwoba": 0.329,
-              "xwoba_percentile": 78,
-              "xwoba_label": "Strong",
+              "pa": 446,
+              "xwoba": 0.353,
+              "xwoba_percentile": 91,
+              "xwoba_label": "Elite",
               "qualified": true
             }
           },
           {
-            "order": 7,
+            "order": 6,
             "name": "Lane Thomas",
             "mlbam_id": "657041",
             "bats": "R",
@@ -7298,6 +7276,26 @@
               "xwoba": 0.243,
               "xwoba_percentile": 17,
               "xwoba_label": "Brutal",
+              "qualified": true
+            }
+          },
+          {
+            "order": 7,
+            "name": "Mauricio Dub\u00f3n",
+            "mlbam_id": "643289",
+            "bats": "R",
+            "current_year": {
+              "pa": 496,
+              "xwoba": 0.307,
+              "xwoba_percentile": 57,
+              "xwoba_label": "Decent",
+              "qualified": true
+            },
+            "prior_year": {
+              "pa": 398,
+              "xwoba": 0.278,
+              "xwoba_percentile": 35,
+              "xwoba_label": "Shaky",
               "qualified": true
             }
           },
@@ -7323,17 +7321,23 @@
           },
           {
             "order": 9,
-            "name": "Jim Jarvis",
-            "mlbam_id": "805347",
-            "bats": "L",
+            "name": "Sean Murphy",
+            "mlbam_id": "669221",
+            "bats": "R",
             "current_year": {
-              "pa": 124,
-              "xwoba": 0.268,
-              "xwoba_percentile": 25,
-              "xwoba_label": "Weak",
-              "qualified": true
+              "pa": 38,
+              "xwoba": 0.154,
+              "xwoba_percentile": 3,
+              "xwoba_label": "Unplayable",
+              "qualified": false
             },
-            "prior_year": null
+            "prior_year": {
+              "pa": 337,
+              "xwoba": 0.314,
+              "xwoba_percentile": 65,
+              "xwoba_label": "Solid",
+              "qualified": true
+            }
           }
         ],
         "home": [
@@ -7438,26 +7442,6 @@
             }
           },
           {
-            "order": 5,
-            "name": "Garrett Mitchell",
-            "mlbam_id": "669003",
-            "bats": "L",
-            "current_year": {
-              "pa": 427,
-              "xwoba": 0.349,
-              "xwoba_percentile": 88,
-              "xwoba_label": "Dominant",
-              "qualified": true
-            },
-            "prior_year": {
-              "pa": 78,
-              "xwoba": 0.288,
-              "xwoba_percentile": 42,
-              "xwoba_label": "Mediocre",
-              "qualified": true
-            }
-          },
-          {
             "order": 6,
             "name": "Christian Yelich",
             "mlbam_id": "592885",
@@ -7499,31 +7483,43 @@
           },
           {
             "order": 8,
-            "name": "Luis Lara",
-            "mlbam_id": "800325",
-            "bats": "S",
+            "name": "Garrett Mitchell",
+            "mlbam_id": "669003",
+            "bats": "L",
             "current_year": {
-              "pa": 119,
-              "xwoba": 0.322,
-              "xwoba_percentile": 72,
-              "xwoba_label": "Strong",
+              "pa": 427,
+              "xwoba": 0.349,
+              "xwoba_percentile": 88,
+              "xwoba_label": "Dominant",
               "qualified": true
             },
-            "prior_year": null
+            "prior_year": {
+              "pa": 78,
+              "xwoba": 0.288,
+              "xwoba_percentile": 42,
+              "xwoba_label": "Mediocre",
+              "qualified": true
+            }
           },
           {
             "order": 9,
-            "name": "Cooper Pratt",
-            "mlbam_id": "806198",
-            "bats": "R",
+            "name": "David Hamilton",
+            "mlbam_id": "666152",
+            "bats": "L",
             "current_year": {
-              "pa": 170,
-              "xwoba": 0.311,
-              "xwoba_percentile": 61,
-              "xwoba_label": "Solid",
+              "pa": 312,
+              "xwoba": 0.27,
+              "xwoba_percentile": 26,
+              "xwoba_label": "Weak",
               "qualified": true
             },
-            "prior_year": null
+            "prior_year": {
+              "pa": 194,
+              "xwoba": 0.26,
+              "xwoba_percentile": 25,
+              "xwoba_label": "Weak",
+              "qualified": true
+            }
           }
         ]
       },
